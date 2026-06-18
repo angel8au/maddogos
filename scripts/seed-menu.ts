@@ -1,5 +1,15 @@
 import { config } from "dotenv";
 import { createClient } from "@sanity/client";
+import {
+  burgerIngredients,
+  hotDogIngredients,
+} from "../lib/cart-utils";
+import {
+  customizationTypeForFallback,
+  DEFAULT_SAUCE_OPTIONS,
+  LINKED_EXTRA_IDS,
+  sauceRequiredForFallback,
+} from "../lib/menu-config";
 import { menuSeed } from "../lib/menu-data";
 
 config({ path: ".env.local" });
@@ -31,10 +41,42 @@ const slugify = (value: string) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 
+function linkedExtraRefs(category: string) {
+  const ids = LINKED_EXTRA_IDS[category];
+  if (!ids?.length) return undefined;
+  return ids.map((id) => ({
+    _type: "reference" as const,
+    _ref: `menuItem.${id}`,
+    _key: id,
+  }));
+}
+
+async function seedSiteConfig() {
+  await client.createOrReplace({
+    _id: "siteConfig",
+    _type: "siteConfig",
+    whatsappNumber: "526674769492",
+    whatsappMessage: "Hola, quiero hacer un pedido",
+    sauceOptions: [...DEFAULT_SAUCE_OPTIONS],
+  });
+  console.log("  ✓ siteConfig");
+}
+
 async function seedMenu() {
   console.log(`Subiendo ${menuSeed.length} productos a Sanity (${dataset})...`);
 
   for (const item of menuSeed) {
+    const ingredients =
+      item.category === "hamburguesas"
+        ? burgerIngredients
+        : item.category === "hot-dogs" && item.name !== "Easy Dog"
+          ? hotDogIngredients
+          : undefined;
+
+    const customizationType = customizationTypeForFallback(item.category, item.name);
+    const sauceRequired = sauceRequiredForFallback(item.category);
+    const linkedExtras = linkedExtraRefs(item.category);
+
     await client.createOrReplace({
       _id: `menuItem.${item.id}`,
       _type: "menuItem",
@@ -47,6 +89,10 @@ async function seedMenu() {
       available: true,
       featured: item.featured ?? false,
       order: item.order,
+      customizationType,
+      sauceRequired,
+      ...(ingredients ? { ingredients } : {}),
+      ...(linkedExtras ? { linkedExtras } : {}),
     });
     console.log(`  ✓ ${item.name}`);
   }
@@ -54,7 +100,12 @@ async function seedMenu() {
   console.log("\nMenú cargado en Sanity.");
 }
 
-seedMenu().catch((error) => {
+async function main() {
+  await seedSiteConfig();
+  await seedMenu();
+}
+
+main().catch((error) => {
   console.error(error);
   process.exit(1);
 });

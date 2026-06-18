@@ -1,4 +1,10 @@
 import type { MenuCategory, MenuItem } from "@/lib/types";
+import { ingredientsForFallbackItem } from "@/lib/cart-utils";
+import {
+  customizationTypeForFallback,
+  sauceRequiredForFallback,
+} from "@/lib/menu-config";
+import { getMenuImageUrl } from "@/lib/menu-images";
 
 type SeedItem = {
   id: string;
@@ -137,14 +143,21 @@ export const menuSeed = items.map((item) => {
   return { ...item, order };
 });
 
-export const fallbackMenuItems: MenuItem[] = menuSeed.map((item) => ({
-  _id: item.id,
-  name: item.name,
-  slug: slugify(item.name),
-  description: item.description,
-  price: item.price,
-  category: item.category,
-  badge: item.badge,
-  featured: item.featured ?? false,
-  order: item.order,
-}));
+export const fallbackMenuItems: MenuItem[] = menuSeed.map((item) => {
+  const slug = slugify(item.name);
+  return {
+    _id: item.id,
+    name: item.name,
+    slug,
+    description: item.description,
+    price: item.price,
+    category: item.category,
+    badge: item.badge,
+    featured: item.featured ?? false,
+    order: item.order,
+    imageUrl: getMenuImageUrl(item.category, slug),
+    customizationType: customizationTypeForFallback(item.category, item.name),
+    sauceRequired: sauceRequiredForFallback(item.category),
+    ingredients: ingredientsForFallbackItem(item.category, item.name),
+  };
+});

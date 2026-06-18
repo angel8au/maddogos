@@ -82,6 +82,78 @@ export const menuItemType = defineType({
       title: "Orden en el menú",
       type: "number",
     }),
+    defineField({
+      name: "customizationType",
+      title: "Tipo de personalización",
+      type: "string",
+      options: {
+        list: [
+          { title: "Ninguna", value: "none" },
+          { title: "Ingredientes (checkbox)", value: "ingredients" },
+          { title: "Salsa obligatoria", value: "sauce" },
+          { title: "Extras con precio", value: "extras" },
+        ],
+      },
+      initialValue: "none",
+    }),
+    defineField({
+      name: "sauceRequired",
+      title: "Salsa obligatoria",
+      type: "boolean",
+      description: "El cliente debe elegir salsa antes de agregar (alitas, boneless)",
+      initialValue: false,
+    }),
+    defineField({
+      name: "linkedExtras",
+      title: "Extras disponibles",
+      type: "array",
+      of: [
+        {
+          type: "reference",
+          to: [{ type: "menuItem" }],
+          options: {
+            filter: "category == $cat",
+            filterParams: { cat: "extras" },
+          },
+        },
+      ],
+      description: "Extras que el cliente puede agregar a este producto",
+    }),
+    defineField({
+      name: "ingredients",
+      title: "Ingredientes personalizables",
+      type: "array",
+      description:
+        "Ingredientes que el cliente puede incluir o quitar (ej. hamburguesas). Dejar vacío si no aplica.",
+      of: [
+        {
+          type: "object",
+          fields: [
+            defineField({
+              name: "name",
+              title: "Nombre",
+              type: "string",
+              validation: (rule) => rule.required(),
+            }),
+            defineField({
+              name: "includedByDefault",
+              title: "Incluido por defecto",
+              type: "boolean",
+              initialValue: true,
+            }),
+          ],
+          preview: {
+            select: { title: "name", included: "includedByDefault" },
+            prepare({ title, included }) {
+              return {
+                title,
+                subtitle: included ? "Incluido por defecto" : "Opcional",
+              };
+            },
+          },
+        },
+      ],
+    }),
   ],
   orderings: [
     {

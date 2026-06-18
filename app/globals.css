@@ -36,6 +36,9 @@
   --color-secondary: var(--secondary);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-accent-hover: var(--accent-hover);
+  --color-secondary-hover: var(--secondary-hover);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
@@ -50,6 +53,7 @@
 }
 
 :root {
+  color-scheme: light;
   /* Mad Dogos brand tokens */
   --background: hsl(0, 0%, 100%);
   --foreground: hsl(25, 100%, 5%);        /* #1A0A00 negro brand */
@@ -59,12 +63,15 @@
   --popover-foreground: hsl(25, 100%, 5%);
   --primary: hsl(0, 73%, 45%);            /* #CC1717 rojo brand */
   --primary-foreground: hsl(0, 0%, 100%);
+  --primary-hover: hsl(28, 88%, 46%);     /* rojo cálido con toque amarillo */
   --secondary: hsl(20, 30%, 96%);
   --secondary-foreground: hsl(25, 100%, 5%);
+  --secondary-hover: hsl(45, 55%, 90%);   /* crema con lavado amarillo */
   --muted: hsl(20, 30%, 96%);
   --muted-foreground: hsl(20, 10%, 45%);
   --accent: hsl(48, 100%, 48%);           /* #F5C800 amarillo brand */
   --accent-foreground: hsl(25, 100%, 5%);
+  --accent-hover: hsl(48, 100%, 56%);   /* amarillo más brillante */
   --destructive: oklch(0.577 0.245 27.325);
   --border: hsl(20, 15%, 90%);
   --input: hsl(20, 15%, 90%);
@@ -86,37 +93,41 @@
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
+  color-scheme: light;
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(25, 100%, 5%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(25, 100%, 5%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(25, 100%, 5%);
+  --primary: hsl(0, 73%, 45%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --primary-hover: hsl(28, 88%, 46%);
+  --secondary: hsl(20, 30%, 96%);
+  --secondary-foreground: hsl(25, 100%, 5%);
+  --secondary-hover: hsl(45, 55%, 90%);
+  --muted: hsl(20, 30%, 96%);
+  --muted-foreground: hsl(20, 10%, 45%);
+  --accent: hsl(48, 100%, 48%);
+  --accent-foreground: hsl(25, 100%, 5%);
+  --accent-hover: hsl(48, 100%, 56%);
+  --destructive: hsl(0, 73%, 45%);
+  --border: hsl(20, 15%, 90%);
+  --input: hsl(20, 15%, 90%);
+  --ring: hsl(0, 73%, 45%);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --sidebar: hsl(0, 0%, 100%);
+  --sidebar-foreground: hsl(25, 100%, 5%);
+  --sidebar-primary: hsl(0, 73%, 45%);
+  --sidebar-primary-foreground: hsl(0, 0%, 100%);
+  --sidebar-accent: hsl(20, 30%, 96%);
+  --sidebar-accent-foreground: hsl(25, 100%, 5%);
+  --sidebar-border: hsl(20, 15%, 90%);
+  --sidebar-ring: hsl(0, 73%, 45%);
 }
 
 @layer base {
@@ -132,5 +143,46 @@
 
   .font-display {
     font-family: var(--font-display), var(--font-sans), sans-serif;
+    @apply text-balance;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply text-balance;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  @keyframes testimonios-marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(calc(-100% / 3));
+    }
+  }
+
+  .testimonios-marquee {
+    animation: testimonios-marquee 120s linear infinite;
+    will-change: transform;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .testimonios-marquee {
+      animation: none;
+      flex-wrap: wrap;
+      width: 100%;
+      justify-content: center;
+    }
   }
 }

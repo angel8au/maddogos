@@ -2,17 +2,44 @@
 
 import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { buildWhatsAppUrl } from "@/lib/whatsapp";
+import posthog from "posthog-js";
+import { CART_ORDER_STORAGE_KEY, clearCartStorage } from "@/lib/cart-utils";
+import { buildEventInquiryMessage, buildWhatsAppUrl } from "@/lib/whatsapp";
 
 export function GraciasRedirect() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
     const item = searchParams.get("item") ?? undefined;
-    const url = buildWhatsAppUrl(item);
+    const source = searchParams.get("src") ?? undefined;
+    const storedOrder = sessionStorage.getItem(CART_ORDER_STORAGE_KEY);
+
+    let message: string | undefined;
+    if (storedOrder) {
+      message = storedOrder;
+    } else if (source === "eventos") {
+      message = buildEventInquiryMessage();
+    } else if (item) {
+      message = `Hola, quiero pedir: ${item}`;
+    }
+
+    if (source === "eventos") {
+      posthog.capture("rental_inquiry");
+      posthog.capture("whatsapp_redirect", { source: "eventos", type: "rental" });
+    } else if (source === "cart" || storedOrder) {
+      posthog.capture("whatsapp_redirect", { source: source ?? "cart", type: "order" });
+    } else if (item) {
+      posthog.capture("whatsapp_redirect", { name: item, source, type: "single" });
+    }
+
+    const url = buildWhatsAppUrl(message);
 
     const timer = window.setTimeout(() => {
-      window.location.href = url;
+      if (storedOrder) {
+        sessionStorage.removeItem(CART_ORDER_STORAGE_KEY);
+        clearCartStorage();
+      }
+      window.location.replace(url);
     }, 200);
 
     return () => window.clearTimeout(timer);

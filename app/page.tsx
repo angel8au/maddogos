@@ -1,18 +1,19 @@
 import Link from "next/link";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { MenuCard } from "@/components/menu-card";
-import { MenuSection } from "@/components/menu-section";
+import { FeaturedMenu } from "@/components/menu/featured-menu";
+import { MenuView } from "@/components/menu/menu-view";
+import { Testimonios } from "@/components/testimonios";
 import { buttonVariants } from "@/components/ui/button";
-import { categoryOrder } from "@/lib/menu-data";
-import { getMenuItems } from "@/lib/queries";
+import { getMenuPageData } from "@/lib/queries";
+import { GOOGLE_TESTIMONIALS_SUMMARY } from "@/lib/testimonials-data";
 import { buildGraciasUrl } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
 
 export const revalidate = 60;
 
 export default async function Home() {
-  const menuItems = await getMenuItems();
+  const { items: menuItems, sauceOptions } = await getMenuPageData();
   const featured = menuItems.filter((item) => item.featured).slice(0, 4);
 
   return (
@@ -34,23 +35,23 @@ export default async function Home() {
             </p>
             <div className="flex flex-wrap gap-3">
               <Link
+                href="/menu"
+                className={cn(
+                  buttonVariants({ size: "lg" }),
+                  "bg-accent text-accent-foreground shadow-md hover:bg-accent-hover hover:shadow-lg active:bg-accent/95",
+                )}
+              >
+                Ver menú y ordenar
+              </Link>
+              <Link
                 href={buildGraciasUrl(undefined, "hero")}
                 className={cn(
                   buttonVariants({ size: "lg" }),
-                  "bg-accent text-accent-foreground hover:bg-accent/90",
+                  "border border-primary-foreground/40 bg-transparent text-primary-foreground shadow-none hover:border-accent/70 hover:bg-primary-foreground/15 hover:text-primary-foreground hover:shadow-[0_0_0_1px_hsl(48_100%_48%_/0.25)] active:bg-primary-foreground/20",
                 )}
               >
-                Ordenar por WhatsApp
+                WhatsApp directo
               </Link>
-              <a
-                href="#hot-dogs"
-                className={cn(
-                  buttonVariants({ variant: "outline", size: "lg" }),
-                  "border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10",
-                )}
-              >
-                Ver menú
-              </a>
             </div>
           </div>
         </section>
@@ -60,28 +61,32 @@ export default async function Home() {
             <h2 className="font-display mb-6 text-3xl tracking-wide uppercase">
               Lo más pedido
             </h2>
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              {featured.map((item) => (
-                <MenuCard key={item._id} item={item} />
-              ))}
-            </div>
+            <FeaturedMenu
+              items={featured}
+              allItems={menuItems}
+              sauceOptions={sauceOptions}
+            />
           </section>
         ) : null}
 
-        <section className="bg-secondary/60 mx-auto mb-4 w-full max-w-6xl rounded-lg px-4 py-4 text-sm md:mx-6 md:max-w-[calc(72rem-3rem)] md:px-6">
+        <section className="bg-secondary/60 mx-auto mb-4 w-full max-w-6xl rounded-lg px-4 py-4 text-sm md:px-6">
           <strong>Alitas y Boneless</strong> incluyen vegetales y salsa a elegir: BBQ,
           Red Hot, Teriyaki, MadDogos Sauce o Mango Habanero.
         </section>
 
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-12 px-4 py-8 md:px-6 md:py-12">
-          {categoryOrder.map((category) => (
-            <MenuSection
-              key={category}
-              category={category}
-              items={menuItems.filter((item) => item.category === category)}
-            />
-          ))}
-        </div>
+        <section className="mx-auto w-full max-w-6xl px-4 py-8 pb-28 md:px-6 md:py-12">
+          <div className="mb-6 flex items-end justify-between gap-4">
+            <h2 className="font-display text-3xl tracking-wide uppercase">Menú completo</h2>
+            <Link href="/menu" className="text-primary text-sm font-medium hover:underline">
+              Ver todo →
+            </Link>
+          </div>
+          <MenuView items={menuItems} sauceOptions={sauceOptions} />
+        </section>
+
+        <section className="border-border border-t py-12 md:py-16">
+          <Testimonios data={GOOGLE_TESTIMONIALS_SUMMARY} />
+        </section>
 
         <section className="bg-primary text-primary-foreground">
           <div className="mx-auto flex w-full max-w-6xl flex-col items-start gap-4 px-4 py-12 md:flex-row md:items-center md:justify-between md:px-6">
@@ -89,19 +94,19 @@ export default async function Home() {
               ¿Tienes hambre? Ordena ahora
             </h2>
             <Link
-              href={buildGraciasUrl(undefined, "footer-cta")}
+              href="/menu"
               className={cn(
                 buttonVariants({ size: "lg" }),
-                "bg-accent text-accent-foreground hover:bg-accent/90",
+                "bg-accent text-accent-foreground shadow-md hover:bg-accent-hover hover:shadow-lg active:bg-accent/95",
               )}
             >
-              Pedir por WhatsApp
+              Arma tu pedido
             </Link>
           </div>
         </section>
       </main>
 
-      <SiteFooter />
+      <SiteFooter className="mt-0" />
     </>
   );
 }

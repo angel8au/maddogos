@@ -2,6 +2,9 @@ import type { Metadata } from 'next'
 import { Bebas_Neue, Inter } from 'next/font/google'
 import './globals.css'
 import { PostHogProvider } from '@/components/providers/posthog-provider'
+import { CartProvider } from '@/components/providers/cart-provider'
+import { MenuCatalogProvider } from '@/components/providers/menu-catalog-provider'
+import { CartUI } from '@/components/cart/cart-ui'
 import { LocalBusinessJsonLd } from '@/components/local-business-jsonld'
 
 const bebasNeue = Bebas_Neue({
@@ -44,11 +47,19 @@ export default function RootLayout({
   return (
     <html
       lang="es-MX"
-      className={`${bebasNeue.variable} ${inter.variable} h-full antialiased`}
+      className={`${bebasNeue.variable} ${inter.variable} h-full antialiased light`}
+      style={{ colorScheme: "light" }}
     >
       <body className="min-h-full flex flex-col">
         <LocalBusinessJsonLd />
-        <PostHogProvider>{children}</PostHogProvider>
+        <PostHogProvider>
+          <CartProvider>
+            <MenuCatalogProvider>
+              {children}
+              <CartUI />
+            </MenuCatalogProvider>
+          </CartProvider>
+        </PostHogProvider>
       </body>
     </html>
   )
