@@ -1,44 +1,92 @@
 "use client";
 
-import { categoryLabels, categoryOrder } from "@/lib/menu-data";
+import { useLayoutEffect, useRef, useState } from "react";
+import { categoryLabels } from "@/lib/menu-data";
 import type { MenuCategory } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
+export const MENU_TAB_BAR_HEIGHT_PX = 44;
+export const MENU_STICKY_HEADER_OFFSET_PX = 72;
+
 type CategoryTabsProps = {
-  activeCategory: MenuCategory | "all";
-  onCategoryChange: (category: MenuCategory | "all") => void;
-  availableCategories: MenuCategory[];
+  activeCategory: MenuCategory;
+  categories: MenuCategory[];
+  onCategorySelect: (category: MenuCategory) => void;
 };
 
 export function CategoryTabs({
   activeCategory,
-  onCategoryChange,
-  availableCategories,
+  categories,
+  onCategorySelect,
 }: CategoryTabsProps) {
-  const tabs: { value: MenuCategory | "all"; label: string }[] = [
-    { value: "all", label: "Todos" },
-    ...categoryOrder
-      .filter((cat) => availableCategories.includes(cat))
-      .map((cat) => ({ value: cat, label: categoryLabels[cat] })),
-  ];
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const tabRefs = useRef(new Map<MenuCategory, HTMLButtonElement>());
+  const [indicator, setIndicator] = useState({ left: 0, width: 0 });
+
+  useLayoutEffect(() => {
+    const container = scrollRef.current;
+    const activeButton = tabRefs.current.get(activeCategory);
+    if (!container || !activeButton) return;
+
+    const updateIndicator = () => {
+      setIndicator({
+        left: activeButton.offsetLeft,
+        width: activeButton.offsetWidth,
+      });
+    };
+
+    updateIndicator();
+
+    activeButton.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+      inline: "center",
+    });
+
+    container.addEventListener("scroll", updateIndicator, { passive: true });
+    window.addEventListener("resize", updateIndicator);
+
+    return () => {
+      container.removeEventListener("scroll", updateIndicator);
+      window.removeEventListener("resize", updateIndicator);
+    };
+  }, [activeCategory, categories]);
 
   return (
-    <div className="scrollbar-hide -mx-4 flex gap-1 overflow-x-auto px-4 md:mx-0 md:px-0">
-      {tabs.map((tab) => (
-        <button
-          key={tab.value}
-          type="button"
-          onClick={() => onCategoryChange(tab.value)}
-          className={cn(
-            "shrink-0 border-b-2 px-3 py-2 text-sm font-medium transition-colors",
-            activeCategory === tab.value
-              ? "border-foreground text-foreground"
-              : "text-muted-foreground hover:text-foreground border-transparent",
-          )}
-        >
-          {tab.label}
-        </button>
-      ))}
+    <div
+      ref={scrollRef}
+      className="scrollbar-hide relative flex h-11 w-full overflow-x-auto"
+      role="tablist"
+      aria-label="Categorías del menú"
+    >
+      <span
+        aria-hidden
+        className="bg-foreground pointer-events-none absolute bottom-0 z-10 h-0.5 transition-[left,width] duration-300 ease-out"
+        style={{ left: indicator.left, width: indicator.width }}
+      />
+      {categories.map((category) => {
+        const isActive = activeCategory === category;
+        return (
+          <button
+            key={category}
+            ref={(node) => {
+              if (node) tabRefs.current.set(category, node);
+              else tabRefs.current.delete(category);
+            }}
+            type="button"
+            role="tab"
+            aria-selected={isActive}
+            id={`menu-tab-${category}`}
+            onClick={() => onCategorySelect(category)}
+            className={cn(
+              "relative z-20 flex h-11 shrink-0 items-center px-4 text-sm font-medium transition-colors",
+              isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            {categoryLabels[category]}
+          </button>
+        );
+      })}
     </div>
   );
 }

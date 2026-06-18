@@ -1,11 +1,17 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { CategoryTabs } from "@/components/menu/category-tabs";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  CategoryTabs,
+  MENU_STICKY_HEADER_OFFSET_PX,
+  MENU_TAB_BAR_HEIGHT_PX,
+} from "@/components/menu/category-tabs";
 import { MenuItemsList } from "@/components/menu/menu-items-list";
 import { ProductDetailSheet } from "@/components/menu/product-detail-sheet";
 import { categoryLabels, categoryOrder } from "@/lib/menu-data";
 import type { MenuCategory, MenuItem } from "@/lib/types";
+
+const SCROLL_SPY_OFFSET = MENU_STICKY_HEADER_OFFSET_PX + MENU_TAB_BAR_HEIGHT_PX + 8;
 
 type MenuViewProps = {
   items: MenuItem[];
@@ -18,9 +24,10 @@ export function MenuView({
   sauceOptions,
   showCategorySections = true,
 }: MenuViewProps) {
-  const [activeCategory, setActiveCategory] = useState<MenuCategory | "all">("all");
   const [detailItem, setDetailItem] = useState<MenuItem | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
+  const isScrollingRef = useRef(false);
+  const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const drinks = useMemo(
     () => items.filter((item) => item.category === "bebidas"),
@@ -32,10 +39,61 @@ export function MenuView({
     [items],
   );
 
-  const filteredItems = useMemo(() => {
-    if (activeCategory === "all") return items;
-    return items.filter((item) => item.category === activeCategory);
-  }, [items, activeCategory]);
+  const [activeCategory, setActiveCategory] = useState<MenuCategory>(
+    () => availableCategories[0] ?? "hot-dogs",
+  );
+
+  useEffect(() => {
+    if (!availableCategories.includes(activeCategory)) {
+      setActiveCategory(availableCategories[0] ?? "hot-dogs");
+    }
+  }, [activeCategory, availableCategories]);
+
+  const updateActiveFromScroll = useCallback(() => {
+    if (isScrollingRef.current || !availableCategories.length) return;
+
+    let current = availableCategories[0];
+    for (const category of availableCategories) {
+      const section = document.getElementById(category);
+      if (!section) continue;
+      if (section.getBoundingClientRect().top <= SCROLL_SPY_OFFSET) {
+        current = category;
+      }
+    }
+    setActiveCategory((prev) => (prev === current ? prev : current));
+  }, [availableCategories]);
+
+  useEffect(() => {
+    updateActiveFromScroll();
+    window.addEventListener("scroll", updateActiveFromScroll, { passive: true });
+    window.addEventListener("resize", updateActiveFromScroll);
+    return () => {
+      window.removeEventListener("scroll", updateActiveFromScroll);
+      window.removeEventListener("resize", updateActiveFromScroll);
+    };
+  }, [updateActiveFromScroll]);
+
+  const scrollToCategory = useCallback((category: MenuCategory) => {
+    const section = document.getElementById(category);
+    if (!section) return;
+
+    isScrollingRef.current = true;
+    setActiveCategory(category);
+    section.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+    scrollTimeoutRef.current = setTimeout(() => {
+      isScrollingRef.current = false;
+      updateActiveFromScroll();
+    }, 700);
+  }, [updateActiveFromScroll]);
+
+  useEffect(
+    () => () => {
+      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+    },
+    [],
+  );
 
   const openDetail = (item: MenuItem) => {
     setDetailItem(item);
@@ -53,26 +111,10 @@ export function MenuView({
     />
   );
 
-  const categoryTabs = (
-    <div className="sticky top-[57px] z-30 -mx-4 bg-background/95 px-0 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/80 md:top-[65px] md:mx-0">
-      <CategoryTabs
-        activeCategory={activeCategory}
-        onCategoryChange={setActiveCategory}
-        availableCategories={availableCategories}
-      />
-    </div>
-  );
-
-  if (!showCategorySections || activeCategory !== "all") {
+  if (!showCategorySections) {
     return (
       <>
-        {categoryTabs}
-        <MenuItemsList items={filteredItems} onOpenDetail={openDetail} />
-        {filteredItems.length === 0 ? (
-          <p className="text-muted-foreground py-8 text-center text-sm">
-            No hay productos en esta categoría.
-          </p>
-        ) : null}
+        <MenuItemsList items={items} onOpenDetail={openDetail} />
         {detailSheet}
       </>
     );
@@ -80,14 +122,33 @@ export function MenuView({
 
   return (
     <>
-      {categoryTabs}
+      <div
+        className="bg-background/95 sticky z-30 -mx-4 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/80 md:mx-0 md:px-0"
+        style={{
+          top: MENU_STICKY_HEADER_OFFSET_PX,
+          height: MENU_TAB_BAR_HEIGHT_PX,
+        }}
+      >
+        <CategoryTabs
+          activeCategory={activeCategory}
+          categories={availableCategories}
+          onCategorySelect={scrollToCategory}
+        />
+      </div>
+
       <div className="flex flex-col gap-10">
-        {categoryOrder.map((category) => {
+        {availableCategories.map((category) => {
           const categoryItems = items.filter((item) => item.category === category);
           if (!categoryItems.length) return null;
 
           return (
-            <section key={category} id={category} className="scroll-mt-36 space-y-3">
+            <section
+              key={category}
+              id={category}
+              aria-labelledby={`menu-tab-${category}`}
+              className="space-y-3"
+              style={{ scrollMarginTop: SCROLL_SPY_OFFSET }}
+            >
               <h2 className="font-display border-primary text-3xl tracking-wide border-l-4 pl-3 uppercase">
                 {categoryLabels[category]}
               </h2>
