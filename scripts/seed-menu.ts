@@ -55,7 +55,7 @@ async function seedSiteConfig() {
   await client.createOrReplace({
     _id: "siteConfig",
     _type: "siteConfig",
-    whatsappNumber: "526674769492",
+    whatsappNumber: "526673872070",
     whatsappMessage: "Hola, quiero hacer un pedido",
     sauceOptions: [...DEFAULT_SAUCE_OPTIONS],
   });

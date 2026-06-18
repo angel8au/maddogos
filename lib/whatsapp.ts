@@ -16,7 +16,7 @@ export function formatMXN(price: number): string {
 }
 
 export function getWhatsAppNumber(): string {
-  const raw = process.env.NEXT_PUBLIC_WA_NUMBER ?? "526674769492";
+  const raw = process.env.NEXT_PUBLIC_WA_NUMBER ?? "526673872070";
   const digits = raw.replace(/\D/g, "");
   if (digits.length === 10) return `52${digits}`;
   return digits;

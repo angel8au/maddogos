@@ -137,7 +137,7 @@ export default function EventosPage() {
           </div>
         </section>
       </main>
-      <SiteFooter />
+      <SiteFooter className="mt-0" />
     </>
   );
 }
