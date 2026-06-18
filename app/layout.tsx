@@ -27,7 +27,16 @@ export const metadata: Metadata = {
   },
   description:
     'Pide tus hot dogs, hamburguesas, alitas y boneless a domicilio en Culiacán. Mad Dogos Hotdogs — entrega rápida directo por WhatsApp.',
-  metadataBase: new URL('https://maddogos.com'),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://maddogos.vercel.app",
+  ),
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.png", type: "image/png", sizes: "48x48" },
+    ],
+    apple: [{ url: "/apple-icon.png", type: "image/png", sizes: "180x180" }],
+  },
   openGraph: {
     siteName: 'Mad Dogos Hotdogs',
     locale: 'es_MX',
