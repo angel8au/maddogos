@@ -18,6 +18,23 @@ type QuantityStepperProps = {
   itemName?: string;
 };
 
+const sizeStyles = {
+  sm: {
+    add: "size-10",
+    bar: "h-10",
+    control: "size-8",
+    icon: "size-3.5",
+    qty: "text-sm",
+  },
+  md: {
+    add: "size-12",
+    bar: "h-12",
+    control: "size-10",
+    icon: "size-4",
+    qty: "text-base",
+  },
+} as const;
+
 export function QuantityStepper({
   quantity,
   onIncrement,
@@ -27,6 +44,7 @@ export function QuantityStepper({
   itemName,
 }: QuantityStepperProps) {
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const styles = sizeStyles[size];
 
   const handleDecrement = () => {
     if (quantity === 1 && itemName) {
@@ -52,11 +70,11 @@ export function QuantityStepper({
         }}
         className={cn(
           "bg-background flex items-center justify-center rounded-full border shadow-md transition-transform active:scale-95",
-          size === "sm" ? "size-8" : "size-9",
+          styles.add,
           className,
         )}
       >
-        <Plus className="size-4" />
+        <Plus className={styles.icon} />
       </button>
     );
   }
@@ -66,7 +84,7 @@ export function QuantityStepper({
       <div
         className={cn(
           "bg-background flex items-center gap-1 rounded-full border px-1 shadow-md",
-          size === "sm" ? "h-8" : "h-9",
+          styles.bar,
           className,
         )}
         onClick={(e) => e.stopPropagation()}
@@ -75,22 +93,30 @@ export function QuantityStepper({
           type="button"
           aria-label={quantity === 1 ? "Quitar" : "Restar"}
           onClick={handleDecrement}
-          className="hover:bg-muted flex size-7 items-center justify-center rounded-full transition-colors"
+          className={cn(
+            "hover:bg-muted flex items-center justify-center rounded-full transition-colors",
+            styles.control,
+          )}
         >
           {quantity === 1 ? (
-            <Trash2 className="size-3.5" />
+            <Trash2 className={styles.icon} />
           ) : (
-            <Minus className="size-3.5" />
+            <Minus className={styles.icon} />
           )}
         </button>
-        <span className="min-w-5 text-center text-sm font-semibold">{quantity}</span>
+        <span className={cn("min-w-5 text-center font-semibold", styles.qty)}>
+          {quantity}
+        </span>
         <button
           type="button"
           aria-label="Agregar"
           onClick={onIncrement}
-          className="hover:bg-muted flex size-7 items-center justify-center rounded-full transition-colors"
+          className={cn(
+            "hover:bg-muted flex items-center justify-center rounded-full transition-colors",
+            styles.control,
+          )}
         >
-          <Plus className="size-3.5" />
+          <Plus className={styles.icon} />
         </button>
       </div>
 

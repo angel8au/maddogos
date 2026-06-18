@@ -135,7 +135,7 @@ export default function UbicacionPage() {
                 </p>
                 <Link
                   href={buildGraciasUrl({ source: "ubicacion" })}
-                  className={cn(buttonVariants(), "mt-4 w-full sm:w-auto")}
+                  className={cn(buttonVariants({ size: "lg" }), "mt-4 w-full sm:w-auto")}
                 >
                   Pedir por WhatsApp
                 </Link>
