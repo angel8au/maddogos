@@ -28,6 +28,9 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -73,6 +76,9 @@
   --accent-foreground: hsl(25, 100%, 5%);
   --accent-hover: hsl(48, 100%, 56%);   /* amarillo más brillante */
   --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: hsl(0, 0%, 100%);
+  --success: hsl(142, 70%, 38%);          /* verde success */
+  --success-foreground: hsl(0, 0%, 100%);
   --border: hsl(20, 15%, 90%);
   --input: hsl(20, 15%, 90%);
   --ring: hsl(0, 73%, 45%);
@@ -112,6 +118,9 @@
   --accent-foreground: hsl(25, 100%, 5%);
   --accent-hover: hsl(48, 100%, 56%);
   --destructive: hsl(0, 73%, 45%);
+  --destructive-foreground: hsl(0, 0%, 100%);
+  --success: hsl(142, 70%, 38%);
+  --success-foreground: hsl(0, 0%, 100%);
   --border: hsl(20, 15%, 90%);
   --input: hsl(20, 15%, 90%);
   --ring: hsl(0, 73%, 45%);
@@ -192,5 +201,86 @@
       width: 100%;
       justify-content: center;
     }
+
+    .cart-add-toast,
+    .cart-bar-bump,
+    .cart-icon-pop,
+    .cart-count-pop {
+      animation: none !important;
+    }
+  }
+
+  @keyframes cart-toast-in {
+    from {
+      opacity: 0;
+      transform: translateY(1.25rem) scale(0.92);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes cart-toast-out {
+    from {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(0.5rem) scale(0.96);
+    }
+  }
+
+  .cart-add-toast {
+    animation:
+      cart-toast-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards,
+      cart-toast-out 0.3s ease-in 2.1s forwards;
+  }
+
+  @keyframes cart-bar-bump {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    35% {
+      transform: scale(1.06);
+    }
+    65% {
+      transform: scale(0.98);
+    }
+  }
+
+  @keyframes cart-icon-pop {
+    0%,
+    100% {
+      transform: scale(1) rotate(0deg);
+    }
+    40% {
+      transform: scale(1.2) rotate(-8deg);
+    }
+  }
+
+  @keyframes cart-count-pop {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.35);
+    }
+  }
+
+  .cart-bar-bump {
+    animation: cart-bar-bump 0.45s ease-out;
+  }
+
+  .cart-icon-pop {
+    animation: cart-icon-pop 0.45s ease-out;
+  }
+
+  .cart-count-pop {
+    display: inline-block;
+    animation: cart-count-pop 0.45s ease-out;
   }
 }

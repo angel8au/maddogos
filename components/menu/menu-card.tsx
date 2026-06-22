@@ -88,7 +88,10 @@ export function MenuCard({ item, onOpenDetail, compact, variant = "list" }: Menu
             sizes="112px"
           />
         </div>
-        <div className="absolute right-1 bottom-1">
+        <div
+          className="absolute right-1 bottom-1"
+          onClick={(e) => e.stopPropagation()}
+        >
           <QuantityStepper
             quantity={quantity}
             itemName={quantity > 0 ? item.name : undefined}

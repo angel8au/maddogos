@@ -35,15 +35,15 @@ export function SaucePicker({ options, value, onChange, error }: SaucePickerProp
               key={sauce}
               htmlFor={id}
               className={cn(
-                "flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors",
+                "flex w-full cursor-pointer items-center justify-between gap-3 rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors",
                 selected
                   ? "border-primary bg-primary/5 text-primary"
                   : "border-border hover:border-primary/40",
                 error && !value && "border-destructive/50",
               )}
             >
-              <RadioGroupItem value={sauce} id={id} />
               <span>{sauce}</span>
+              <RadioGroupItem value={sauce} id={id} className="shrink-0" />
             </label>
           );
         })}

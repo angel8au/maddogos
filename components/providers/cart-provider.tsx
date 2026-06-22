@@ -37,11 +37,21 @@ type AddToCartOptions = {
   specialInstructions?: string;
 };
 
+export type CartFeedbackType = "add" | "remove";
+
+export type CartFeedback = {
+  key: number;
+  type: CartFeedbackType;
+  name: string;
+  quantity: number;
+};
+
 type CartContextValue = {
   lines: CartLineItem[];
   itemCount: number;
   total: number;
   hydrated: boolean;
+  lastFeedback: CartFeedback | null;
   getQuantityForItem: (itemId: string) => number;
   getDefaultLineQuantity: (item: MenuItem) => number;
   addItem: (item: MenuItem, options?: AddToCartOptions) => boolean;
@@ -62,6 +72,14 @@ function createLineId(): string {
 export function CartProvider({ children }: { children: ReactNode }) {
   const [lines, setLines] = useState<CartLineItem[]>([]);
   const [hydrated, setHydrated] = useState(false);
+  const [lastFeedback, setLastFeedback] = useState<CartFeedback | null>(null);
+
+  const fireFeedback = useCallback(
+    (type: CartFeedbackType, name: string, quantity: number) => {
+      setLastFeedback({ key: Date.now(), type, name, quantity });
+    },
+    [],
+  );
 
   useEffect(() => {
     setLines(loadCartFromStorage());
@@ -141,8 +159,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
       ];
     });
 
+    fireFeedback("add", item.name, quantity);
+
     return true;
-  }, []);
+  }, [fireFeedback]);
 
   const addDefaultItem = useCallback(
     (item: MenuItem): boolean => {
@@ -156,12 +176,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
     [addItem],
   );
 
-  const removeDefaultItem = useCallback((item: MenuItem) => {
-    const defaultIngredients = getDefaultIngredients(item);
-    const signature = configSignature(item._id, defaultIngredients, undefined, undefined, []);
-
-    setLines((prev) => {
-      const line = prev.find(
+  const removeDefaultItem = useCallback(
+    (item: MenuItem) => {
+      const defaultIngredients = getDefaultIngredients(item);
+      const signature = configSignature(
+        item._id,
+        defaultIngredients,
+        undefined,
+        undefined,
+        [],
+      );
+      const line = lines.find(
         (l) =>
           configSignature(
             l.itemId,
@@ -171,24 +196,40 @@ export function CartProvider({ children }: { children: ReactNode }) {
             l.selectedExtras,
           ) === signature,
       );
-      if (!line) return prev;
-      if (line.quantity <= 1) return prev.filter((l) => l.lineId !== line.lineId);
-      return prev.map((l) =>
-        l.lineId === line.lineId ? { ...l, quantity: l.quantity - 1 } : l,
-      );
-    });
-  }, []);
+      if (!line) return;
 
-  const decrementItem = useCallback((item: MenuItem) => {
-    setLines((prev) => {
-      const line = prev.find((l) => l.itemId === item._id);
-      if (!line) return prev;
-      if (line.quantity <= 1) return prev.filter((l) => l.lineId !== line.lineId);
-      return prev.map((l) =>
-        l.lineId === line.lineId ? { ...l, quantity: l.quantity - 1 } : l,
-      );
-    });
-  }, []);
+      if (line.quantity <= 1) {
+        setLines((prev) => prev.filter((l) => l.lineId !== line.lineId));
+        fireFeedback("remove", item.name, 1);
+      } else {
+        setLines((prev) =>
+          prev.map((l) =>
+            l.lineId === line.lineId ? { ...l, quantity: l.quantity - 1 } : l,
+          ),
+        );
+      }
+    },
+    [lines, fireFeedback],
+  );
+
+  const decrementItem = useCallback(
+    (item: MenuItem) => {
+      const line = lines.find((l) => l.itemId === item._id);
+      if (!line) return;
+
+      if (line.quantity <= 1) {
+        setLines((prev) => prev.filter((l) => l.lineId !== line.lineId));
+        fireFeedback("remove", line.name, 1);
+      } else {
+        setLines((prev) =>
+          prev.map((l) =>
+            l.lineId === line.lineId ? { ...l, quantity: l.quantity - 1 } : l,
+          ),
+        );
+      }
+    },
+    [lines, fireFeedback],
+  );
 
   const updateLineQuantity = useCallback((lineId: string, quantity: number) => {
     setLines((prev) => {
@@ -199,9 +240,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const removeLine = useCallback((lineId: string) => {
-    setLines((prev) => prev.filter((line) => line.lineId !== lineId));
-  }, []);
+  const removeLine = useCallback(
+    (lineId: string) => {
+      const line = lines.find((l) => l.lineId === lineId);
+      setLines((prev) => prev.filter((l) => l.lineId !== lineId));
+      if (line) fireFeedback("remove", line.name, line.quantity);
+    },
+    [lines, fireFeedback],
+  );
 
   const clearCart = useCallback(() => {
     setLines([]);
@@ -241,6 +287,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       itemCount: cartItemCount(lines),
       total: cartTotal(lines),
       hydrated,
+      lastFeedback,
       getQuantityForItem,
       getDefaultLineQuantity,
       addItem,
@@ -254,6 +301,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     [
       lines,
       hydrated,
+      lastFeedback,
       getQuantityForItem,
       getDefaultLineQuantity,
       addItem,

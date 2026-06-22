@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { ShoppingCart } from "lucide-react";
 import { useCart } from "@/components/providers/cart-provider";
 import { cn } from "@/lib/utils";
@@ -9,7 +10,15 @@ type CartBarProps = {
 };
 
 export function CartBar({ onOpenCart }: CartBarProps) {
-  const { itemCount } = useCart();
+  const { itemCount, lastFeedback } = useCart();
+  const [bump, setBump] = useState(false);
+
+  useEffect(() => {
+    if (!lastFeedback || lastFeedback.type !== "add") return;
+    setBump(true);
+    const timer = window.setTimeout(() => setBump(false), 500);
+    return () => window.clearTimeout(timer);
+  }, [lastFeedback]);
 
   if (itemCount === 0) return null;
 
@@ -20,11 +29,12 @@ export function CartBar({ onOpenCart }: CartBarProps) {
         onClick={onOpenCart}
         className={cn(
           "bg-accent text-accent-foreground hover:bg-accent-hover pointer-events-auto flex h-12 items-center gap-2 rounded-full px-6 shadow-xl transition-[transform,background-color] active:scale-[0.98]",
+          bump && "cart-bar-bump",
         )}
       >
-        <ShoppingCart className="size-5" />
+        <ShoppingCart className={cn("size-5", bump && "cart-icon-pop")} />
         <span className="font-semibold">
-          Ver el carrito · {itemCount}
+          Ver mi pedido · <span className={cn(bump && "cart-count-pop")}>{itemCount}</span>
         </span>
       </button>
     </div>

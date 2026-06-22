@@ -73,8 +73,11 @@ export function QuantityStepper({
       >
         <button
           type="button"
-          aria-label={quantity === 1 ? "Quitar" : "Restar"}
-          onClick={handleDecrement}
+          aria-label={quantity === 1 ? "Eliminar" : "Restar"}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDecrement();
+          }}
           className="hover:bg-muted flex size-7 items-center justify-center rounded-full transition-colors"
         >
           {quantity === 1 ? (
@@ -87,7 +90,10 @@ export function QuantityStepper({
         <button
           type="button"
           aria-label="Agregar"
-          onClick={onIncrement}
+          onClick={(e) => {
+            e.stopPropagation();
+            onIncrement();
+          }}
           className="hover:bg-muted flex size-7 items-center justify-center rounded-full transition-colors"
         >
           <Plus className="size-3.5" />
@@ -97,7 +103,7 @@ export function QuantityStepper({
       {itemName ? (
         <ConfirmDialog
           open={confirmOpen}
-          title="¿Quitar del carrito?"
+          title="¿Eliminar del pedido?"
           description={confirmRemoveMessage(itemName)}
           onConfirm={handleConfirmRemove}
           onCancel={() => setConfirmOpen(false)}

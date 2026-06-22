@@ -47,10 +47,6 @@ export function CartSheet({ open, onOpenChange, onLineClick }: CartSheetProps) {
     router.push(buildGraciasUrl({ source: "cart" }));
   };
 
-  const requestRemoveLine = (lineId: string) => {
-    setLineToRemove(lineId);
-  };
-
   const confirmRemoveLine = () => {
     if (lineToRemove) removeLine(lineToRemove);
     setLineToRemove(null);
@@ -58,7 +54,7 @@ export function CartSheet({ open, onOpenChange, onLineClick }: CartSheetProps) {
 
   const handleDecrementLine = (lineId: string, currentQuantity: number) => {
     if (currentQuantity <= 1) {
-      requestRemoveLine(lineId);
+      setLineToRemove(lineId);
       return;
     }
     updateLineQuantity(lineId, currentQuantity - 1);
@@ -70,14 +66,14 @@ export function CartSheet({ open, onOpenChange, onLineClick }: CartSheetProps) {
         <SheetHeader>
           <div className="flex items-center justify-between gap-3">
             <div>
-              <h2 className="font-display text-2xl tracking-wide uppercase">Tu carrito</h2>
+              <h2 className="font-display text-2xl tracking-wide uppercase">Tu pedido</h2>
               <p className="text-muted-foreground text-sm">
                 {itemCount} {itemCount === 1 ? "producto" : "productos"}
               </p>
             </div>
             <button
               type="button"
-              aria-label="Cerrar carrito"
+              aria-label="Cerrar pedido"
               onClick={() => onOpenChange(false)}
               className="hover:bg-muted flex size-8 items-center justify-center rounded-full transition-colors"
             >
@@ -89,7 +85,7 @@ export function CartSheet({ open, onOpenChange, onLineClick }: CartSheetProps) {
         <SheetBody className="space-y-3">
           {lines.length === 0 ? (
             <p className="text-muted-foreground py-8 text-center text-sm">
-              Tu carrito está vacío. Agrega productos del menú.
+              Tu pedido está vacío. Agrega productos del menú.
             </p>
           ) : (
             lines.map((line) => {
@@ -196,7 +192,7 @@ export function CartSheet({ open, onOpenChange, onLineClick }: CartSheetProps) {
 
       <ConfirmDialog
         open={Boolean(linePendingRemoval)}
-        title="¿Quitar del carrito?"
+        title="¿Eliminar del pedido?"
         description={
           linePendingRemoval
             ? confirmRemoveMessage(linePendingRemoval.name)

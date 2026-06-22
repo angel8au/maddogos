@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { CartBar } from "@/components/cart/cart-bar";
+import { CartFeedbackToast } from "@/components/cart/cart-add-toast";
 import { CartSheet } from "@/components/cart/cart-sheet";
 import { ProductDetailSheet } from "@/components/menu/product-detail-sheet";
 import { useMenuCatalog } from "@/components/providers/menu-catalog-provider";
@@ -36,6 +37,7 @@ export function CartUI() {
 
   return (
     <>
+      <CartFeedbackToast />
       <CartBar onOpenCart={() => setCartOpen(true)} />
       <CartSheet
         open={cartOpen}
