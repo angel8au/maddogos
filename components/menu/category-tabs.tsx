@@ -21,6 +21,7 @@ export function CategoryTabs({
 }: CategoryTabsProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const tabRefs = useRef(new Map<MenuCategory, HTMLButtonElement>());
+  const hasCenteredRef = useRef(false);
   const [indicator, setIndicator] = useState({ left: 0, width: 0 });
 
   useLayoutEffect(() => {
@@ -37,11 +38,17 @@ export function CategoryTabs({
 
     updateIndicator();
 
-    activeButton.scrollIntoView({
-      behavior: "smooth",
-      block: "nearest",
-      inline: "center",
+    // Center the active tab by scrolling ONLY the tab bar horizontally.
+    // Avoid scrollIntoView: it also scrolls the page vertically, causing a
+    // jump on load when the tab bar sits below the fold.
+    const targetLeft =
+      activeButton.offsetLeft -
+      (container.clientWidth - activeButton.offsetWidth) / 2;
+    container.scrollTo({
+      left: targetLeft,
+      behavior: hasCenteredRef.current ? "smooth" : "auto",
     });
+    hasCenteredRef.current = true;
 
     container.addEventListener("scroll", updateIndicator, { passive: true });
     window.addEventListener("resize", updateIndicator);
