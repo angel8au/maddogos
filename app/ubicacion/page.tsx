@@ -1,30 +1,23 @@
-import { Clock, ExternalLink, MapPin } from "lucide-react";
+import { ExternalLink, MapPin } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { LocationHoursCard } from "@/components/location-hours-card";
+import { LocationOpenStatusBadge } from "@/components/open-status-badge";
+import { OrderWhatsAppButton } from "@/components/order-whatsapp-button";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { buttonVariants } from "@/components/ui/button";
-import {
-  BUSINESS_ADDRESS,
-  GOOGLE_MAPS_EMBED_URL,
-  GOOGLE_MAPS_URL,
-  OPENING_HOURS,
-} from "@/lib/site-info";
-import { buildGraciasUrl } from "@/lib/whatsapp";
+import { LOCATIONS } from "@/lib/site-info";
 import { cn } from "@/lib/utils";
+import { isWaLocationId } from "@/lib/whatsapp";
 
 export const metadata: Metadata = {
-  title: "Ubicación",
+  title: "Ubicaciones",
   description:
-    "Visítanos en Mad Dogos Hotdogs. Francisco Zarco 510-528, Antonio Rosales, Culiacán. Horario y mapa.",
+    "Visítanos en Mad Dogos Hotdogs. Sucursales en Antonio Rosales y La Primavera, Culiacán. Horario y mapa.",
 };
 
 export default function UbicacionPage() {
-  const todayIndex = new Date().getDay();
-  const dayIndexMap = [6, 0, 1, 2, 3, 4, 5];
-  const todayHoursIndex = dayIndexMap[todayIndex];
-  const todayHours = OPENING_HOURS[todayHoursIndex];
-
   return (
     <>
       <SiteHeader />
@@ -35,29 +28,36 @@ export default function UbicacionPage() {
               Visítanos
             </p>
             <h1 className="font-display max-w-3xl text-5xl leading-none tracking-wide uppercase md:text-6xl">
-              Ubicación Mad Dogos
+              Ubicaciones Mad Dogos
             </h1>
-            <div className="flex max-w-2xl items-start gap-3 text-base opacity-95 md:text-lg">
-              <MapPin className="mt-1 size-5 shrink-0" />
-              <p>{BUSINESS_ADDRESS.full}</p>
-            </div>
+            <p className="max-w-2xl text-base opacity-95 md:text-lg">
+              Dos sucursales en Culiacán, cada una con su horario. Si estamos cerrados,
+              igual puedes programar tu pedido.
+            </p>
+            <ul className="flex max-w-2xl flex-col gap-4">
+              {LOCATIONS.map((location) => (
+                <li key={location.id} className="flex items-start gap-3">
+                  <MapPin className="mt-1 size-5 shrink-0" />
+                  <div className="space-y-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-semibold">{location.label}</p>
+                      <LocationOpenStatusBadge
+                        location={location}
+                        size="sm"
+                        showDetail={false}
+                      />
+                    </div>
+                    <p className="opacity-90">{location.full}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
             <div className="flex flex-wrap gap-3">
-              <a
-                href={GOOGLE_MAPS_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={cn(
-                  buttonVariants({ size: "lg" }),
-                  "bg-accent text-accent-foreground shadow-md hover:bg-accent-hover hover:shadow-lg",
-                )}
-              >
-                Abrir en Google Maps
-              </a>
               <Link
                 href="/menu"
                 className={cn(
                   buttonVariants({ size: "lg" }),
-                  "border border-primary-foreground/40 bg-transparent text-primary-foreground hover:border-accent/70 hover:bg-primary-foreground/15",
+                  "bg-accent text-accent-foreground shadow-md hover:bg-accent-hover hover:shadow-lg",
                 )}
               >
                 Ver menú
@@ -67,80 +67,62 @@ export default function UbicacionPage() {
         </section>
 
         <section className="mx-auto w-full max-w-6xl px-4 py-10 md:px-6 md:py-14">
-          <div className="grid gap-8 lg:grid-cols-5 lg:gap-10">
-            <div className="lg:col-span-3">
-              <div className="border-border bg-muted overflow-hidden rounded-2xl border shadow-sm">
-                <iframe
-                  title="Mapa Mad Dogos Culiacán"
-                  src={GOOGLE_MAPS_EMBED_URL}
-                  className="aspect-[4/3] w-full min-h-[280px] border-0 md:aspect-video md:min-h-[360px]"
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  allowFullScreen
-                />
-              </div>
-              <a
-                href={GOOGLE_MAPS_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary mt-3 inline-flex items-center gap-1.5 text-sm font-medium hover:underline"
+          <div className="divide-border divide-y">
+            {LOCATIONS.map((location) => (
+              <article
+                key={location.id}
+                className="grid gap-6 py-10 first:pt-0 last:pb-0 md:grid-cols-5 md:gap-10"
               >
-                Ver en Google Maps
-                <ExternalLink className="size-3.5" />
-              </a>
-            </div>
-
-            <div className="space-y-6 lg:col-span-2">
-              <div>
-                <h2 className="font-display mb-4 text-3xl tracking-wide uppercase">
-                  Horario
-                </h2>
-                {todayHours ? (
-                  <p
-                    className={cn(
-                      "mb-4 rounded-lg px-4 py-3 text-sm font-medium",
-                      todayHours.closed
-                        ? "bg-muted text-muted-foreground"
-                        : "bg-accent/20 text-foreground",
-                    )}
+                <div className="space-y-3 md:col-span-3">
+                  <div className="space-y-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h2 className="font-display text-3xl tracking-wide uppercase">
+                        {location.label}
+                      </h2>
+                      <LocationOpenStatusBadge
+                        location={location}
+                        size="sm"
+                        showDetail={false}
+                      />
+                    </div>
+                    <p className="text-muted-foreground flex items-start gap-2 text-sm">
+                      <MapPin className="mt-0.5 size-4 shrink-0" />
+                      {location.full}
+                    </p>
+                  </div>
+                  <div className="border-border bg-muted overflow-hidden rounded-2xl border shadow-sm">
+                    <iframe
+                      title={`Mapa Mad Dogos ${location.label}`}
+                      src={location.mapsEmbedUrl}
+                      className="aspect-[4/3] w-full min-h-[240px] border-0 md:aspect-video md:min-h-[320px]"
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                      allowFullScreen
+                    />
+                  </div>
+                  <a
+                    href={location.mapsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary inline-flex items-center gap-1.5 text-sm font-medium hover:underline"
                   >
-                    <Clock className="mr-2 inline size-4 align-text-bottom" />
-                    Hoy ({todayHours.day}): {todayHours.hours}
-                  </p>
-                ) : null}
-                <ul className="divide-y rounded-xl border">
-                  {OPENING_HOURS.map((row) => (
-                    <li
-                      key={row.day}
-                      className="flex items-center justify-between gap-4 px-4 py-3 text-sm"
-                    >
-                      <span className="font-medium">{row.day}</span>
-                      <span
-                        className={cn(
-                          row.closed ? "text-muted-foreground" : "text-foreground",
-                        )}
-                      >
-                        {row.hours}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+                    Abrir en Google Maps
+                    <ExternalLink className="size-3.5" />
+                  </a>
+                </div>
 
-              <div className="bg-secondary/60 rounded-xl px-4 py-4 text-sm">
-                <p className="font-semibold">¿Vas a pasar a recoger?</p>
-                <p className="text-muted-foreground mt-1">
-                  También puedes pedir a domicilio por WhatsApp desde nuestra página de
-                  menú.
-                </p>
-                <Link
-                  href={buildGraciasUrl({ source: "ubicacion" })}
-                  className={cn(buttonVariants({ size: "lg" }), "mt-4 w-full sm:w-auto")}
-                >
-                  Pedir por WhatsApp
-                </Link>
-              </div>
-            </div>
+                <div className="flex flex-col gap-4 md:col-span-2">
+                  <LocationHoursCard location={location} hideHeader />
+                  {isWaLocationId(location.id) ? (
+                    <OrderWhatsAppButton
+                      source="ubicacion"
+                      locationId={location.id}
+                      className="w-full"
+                    />
+                  ) : null}
+                </div>
+              </article>
+            ))}
           </div>
         </section>
       </main>

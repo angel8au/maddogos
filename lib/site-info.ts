@@ -1,37 +1,118 @@
-export const BUSINESS_ADDRESS = {
-  street: "Francisco Zarco 510-528",
-  neighborhood: "Antonio Rosales",
-  postalCode: "80230",
-  city: "Culiacán Rosales",
-  state: "Sin.",
-  full: "Francisco Zarco 510-528, Antonio Rosales, 80230 Culiacán Rosales, Sin.",
-} as const;
+export const BUSINESS_TIMEZONE = "America/Mazatlan";
 
-export const GOOGLE_MAPS_URL = "https://maps.app.goo.gl/QFho6YEpDJFMy6uz8";
+/** Minutes before open/close to show "abre pronto" / "cierra pronto". */
+export const STATUS_SOON_MINUTES = 30;
+
+export type DayOfWeek =
+  | "monday"
+  | "tuesday"
+  | "wednesday"
+  | "thursday"
+  | "friday"
+  | "saturday"
+  | "sunday";
+
+export const WEEKDAY_ORDER: DayOfWeek[] = [
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+  "sunday",
+];
+
+export const WEEKDAY_LABELS: Record<DayOfWeek, string> = {
+  monday: "Lunes",
+  tuesday: "Martes",
+  wednesday: "Miércoles",
+  thursday: "Jueves",
+  friday: "Viernes",
+  saturday: "Sábado",
+  sunday: "Domingo",
+};
+
+export type DaySchedule =
+  | { day: DayOfWeek; closed: true }
+  | { day: DayOfWeek; closed?: false; open: string; close: string };
+
+export type Location = {
+  id: string;
+  label: string;
+  street: string;
+  neighborhood: string;
+  postalCode?: string;
+  city: string;
+  state: string;
+  full: string;
+  mapsUrl: string;
+  mapsEmbedUrl: string;
+  /** Weekly schedule Mon→Sun. Times are local (America/Mazatlan), 24h "HH:MM". */
+  hours: DaySchedule[];
+};
+
+const ANTONIO_ROSALES_HOURS: DaySchedule[] = [
+  { day: "monday", open: "17:00", close: "23:00" },
+  { day: "tuesday", closed: true },
+  { day: "wednesday", open: "17:00", close: "23:00" },
+  { day: "thursday", open: "17:00", close: "23:00" },
+  { day: "friday", open: "17:00", close: "23:00" },
+  { day: "saturday", open: "17:00", close: "23:00" },
+  { day: "sunday", open: "17:00", close: "23:00" },
+];
+
+const LA_PRIMAVERA_HOURS: DaySchedule[] = [
+  { day: "monday", open: "12:00", close: "20:00" },
+  { day: "tuesday", closed: true },
+  { day: "wednesday", open: "12:00", close: "20:00" },
+  { day: "thursday", open: "12:00", close: "20:00" },
+  { day: "friday", open: "12:00", close: "20:00" },
+  { day: "saturday", open: "12:00", close: "20:00" },
+  { day: "sunday", open: "12:00", close: "20:00" },
+];
+
+export const LOCATIONS: Location[] = [
+  {
+    id: "antonio-rosales",
+    label: "Antonio Rosales",
+    street: "Francisco Zarco 510-528",
+    neighborhood: "Antonio Rosales",
+    postalCode: "80230",
+    city: "Culiacán Rosales",
+    state: "Sin.",
+    full: "Francisco Zarco 510-528, Antonio Rosales, 80230 Culiacán Rosales, Sin.",
+    mapsUrl: "https://maps.app.goo.gl/QFho6YEpDJFMy6uz8",
+    mapsEmbedUrl:
+      "https://www.google.com/maps?q=Francisco+Zarco+510-528,+Antonio+Rosales,+80230+Culiac%C3%A1n+Rosales,+Sinaloa&output=embed",
+    hours: ANTONIO_ROSALES_HOURS,
+  },
+  {
+    id: "la-primavera",
+    label: "La Primavera",
+    street: "Calle Industrial 6",
+    neighborhood: "La Primavera",
+    city: "Culiacán",
+    state: "Sinaloa",
+    full: "Calle Industrial 6, La Primavera, Culiacán, Sinaloa",
+    mapsUrl:
+      "https://www.google.com/maps/search/?api=1&query=Calle+Industrial+6,+La+Primavera,+Culiac%C3%A1n,+Sinaloa",
+    mapsEmbedUrl:
+      "https://www.google.com/maps?q=Calle+Industrial+6,+La+Primavera,+Culiac%C3%A1n,+Sinaloa&output=embed",
+    hours: LA_PRIMAVERA_HOURS,
+  },
+];
+
+export const BUSINESS_ADDRESS = LOCATIONS[0];
+
+/** Google Maps of the primary Place used for reviews. */
+export const GOOGLE_MAPS_URL = LOCATIONS[0].mapsUrl;
 
 export const GOOGLE_PLACE_SEARCH_QUERY =
   "Mad Dogos Hotdogs Burgers Boneless & Wings Francisco Zarco 510 Culiacán Sinaloa";
 
 export const GOOGLE_PLACE_FEATURE_ID = "0x86bcd77054d0d361:0x9dc6a38cea4b74e6";
 
-export const GOOGLE_MAPS_EMBED_URL =
-  "https://www.google.com/maps?q=Francisco+Zarco+510-528,+Antonio+Rosales,+80230+Culiac%C3%A1n+Rosales,+Sinaloa&output=embed";
-
-export type OpeningHour = {
-  day: string;
-  hours: string;
-  closed?: boolean;
-};
-
-export const OPENING_HOURS: OpeningHour[] = [
-  { day: "Lunes", hours: "5:00 – 11:00 p.m." },
-  { day: "Martes", hours: "Cerrado", closed: true },
-  { day: "Miércoles", hours: "5:00 – 11:00 p.m." },
-  { day: "Jueves", hours: "5:00 – 11:00 p.m." },
-  { day: "Viernes", hours: "5:00 – 11:00 p.m." },
-  { day: "Sábado", hours: "5:00 – 11:00 p.m." },
-  { day: "Domingo", hours: "5:00 – 11:00 p.m." },
-];
+export const GOOGLE_MAPS_EMBED_URL = LOCATIONS[0].mapsEmbedUrl;
 
 export const EVENT_TYPES = [
   "Bodas",

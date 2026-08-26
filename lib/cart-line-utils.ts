@@ -30,6 +30,7 @@ export function isValidMenuCategory(value: unknown): value is MenuCategory {
   return (
     typeof value === "string" &&
     [
+      "promociones",
       "hot-dogs",
       "hamburguesas",
       "alitas",

@@ -1,17 +1,17 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { MenuGridCard } from "@/components/menu/menu-grid-card";
+import { PromoGridCard } from "@/components/menu/promo-grid-card";
 import { ProductDetailSheet } from "@/components/menu/product-detail-sheet";
 import type { MenuItem } from "@/lib/types";
 
-type FeaturedMenuProps = {
+type PromotionsMenuProps = {
   items: MenuItem[];
   allItems: MenuItem[];
   sauceOptions: string[];
 };
 
-export function FeaturedMenu({ items, allItems, sauceOptions }: FeaturedMenuProps) {
+export function PromotionsMenu({ items, allItems, sauceOptions }: PromotionsMenuProps) {
   const [detailItem, setDetailItem] = useState<MenuItem | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
 
@@ -27,9 +27,9 @@ export function FeaturedMenu({ items, allItems, sauceOptions }: FeaturedMenuProp
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-4 md:gap-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:gap-4">
         {items.map((item) => (
-          <MenuGridCard key={item._id} item={item} onOpenDetail={openDetail} />
+          <PromoGridCard key={item._id} item={item} onOpenDetail={openDetail} />
         ))}
       </div>
       <ProductDetailSheet

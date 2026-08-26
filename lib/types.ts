@@ -1,4 +1,5 @@
 export type MenuCategory =
+  | "promociones"
   | "hot-dogs"
   | "hamburguesas"
   | "alitas"

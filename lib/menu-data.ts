@@ -25,6 +25,25 @@ const slugify = (value: string) =>
     .replace(/^-+|-+$/g, "");
 
 const items: SeedItem[] = [
+  // Promociones (temporales — desactivar con available: false en Sanity)
+  {
+    id: "promo-maddogos-200",
+    name: "Promo MadDogos $200",
+    description: "Promoción temporal. Pregunta por disponibilidad al ordenar.",
+    price: 200,
+    category: "promociones",
+    badge: "Promo",
+  },
+  {
+    id: "promo-2x1-easy-dog",
+    name: "2x1 Easy Dog",
+    description: "Lleva 2 Easy Dog por el precio de 1. Promoción temporal de demostración.",
+    price: 70,
+    category: "promociones",
+    badge: "Promo",
+  },
+
+
   // Hot Dogs
   { id: "easy-dog", name: "Easy Dog", description: "Salchicha de pavo con tocino", price: 70, category: "hot-dogs" },
   { id: "easy-dog-especial", name: "Easy Dog Especial", description: "Easy Dog envuelto en queso manchego y jamón de pavo", price: 80, category: "hot-dogs" },
@@ -32,10 +51,10 @@ const items: SeedItem[] = [
   { id: "chilli-dog", name: "Chilli Dog", description: "Salchicha de puerco con queso y chile jalapeño, envuelto en queso manchego y jamón de pavo", price: 95, category: "hot-dogs" },
   { id: "perro-bacon", name: "Perro Bacon", description: "Salchicha de puerco con queso y tocino, envuelto en queso manchego y jamón de pavo", price: 95, category: "hot-dogs" },
   { id: "beef-dog", name: "Beef Dog", description: "Salchicha de res con queso y perejil, envuelto en queso manchego y jamón de pavo", price: 100, category: "hot-dogs" },
-  { id: "maddogo-especial", name: "Maddogo Especial", description: "Salchicha de mezcla especial de carne de res y tocino, envuelta en tocino, queso manchego, jamón de pavo y cebolla asada", price: 100, category: "hot-dogs", badge: "Lo más pedido", featured: true },
+  { id: "maddogo-especial", name: "Maddogo Especial", description: "Salchicha de mezcla especial de carne de res y tocino, envuelta en tocino, queso manchego, jamón de pavo y cebolla asada", price: 100, category: "hot-dogs" },
 
   // Hamburguesas
-  { id: "mad-burguer", name: "Mad Burguer", description: "Mezcla especial de carne con salsa, queso gouda, jamón, lechuga, tomate y cebolla", price: 155, category: "hamburguesas", badge: "Lo más pedido", featured: true },
+  { id: "mad-burguer", name: "Mad Burguer", description: "Mezcla especial de carne con salsa, queso gouda, jamón, lechuga, tomate y cebolla", price: 155, category: "hamburguesas" },
   { id: "madbon-burguer", name: "MadBon Burguer", description: "Boneless bañados en salsa con queso gouda, jamón, lechuga, tomate y cebolla", price: 155, category: "hamburguesas" },
   { id: "mad-double-burguer", name: "MadDouble Burguer", description: "Mezcla especial doble con salsa, queso gouda, jamón, lechuga, tomate y cebolla", price: 185, category: "hamburguesas" },
   { id: "madburguer-hawaiana", name: "MadBurguer Hawaiana", description: "Carne y tocino con salsa, piña, guacamole, queso manchego, jamón, lechuga, tomate y cebolla asada", price: 185, category: "hamburguesas" },
@@ -48,7 +67,7 @@ const items: SeedItem[] = [
   { id: "in-n-out-burguer", name: "IN-N-OUT Burguer", description: "Pan brioche, mayonesa, lechuga romana, carne, queso americano, tomate, cebolla cruda, pepinillos, aderezo style", price: 180, category: "hamburguesas" },
 
   // Alitas
-  { id: "orden-alitas", name: "Orden de Alitas", description: "10 pzas con salsa de elección y vegetales", price: 155, category: "alitas", badge: "Lo más pedido", featured: true },
+  { id: "orden-alitas", name: "Orden de Alitas", description: "10 pzas con salsa de elección y vegetales", price: 155, category: "alitas" },
   { id: "alitas-especiales", name: "Orden de Alitas Especiales", description: "Orden de alitas con papas gratinadas", price: 175, category: "alitas" },
   { id: "alitas-salvajes", name: "Alitas Salvajes", description: "10 pzas con papas salvajes", price: 195, category: "alitas" },
 
@@ -66,7 +85,7 @@ const items: SeedItem[] = [
 
   // Conos
   { id: "madcono-chico", name: "MadCono Chico", description: "Media orden de boneless en papas curly lemonpepper, queso de nachos y ranch", price: 125, category: "conos" },
-  { id: "madcono-grande", name: "MadCono Grande", description: "Orden de boneless en papas curly lemonpepper, queso de nachos y ranch", price: 175, category: "conos", badge: "Lo más pedido", featured: true },
+  { id: "madcono-grande", name: "MadCono Grande", description: "Orden de boneless en papas curly lemonpepper, queso de nachos y ranch", price: 175, category: "conos" },
   { id: "madcono-salvaje", name: "MadCono Salvaje", description: "Orden de boneless en papas curly lemonpepper, queso de nachos, ranch y topping de papas salvajes", price: 200, category: "conos" },
 
   // Charolas
@@ -112,6 +131,7 @@ const items: SeedItem[] = [
 const orderByCategory = new Map<MenuCategory, number>();
 
 export const categoryLabels: Record<MenuCategory, string> = {
+  promociones: "Promociones",
   "hot-dogs": "Hot Dogs",
   hamburguesas: "Hamburguesas",
   alitas: "Alitas",
@@ -125,6 +145,7 @@ export const categoryLabels: Record<MenuCategory, string> = {
 };
 
 export const categoryOrder: MenuCategory[] = [
+  "promociones",
   "hot-dogs",
   "hamburguesas",
   "alitas",

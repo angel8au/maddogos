@@ -8,6 +8,7 @@ const unsplash = (id: string) =>
 
 /** Imagen por categoría cuando no hay foto en Sanity */
 export const categoryMenuImages: Record<MenuCategory, string> = {
+  promociones: pexels(1639562),
   "hot-dogs": pexels(1199960),
   hamburguesas: pexels(70497),
   alitas: pexels(106343),

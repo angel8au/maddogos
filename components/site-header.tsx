@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
+import { SiteOpenStatusBadge } from "@/components/open-status-badge";
 import { SiteLogo } from "@/components/site-logo";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -10,7 +11,7 @@ import { cn } from "@/lib/utils";
 const navLinks = [
   { href: "/menu", label: "Menú" },
   { href: "/eventos", label: "Eventos" },
-  { href: "/ubicacion", label: "Ubicación" },
+  { href: "/ubicacion", label: "Ubicaciones" },
 ] as const;
 
 export function SiteHeader() {
@@ -42,6 +43,7 @@ export function SiteHeader() {
           </nav>
 
           <div className="flex items-center gap-2">
+            <SiteOpenStatusBadge className="hidden sm:inline-flex" />
             <Link
               href="/menu"
               className={cn(buttonVariants(), "hidden shrink-0 text-sm sm:inline-flex")}
@@ -81,6 +83,9 @@ export function SiteHeader() {
           </div>
 
           <nav className="mx-auto flex w-full max-w-6xl flex-1 flex-col justify-center gap-2 px-6 py-10">
+            <div className="mb-4">
+              <SiteOpenStatusBadge size="md" showDetail />
+            </div>
             {navLinks.map((link) => (
               <Link
                 key={link.href}

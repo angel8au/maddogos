@@ -6,6 +6,22 @@ import {
   lineSubtotal,
   lineUnitPrice,
 } from "@/lib/cart-utils";
+import { LOCATIONS } from "@/lib/site-info";
+
+/** Antonio Rosales (default) and La Primavera each have their own WA inbox. */
+export const WA_LOCATION_IDS = ["antonio-rosales", "la-primavera"] as const;
+export type WaLocationId = (typeof WA_LOCATION_IDS)[number];
+
+export type OrderFulfillment = "pickup" | "delivery";
+
+export type StoredCartOrder = {
+  message: string;
+  locationId: WaLocationId;
+  fulfillment: OrderFulfillment;
+};
+
+const DEFAULT_WA_NUMBER = "526673872070";
+const DEFAULT_WA_NUMBER_LA_PRIMAVERA = "526674834380";
 
 export function formatMXN(price: number): string {
   return new Intl.NumberFormat("es-MX", {
@@ -15,15 +31,32 @@ export function formatMXN(price: number): string {
   }).format(price);
 }
 
-export function getWhatsAppNumber(): string {
-  const raw = process.env.NEXT_PUBLIC_WA_NUMBER ?? "526673872070";
+export function isWaLocationId(value: string | null | undefined): value is WaLocationId {
+  return WA_LOCATION_IDS.includes(value as WaLocationId);
+}
+
+export function normalizeWhatsAppNumber(raw: string): string {
   const digits = raw.replace(/\D/g, "");
   if (digits.length === 10) return `52${digits}`;
   return digits;
 }
 
-export function buildWhatsAppUrl(message?: string): string {
-  const number = getWhatsAppNumber();
+export function getWhatsAppNumber(locationId?: string | null): string {
+  if (locationId === "la-primavera") {
+    const raw =
+      process.env.NEXT_PUBLIC_WA_NUMBER_LA_PRIMAVERA ?? DEFAULT_WA_NUMBER_LA_PRIMAVERA;
+    return normalizeWhatsAppNumber(raw);
+  }
+
+  const raw = process.env.NEXT_PUBLIC_WA_NUMBER ?? DEFAULT_WA_NUMBER;
+  return normalizeWhatsAppNumber(raw);
+}
+
+export function buildWhatsAppUrl(
+  message?: string,
+  locationId?: string | null,
+): string {
+  const number = getWhatsAppNumber(locationId);
   const text = message ?? "Hola, quiero hacer un pedido";
   return `https://wa.me/${number}?text=${encodeURIComponent(text)}`;
 }
@@ -32,8 +65,28 @@ export function buildEventInquiryMessage(): string {
   return "Hola, me interesa contratar a Mad Dogos para un evento. ¿Me pueden dar información y cotización?";
 }
 
-export function buildOrderMessage(lines: CartLineItem[]): string {
-  if (!lines.length) return "Hola, quiero hacer un pedido";
+export function locationLabel(locationId: WaLocationId): string {
+  return LOCATIONS.find((location) => location.id === locationId)?.label ?? locationId;
+}
+
+export function fulfillmentLabel(fulfillment: OrderFulfillment): string {
+  return fulfillment === "delivery" ? "A domicilio" : "Para recoger";
+}
+
+export function buildOrderMessage(
+  lines: CartLineItem[],
+  options: {
+    locationId: WaLocationId;
+    fulfillment: OrderFulfillment;
+    scheduled?: boolean;
+    scheduleNote?: string;
+  },
+): string {
+  if (!lines.length) {
+    return options.scheduled
+      ? "Hola, quiero programar un pedido"
+      : "Hola, quiero hacer un pedido";
+  }
 
   const items = lines
     .map((line) => {
@@ -52,17 +105,66 @@ export function buildOrderMessage(lines: CartLineItem[]): string {
     })
     .join("\n");
 
-  return [
-    "Hola, quiero hacer el siguiente pedido:",
+  const linesOut = [
+    options.scheduled
+      ? "Hola, quiero PROGRAMAR el siguiente pedido:"
+      : "Hola, quiero hacer el siguiente pedido:",
     "",
-    items,
-    "",
-    `Total: ${formatMXN(cartTotal(lines))}`,
-  ].join("\n");
+    `Sucursal: ${locationLabel(options.locationId)}`,
+    `Modalidad: ${fulfillmentLabel(options.fulfillment)}`,
+  ];
+
+  if (options.scheduled) {
+    linesOut.push(
+      `Tipo: Pedido programado${options.scheduleNote ? ` (${options.scheduleNote})` : ""}`,
+    );
+  }
+
+  if (options.fulfillment === "delivery") {
+    linesOut.push(
+      "Nota: el costo del servicio de entrega depende de la distancia; por favor confirmen el monto.",
+    );
+  }
+
+  linesOut.push("", items, "", `Total: ${formatMXN(cartTotal(lines))}`);
+
+  return linesOut.join("\n");
+}
+
+export function parseStoredCartOrder(raw: string | null): StoredCartOrder | null {
+  if (!raw) return null;
+
+  try {
+    const parsed = JSON.parse(raw) as Partial<StoredCartOrder>;
+    if (
+      typeof parsed.message === "string" &&
+      isWaLocationId(parsed.locationId) &&
+      (parsed.fulfillment === "pickup" || parsed.fulfillment === "delivery")
+    ) {
+      return {
+        message: parsed.message,
+        locationId: parsed.locationId,
+        fulfillment: parsed.fulfillment,
+      };
+    }
+  } catch {
+    // Legacy: plain message string without location metadata.
+    if (raw.startsWith("Hola")) {
+      return {
+        message: raw,
+        locationId: "antonio-rosales",
+        fulfillment: "pickup",
+      };
+    }
+  }
+
+  return null;
 }
 
 export function buildGraciasUrl(
-  itemOrOptions?: string | { item?: string; source?: string },
+  itemOrOptions?:
+    | string
+    | { item?: string; source?: string; location?: WaLocationId },
   source?: string,
 ): string {
   const params = new URLSearchParams();
@@ -70,6 +172,7 @@ export function buildGraciasUrl(
   if (typeof itemOrOptions === "object" && itemOrOptions !== null) {
     if (itemOrOptions.item) params.set("item", itemOrOptions.item);
     if (itemOrOptions.source) params.set("src", itemOrOptions.source);
+    if (itemOrOptions.location) params.set("loc", itemOrOptions.location);
   } else {
     if (itemOrOptions) params.set("item", itemOrOptions);
     if (source) params.set("src", source);

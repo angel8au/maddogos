@@ -1,20 +1,22 @@
 import Link from "next/link";
+import { HeroLocationStatusBadges } from "@/components/open-status-badge";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { FeaturedMenu } from "@/components/menu/featured-menu";
+import { PromotionsMenu } from "@/components/menu/promotions-menu";
 import { MenuView } from "@/components/menu/menu-view";
 import { Testimonios } from "@/components/testimonios";
 import { buttonVariants } from "@/components/ui/button";
 import { getMenuPageData } from "@/lib/queries";
 import { GOOGLE_TESTIMONIALS_SUMMARY } from "@/lib/testimonials-data";
-import { buildGraciasUrl } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
 
 export const revalidate = 60;
 
 export default async function Home() {
   const { items: menuItems, sauceOptions } = await getMenuPageData();
-  const featured = menuItems.filter((item) => item.featured).slice(0, 4);
+  const promotions = menuItems
+    .filter((item) => item.category === "promociones")
+    .slice(0, 6);
 
   return (
     <>
@@ -26,6 +28,7 @@ export default async function Home() {
             <p className="text-sm font-medium uppercase tracking-[0.2em] opacity-90">
               Culiacán, Sinaloa
             </p>
+            <HeroLocationStatusBadges />
             <h1 className="font-display max-w-3xl text-5xl leading-none tracking-wide uppercase md:text-7xl">
               Hot dogs a domicilio en Culiacán
             </h1>
@@ -33,7 +36,7 @@ export default async function Home() {
               Pide hot dogs, hamburguesas, alitas y boneless. Entrega rápida directo
               por WhatsApp.
             </p>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap items-start gap-3">
               <Link
                 href="/menu"
                 className={cn(
@@ -43,26 +46,17 @@ export default async function Home() {
               >
                 Ver menú y ordenar
               </Link>
-              <Link
-                href={buildGraciasUrl(undefined, "hero")}
-                className={cn(
-                  buttonVariants({ size: "lg" }),
-                  "border border-primary-foreground/40 bg-transparent text-primary-foreground shadow-none hover:border-accent/70 hover:bg-primary-foreground/15 hover:text-primary-foreground hover:shadow-[0_0_0_1px_hsl(48_100%_48%_/0.25)] active:bg-primary-foreground/20",
-                )}
-              >
-                WhatsApp directo
-              </Link>
             </div>
           </div>
         </section>
 
-        {featured.length > 0 ? (
+        {promotions.length > 0 ? (
           <section className="mx-auto w-full max-w-6xl px-4 py-12 md:px-6">
             <h2 className="font-display mb-6 text-3xl tracking-wide uppercase">
-              Lo más pedido
+              Promociones
             </h2>
-            <FeaturedMenu
-              items={featured}
+            <PromotionsMenu
+              items={promotions}
               allItems={menuItems}
               sauceOptions={sauceOptions}
             />

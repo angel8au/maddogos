@@ -1,6 +1,7 @@
 import { defineField, defineType } from "sanity";
 
 const categories = [
+  { title: "Promociones", value: "promociones" },
   { title: "Hot Dogs", value: "hot-dogs" },
   { title: "Hamburguesas", value: "hamburguesas" },
   { title: "Alitas", value: "alitas" },
@@ -73,9 +74,12 @@ export const menuItemType = defineType({
     }),
     defineField({
       name: "featured",
-      title: "Destacado en Home",
+      title: "Destacado en Home (obsoleto)",
+      description:
+        "Ya no se usa. Las promociones del Home usan la categoría Promociones.",
       type: "boolean",
       initialValue: false,
+      hidden: true,
     }),
     defineField({
       name: "order",
