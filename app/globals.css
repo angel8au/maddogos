@@ -31,6 +31,7 @@
   --color-destructive-foreground: var(--destructive-foreground);
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
+  --color-success-hover: var(--success-hover);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -77,8 +78,9 @@
   --accent-hover: hsl(48, 100%, 56%);   /* amarillo más brillante */
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: hsl(0, 0%, 100%);
-  --success: hsl(142, 70%, 38%);          /* verde success */
+  --success: hsl(142, 78%, 46%);          /* verde success brillante */
   --success-foreground: hsl(0, 0%, 100%);
+  --success-hover: hsl(142, 85%, 52%);
   --border: hsl(20, 15%, 90%);
   --input: hsl(20, 15%, 90%);
   --ring: hsl(0, 73%, 45%);
@@ -119,8 +121,9 @@
   --accent-hover: hsl(48, 100%, 56%);
   --destructive: hsl(0, 73%, 45%);
   --destructive-foreground: hsl(0, 0%, 100%);
-  --success: hsl(142, 70%, 38%);
+  --success: hsl(142, 78%, 46%);
   --success-foreground: hsl(0, 0%, 100%);
+  --success-hover: hsl(142, 85%, 52%);
   --border: hsl(20, 15%, 90%);
   --input: hsl(20, 15%, 90%);
   --ring: hsl(0, 73%, 45%);

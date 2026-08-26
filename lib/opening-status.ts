@@ -285,7 +285,6 @@ export function getSiteOpenStatus(now: Date = new Date()): SiteOpenStatus {
   const isOpenNow = openLocations.length > 0;
   const isScheduled = !isOpenNow;
 
-  const names = openLocations.map((l) => l.label).join(" y ");
   const opensSoon = locations.find((l) => l.status === "opens_soon");
 
   const labelEs =
@@ -299,14 +298,11 @@ export function getSiteOpenStatus(now: Date = new Date()): SiteOpenStatus {
 
   let detailEs: string;
   if (isOpenNow) {
-    detailEs =
-      openLocations.length === locations.length
-        ? "Ambas sucursales abiertas"
-        : `Abierto en ${names}`;
+    detailEs = openLocations[0]?.detailEs ?? "Estamos abiertos";
   } else if (opensSoon) {
-    detailEs = `Puedes programar tu pedido. ${opensSoon.label}: ${opensSoon.detailEs}`;
+    detailEs = `Puedes programar tu pedido. ${opensSoon.detailEs}`;
   } else {
-    const nextDetails = locations.map((l) => `${l.label}: ${l.detailEs}`).join(" · ");
+    const nextDetails = locations.map((l) => l.detailEs).join(" · ");
     detailEs = `Puedes programar tu pedido. ${nextDetails}`;
   }
 

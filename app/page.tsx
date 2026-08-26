@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { HeroLocationStatusBadges } from "@/components/open-status-badge";
+import { SiteOpenStatusBadge } from "@/components/open-status-badge";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { PromotionsMenu } from "@/components/menu/promotions-menu";
@@ -28,7 +28,7 @@ export default async function Home() {
             <p className="text-sm font-medium uppercase tracking-[0.2em] opacity-90">
               Culiacán, Sinaloa
             </p>
-            <HeroLocationStatusBadges />
+            <SiteOpenStatusBadge size="md" />
             <h1 className="font-display max-w-3xl text-5xl leading-none tracking-wide uppercase md:text-7xl">
               Hot dogs a domicilio en Culiacán
             </h1>

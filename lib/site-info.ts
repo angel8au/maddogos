@@ -61,16 +61,6 @@ const ANTONIO_ROSALES_HOURS: DaySchedule[] = [
   { day: "sunday", open: "17:00", close: "23:00" },
 ];
 
-const LA_PRIMAVERA_HOURS: DaySchedule[] = [
-  { day: "monday", open: "12:00", close: "20:00" },
-  { day: "tuesday", closed: true },
-  { day: "wednesday", open: "12:00", close: "20:00" },
-  { day: "thursday", open: "12:00", close: "20:00" },
-  { day: "friday", open: "12:00", close: "20:00" },
-  { day: "saturday", open: "12:00", close: "20:00" },
-  { day: "sunday", open: "12:00", close: "20:00" },
-];
-
 export const LOCATIONS: Location[] = [
   {
     id: "antonio-rosales",
@@ -85,20 +75,6 @@ export const LOCATIONS: Location[] = [
     mapsEmbedUrl:
       "https://www.google.com/maps?q=Francisco+Zarco+510-528,+Antonio+Rosales,+80230+Culiac%C3%A1n+Rosales,+Sinaloa&output=embed",
     hours: ANTONIO_ROSALES_HOURS,
-  },
-  {
-    id: "la-primavera",
-    label: "La Primavera",
-    street: "Calle Industrial 6",
-    neighborhood: "La Primavera",
-    city: "Culiacán",
-    state: "Sinaloa",
-    full: "Calle Industrial 6, La Primavera, Culiacán, Sinaloa",
-    mapsUrl:
-      "https://www.google.com/maps/search/?api=1&query=Calle+Industrial+6,+La+Primavera,+Culiac%C3%A1n,+Sinaloa",
-    mapsEmbedUrl:
-      "https://www.google.com/maps?q=Calle+Industrial+6,+La+Primavera,+Culiac%C3%A1n,+Sinaloa&output=embed",
-    hours: LA_PRIMAVERA_HOURS,
   },
 ];
 

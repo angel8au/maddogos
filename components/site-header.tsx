@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 const navLinks = [
   { href: "/menu", label: "Menú" },
   { href: "/eventos", label: "Eventos" },
-  { href: "/ubicacion", label: "Ubicaciones" },
+  { href: "/ubicacion", label: "Ubicación" },
 ] as const;
 
 export function SiteHeader() {

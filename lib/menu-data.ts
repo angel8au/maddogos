@@ -27,22 +27,53 @@ const slugify = (value: string) =>
 const items: SeedItem[] = [
   // Promociones (temporales — desactivar con available: false en Sanity)
   {
-    id: "promo-maddogos-200",
-    name: "Promo MadDogos $200",
-    description: "Promoción temporal. Pregunta por disponibilidad al ordenar.",
+    id: "combo-maddogos",
+    name: "Combo Maddogos",
+    description: "1 Mad Burguer + 1 Easy Dog Especial + 1 orden de papas.",
     price: 200,
     category: "promociones",
     badge: "Promo",
   },
   {
-    id: "promo-2x1-easy-dog",
-    name: "2x1 Easy Dog",
-    description: "Lleva 2 Easy Dog por el precio de 1. Promoción temporal de demostración.",
-    price: 70,
+    id: "promo-2-madburguer-papas",
+    name: "2 Mad Burguer + 1 Orden de Papas",
+    description: "2 Mad Burguer + 1 orden de papas.",
+    price: 250,
     category: "promociones",
     badge: "Promo",
   },
-
+  {
+    id: "combo-dr",
+    name: "Combo DR",
+    description: "1 hot dog + 5 alitas o boneless + 1 bebida.",
+    price: 170,
+    category: "promociones",
+    badge: "Promo",
+  },
+  {
+    id: "combo-mad",
+    name: "Combo Mad",
+    description: "2 hamburguesas + 2 hot dogs + 2 órdenes de papas.",
+    price: 400,
+    category: "promociones",
+    badge: "Promo",
+  },
+  {
+    id: "sampler-madburguer",
+    name: "Sampler Mad Burguer",
+    description: "1 Mad Burguer + 5 alitas + 5 boneless + 4 aros de cebolla + papas.",
+    price: 299,
+    category: "promociones",
+    badge: "Promo",
+  },
+  {
+    id: "alitas-boneless-pieza",
+    name: "Alitas o Boneless",
+    description: "Agrega a tu pedido. $10 por pieza.",
+    price: 10,
+    category: "promociones",
+    badge: "Promo",
+  },
 
   // Hot Dogs
   { id: "easy-dog", name: "Easy Dog", description: "Salchicha de pavo con tocino", price: 70, category: "hot-dogs" },

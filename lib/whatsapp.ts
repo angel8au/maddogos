@@ -6,22 +6,15 @@ import {
   lineSubtotal,
   lineUnitPrice,
 } from "@/lib/cart-utils";
-import { LOCATIONS } from "@/lib/site-info";
-
-/** Antonio Rosales (default) and La Primavera each have their own WA inbox. */
-export const WA_LOCATION_IDS = ["antonio-rosales", "la-primavera"] as const;
-export type WaLocationId = (typeof WA_LOCATION_IDS)[number];
 
 export type OrderFulfillment = "pickup" | "delivery";
 
 export type StoredCartOrder = {
   message: string;
-  locationId: WaLocationId;
   fulfillment: OrderFulfillment;
 };
 
 const DEFAULT_WA_NUMBER = "526673872070";
-const DEFAULT_WA_NUMBER_LA_PRIMAVERA = "526674834380";
 
 export function formatMXN(price: number): string {
   return new Intl.NumberFormat("es-MX", {
@@ -31,42 +24,25 @@ export function formatMXN(price: number): string {
   }).format(price);
 }
 
-export function isWaLocationId(value: string | null | undefined): value is WaLocationId {
-  return WA_LOCATION_IDS.includes(value as WaLocationId);
-}
-
 export function normalizeWhatsAppNumber(raw: string): string {
   const digits = raw.replace(/\D/g, "");
   if (digits.length === 10) return `52${digits}`;
   return digits;
 }
 
-export function getWhatsAppNumber(locationId?: string | null): string {
-  if (locationId === "la-primavera") {
-    const raw =
-      process.env.NEXT_PUBLIC_WA_NUMBER_LA_PRIMAVERA ?? DEFAULT_WA_NUMBER_LA_PRIMAVERA;
-    return normalizeWhatsAppNumber(raw);
-  }
-
+export function getWhatsAppNumber(): string {
   const raw = process.env.NEXT_PUBLIC_WA_NUMBER ?? DEFAULT_WA_NUMBER;
   return normalizeWhatsAppNumber(raw);
 }
 
-export function buildWhatsAppUrl(
-  message?: string,
-  locationId?: string | null,
-): string {
-  const number = getWhatsAppNumber(locationId);
+export function buildWhatsAppUrl(message?: string): string {
+  const number = getWhatsAppNumber();
   const text = message ?? "Hola, quiero hacer un pedido";
   return `https://wa.me/${number}?text=${encodeURIComponent(text)}`;
 }
 
 export function buildEventInquiryMessage(): string {
   return "Hola, me interesa contratar a Mad Dogos para un evento. ¿Me pueden dar información y cotización?";
-}
-
-export function locationLabel(locationId: WaLocationId): string {
-  return LOCATIONS.find((location) => location.id === locationId)?.label ?? locationId;
 }
 
 export function fulfillmentLabel(fulfillment: OrderFulfillment): string {
@@ -76,7 +52,6 @@ export function fulfillmentLabel(fulfillment: OrderFulfillment): string {
 export function buildOrderMessage(
   lines: CartLineItem[],
   options: {
-    locationId: WaLocationId;
     fulfillment: OrderFulfillment;
     scheduled?: boolean;
     scheduleNote?: string;
@@ -110,7 +85,6 @@ export function buildOrderMessage(
       ? "Hola, quiero PROGRAMAR el siguiente pedido:"
       : "Hola, quiero hacer el siguiente pedido:",
     "",
-    `Sucursal: ${locationLabel(options.locationId)}`,
     `Modalidad: ${fulfillmentLabel(options.fulfillment)}`,
   ];
 
@@ -135,24 +109,20 @@ export function parseStoredCartOrder(raw: string | null): StoredCartOrder | null
   if (!raw) return null;
 
   try {
-    const parsed = JSON.parse(raw) as Partial<StoredCartOrder>;
+    const parsed = JSON.parse(raw) as Partial<StoredCartOrder & { locationId?: string }>;
     if (
       typeof parsed.message === "string" &&
-      isWaLocationId(parsed.locationId) &&
       (parsed.fulfillment === "pickup" || parsed.fulfillment === "delivery")
     ) {
       return {
         message: parsed.message,
-        locationId: parsed.locationId,
         fulfillment: parsed.fulfillment,
       };
     }
   } catch {
-    // Legacy: plain message string without location metadata.
     if (raw.startsWith("Hola")) {
       return {
         message: raw,
-        locationId: "antonio-rosales",
         fulfillment: "pickup",
       };
     }
@@ -162,9 +132,7 @@ export function parseStoredCartOrder(raw: string | null): StoredCartOrder | null
 }
 
 export function buildGraciasUrl(
-  itemOrOptions?:
-    | string
-    | { item?: string; source?: string; location?: WaLocationId },
+  itemOrOptions?: string | { item?: string; source?: string },
   source?: string,
 ): string {
   const params = new URLSearchParams();
@@ -172,7 +140,6 @@ export function buildGraciasUrl(
   if (typeof itemOrOptions === "object" && itemOrOptions !== null) {
     if (itemOrOptions.item) params.set("item", itemOrOptions.item);
     if (itemOrOptions.source) params.set("src", itemOrOptions.source);
-    if (itemOrOptions.location) params.set("loc", itemOrOptions.location);
   } else {
     if (itemOrOptions) params.set("item", itemOrOptions);
     if (source) params.set("src", source);

@@ -8,27 +8,26 @@ import {
   useSiteOpenStatus,
 } from "@/hooks/use-open-status";
 import type { Location } from "@/lib/site-info";
-import { LOCATIONS } from "@/lib/site-info";
 
 const STATUS_STYLES: Record<
   OpenStatusKind,
   { badge: string; dot: string }
 > = {
   open: {
-    badge: "bg-emerald-600 text-white",
-    dot: "bg-white",
+    badge: "bg-zinc-700 text-white",
+    dot: "bg-success",
   },
   closes_soon: {
-    badge: "bg-amber-500 text-black",
-    dot: "bg-black",
+    badge: "bg-zinc-700 text-white",
+    dot: "bg-success",
   },
   opens_soon: {
-    badge: "bg-sky-600 text-white",
-    dot: "bg-white",
+    badge: "bg-zinc-700 text-white",
+    dot: "bg-accent",
   },
   closed: {
     badge: "bg-zinc-700 text-white",
-    dot: "bg-white/80",
+    dot: "bg-primary",
   },
 };
 
@@ -138,26 +137,5 @@ export function LocationOpenStatusBadge({
       showDetail={showDetail}
       className={className}
     />
-  );
-}
-
-export function HeroLocationStatusBadges({
-  className,
-}: {
-  className?: string;
-}) {
-  return (
-    <div className={cn("flex flex-wrap gap-2", className)}>
-      {LOCATIONS.map((location) => (
-        <LocationOpenStatusBadge
-          key={location.id}
-          location={location}
-          size="md"
-          showLocationName
-          showDetail={false}
-          href="/ubicacion"
-        />
-      ))}
-    </div>
   );
 }

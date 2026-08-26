@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, Minus, Plus, Trash2, X } from "lucide-react";
 import { useCart } from "@/components/providers/cart-provider";
@@ -19,7 +19,6 @@ import {
   formatExtrasForDisplay,
   formatIngredientsForDisplay,
 } from "@/lib/cart-utils";
-import { LOCATIONS } from "@/lib/site-info";
 import type { CartLineItem } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import {
@@ -27,13 +26,10 @@ import {
   buildOrderMessage,
   formatMXN,
   fulfillmentLabel,
-  isWaLocationId,
   lineSubtotal,
   lineUnitPrice,
-  locationLabel,
   type OrderFulfillment,
   type StoredCartOrder,
-  type WaLocationId,
 } from "@/lib/whatsapp";
 
 type CartSheetProps = {
@@ -42,9 +38,9 @@ type CartSheetProps = {
   onLineClick: (line: CartLineItem) => void;
 };
 
-type CheckoutStep = "cart" | "location" | "fulfillment";
+type CheckoutStep = "cart" | "fulfillment";
 
-const STEPS: CheckoutStep[] = ["cart", "location", "fulfillment"];
+const STEPS: CheckoutStep[] = ["cart", "fulfillment"];
 
 const STEP_COPY: Record<
   CheckoutStep,
@@ -53,10 +49,6 @@ const STEP_COPY: Record<
   cart: {
     title: "Tu pedido",
     subtitle: "Revisa lo que vas a pedir",
-  },
-  location: {
-    title: "Sucursal",
-    subtitle: "¿En cuál sucursal quieres tu pedido?",
   },
   fulfillment: {
     title: "Modalidad",
@@ -88,24 +80,15 @@ export function CartSheet({ open, onOpenChange, onLineClick }: CartSheetProps) {
   const { isScheduled: siteIsScheduled, detailEs, locations } = useSiteOpenStatus();
   const [lineToRemove, setLineToRemove] = useState<string | null>(null);
   const [step, setStep] = useState<CheckoutStep>("cart");
-  const [locationId, setLocationId] = useState<WaLocationId | "">("");
   const [fulfillment, setFulfillment] = useState<OrderFulfillment | "">("");
   const [stepAttempted, setStepAttempted] = useState(false);
 
   const linePendingRemoval = lines.find((line) => line.lineId === lineToRemove);
-
-  const selectedLocationStatus = useMemo(
-    () => (locationId ? locations.find((item) => item.locationId === locationId) : null),
-    [locationId, locations],
-  );
-
-  const isScheduledOrder = selectedLocationStatus
-    ? selectedLocationStatus.isScheduled
-    : siteIsScheduled;
+  const locationStatus = locations[0];
+  const isScheduledOrder = locationStatus?.isScheduled ?? siteIsScheduled;
 
   const resetCheckout = () => {
     setStep("cart");
-    setLocationId("");
     setFulfillment("");
     setStepAttempted(false);
   };
@@ -128,19 +111,11 @@ export function CartSheet({ open, onOpenChange, onLineClick }: CartSheetProps) {
 
   const goBack = () => {
     setStepAttempted(false);
-    if (step === "fulfillment") setStep("location");
-    else if (step === "location") setStep("cart");
-  };
-
-  const goToLocationStep = () => {
-    if (!lines.length) return;
-    setStepAttempted(false);
-    setStep("location");
+    if (step === "fulfillment") setStep("cart");
   };
 
   const goToFulfillmentStep = () => {
-    setStepAttempted(true);
-    if (!isWaLocationId(locationId)) return;
+    if (!lines.length) return;
     setStepAttempted(false);
     setStep("fulfillment");
   };
@@ -149,22 +124,20 @@ export function CartSheet({ open, onOpenChange, onLineClick }: CartSheetProps) {
     if (!lines.length) return;
 
     setStepAttempted(true);
-    if (!isWaLocationId(locationId) || !fulfillment) return;
+    if (!fulfillment) return;
 
     const orderMessage = buildOrderMessage(lines, {
-      locationId,
       fulfillment,
       scheduled: isScheduledOrder,
-      scheduleNote: selectedLocationStatus?.detailEs,
+      scheduleNote: locationStatus?.detailEs,
     });
     const payload: StoredCartOrder = {
       message: orderMessage,
-      locationId,
       fulfillment,
     };
     sessionStorage.setItem(CART_ORDER_STORAGE_KEY, JSON.stringify(payload));
     handleOpenChange(false);
-    router.push(buildGraciasUrl({ source: "cart", location: locationId }));
+    router.push(buildGraciasUrl({ source: "cart" }));
   };
 
   const confirmRemoveLine = () => {
@@ -327,79 +300,13 @@ export function CartSheet({ open, onOpenChange, onLineClick }: CartSheetProps) {
             )
           ) : null}
 
-          {step === "location" ? (
-            <section className="space-y-3">
-              <RadioGroup
-                value={locationId}
-                onValueChange={(value) => {
-                  if (isWaLocationId(value)) {
-                    setLocationId(value);
-                    setStepAttempted(false);
-                  }
-                }}
-                className="grid gap-3"
-              >
-                {LOCATIONS.map((location) => {
-                  const status = locations.find(
-                    (item) => item.locationId === location.id,
-                  );
-                  const selected = locationId === location.id;
-                  const id = `checkout-location-${location.id}`;
-
-                  return (
-                    <label
-                      key={location.id}
-                      htmlFor={id}
-                      className={cn(
-                        "flex w-full cursor-pointer items-start justify-between gap-3 rounded-xl border px-4 py-3.5 text-sm transition-colors",
-                        selected
-                          ? "border-primary bg-primary/5"
-                          : "border-border hover:border-primary/40",
-                        stepAttempted && !locationId && "border-destructive/50",
-                      )}
-                    >
-                      <span className="min-w-0">
-                        <span className="block text-base font-semibold">
-                          {location.label}
-                        </span>
-                        <span className="text-muted-foreground mt-1 block text-xs leading-relaxed">
-                          {location.street}
-                          {status
-                            ? ` · ${status.labelEs}${status.isScheduled ? " · puedes programar" : ""}`
-                            : null}
-                        </span>
-                      </span>
-                      <RadioGroupItem
-                        value={location.id}
-                        id={id}
-                        className="mt-1 shrink-0"
-                      />
-                    </label>
-                  );
-                })}
-              </RadioGroup>
-              {stepAttempted && !locationId ? (
-                <p className="text-destructive text-xs">Elige una sucursal para continuar</p>
-              ) : null}
-              {locationId && isScheduledOrder && selectedLocationStatus ? (
-                <p className="bg-muted text-muted-foreground rounded-xl px-4 py-3 text-xs leading-relaxed">
-                  {selectedLocationStatus.label} está{" "}
-                  {selectedLocationStatus.labelEs.toLowerCase()} (
-                  {selectedLocationStatus.detailEs}). Puedes programar tu pedido y lo
-                  preparamos al abrir.
-                </p>
-              ) : null}
-            </section>
-          ) : null}
-
           {step === "fulfillment" ? (
             <section className="space-y-4">
-              {isWaLocationId(locationId) ? (
-                <p className="text-muted-foreground text-sm">
-                  Sucursal:{" "}
-                  <span className="text-foreground font-medium">
-                    {locationLabel(locationId)}
-                  </span>
+              {isScheduledOrder && locationStatus ? (
+                <p className="bg-muted text-muted-foreground rounded-xl px-4 py-3 text-xs leading-relaxed">
+                  Ahora estamos {locationStatus.labelEs.toLowerCase()} (
+                  {locationStatus.detailEs}). Puedes programar tu pedido y lo preparamos al
+                  abrir.
                 </p>
               ) : null}
 
@@ -418,7 +325,7 @@ export function CartSheet({ open, onOpenChange, onLineClick }: CartSheetProps) {
                     {
                       value: "pickup" as const,
                       label: "Para recoger",
-                      hint: "Pásalo a buscar en la sucursal",
+                      hint: "Pásalo a buscar en el local",
                     },
                     {
                       value: "delivery" as const,
@@ -475,7 +382,6 @@ export function CartSheet({ open, onOpenChange, onLineClick }: CartSheetProps) {
                 <div className="border-border rounded-xl border px-4 py-3 text-sm">
                   <p className="font-medium">Resumen</p>
                   <p className="text-muted-foreground mt-1 text-xs leading-relaxed">
-                    {isWaLocationId(locationId) ? locationLabel(locationId) : "—"} ·{" "}
                     {fulfillmentLabel(fulfillment)} · {formatMXN(total)}
                     {isScheduledOrder ? " · Pedido programado" : ""}
                   </p>
@@ -493,16 +399,10 @@ export function CartSheet({ open, onOpenChange, onLineClick }: CartSheetProps) {
                   <span>Total</span>
                   <span>{formatMXN(total)}</span>
                 </div>
-                <Button size="lg" className="w-full" onClick={goToLocationStep}>
+                <Button size="lg" className="w-full" onClick={goToFulfillmentStep}>
                   Continuar
                 </Button>
               </>
-            ) : null}
-
-            {step === "location" ? (
-              <Button size="lg" className="w-full" onClick={goToFulfillmentStep}>
-                Continuar
-              </Button>
             ) : null}
 
             {step === "fulfillment" ? (
@@ -514,7 +414,7 @@ export function CartSheet({ open, onOpenChange, onLineClick }: CartSheetProps) {
                 <Button size="lg" className="w-full" onClick={handleCheckout}>
                   {cartCheckoutLabel(isScheduledOrder)}
                 </Button>
-                {isScheduledOrder && !selectedLocationStatus ? (
+                {isScheduledOrder ? (
                   <p className="text-muted-foreground text-center text-xs">{detailEs}</p>
                 ) : null}
               </>

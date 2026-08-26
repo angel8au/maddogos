@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { SiteLogo } from "@/components/site-logo";
-import { LOCATIONS } from "@/lib/site-info";
+import { BUSINESS_ADDRESS } from "@/lib/site-info";
 import { cn } from "@/lib/utils";
 
 const footerLinks = [
   { href: "/menu", label: "Menú" },
   { href: "/eventos", label: "Eventos" },
-  { href: "/ubicacion", label: "Ubicaciones" },
+  { href: "/ubicacion", label: "Ubicación" },
 ] as const;
 
 type SiteFooterProps = {
@@ -21,14 +21,7 @@ export function SiteFooter({ className }: SiteFooterProps) {
           <div className="space-y-3">
             <SiteLogo size="footer" />
             <p className="text-sm text-white/80">Hot dogs estilo Sinaloa en Culiacán</p>
-            <ul className="max-w-sm space-y-2 text-xs text-white/60">
-              {LOCATIONS.map((location) => (
-                <li key={location.id}>
-                  <span className="font-medium text-white/75">{location.label}: </span>
-                  {location.full}
-                </li>
-              ))}
-            </ul>
+            <p className="max-w-sm text-xs text-white/60">{BUSINESS_ADDRESS.full}</p>
           </div>
           <nav className="flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium">
             {footerLinks.map((link) => (
