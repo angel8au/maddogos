@@ -80,6 +80,14 @@ export const LOCATIONS: Location[] = [
 
 export const BUSINESS_ADDRESS = LOCATIONS[0];
 
+export const SOCIAL_LINKS = {
+  instagram: "https://www.instagram.com/MadDogosHotdogs/",
+  facebook: "https://www.facebook.com/MadDogosHotdogs/",
+} as const;
+
+export const OPENING_HOURS_SUMMARY =
+  "Lun, Mié-Dom 5:00 PM – 11:00 PM · Mar cerrado";
+
 /** Google Maps of the primary Place used for reviews. */
 export const GOOGLE_MAPS_URL = LOCATIONS[0].mapsUrl;
 

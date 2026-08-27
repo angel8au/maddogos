@@ -41,6 +41,28 @@ export function buildWhatsAppUrl(message?: string): string {
   return `https://wa.me/${number}?text=${encodeURIComponent(text)}`;
 }
 
+export function buildWhatsAppDeepLink(message?: string): string {
+  const number = getWhatsAppNumber();
+  const text = message ?? "Hola, quiero hacer un pedido";
+  return `whatsapp://send?phone=${number}&text=${encodeURIComponent(text)}`;
+}
+
+export function isMobileDevice(userAgent = typeof navigator !== "undefined" ? navigator.userAgent : ""): boolean {
+  return /Android|iPhone|iPad|iPod/i.test(userAgent);
+}
+
+/** Opens WhatsApp — native app on mobile (works with WhatsApp ilimitado), wa.me on desktop. */
+export function openWhatsApp(message?: string): void {
+  if (typeof window === "undefined") return;
+
+  if (isMobileDevice()) {
+    window.location.href = buildWhatsAppDeepLink(message);
+    return;
+  }
+
+  window.location.href = buildWhatsAppUrl(message);
+}
+
 export function buildEventInquiryMessage(): string {
   return "Hola, me interesa contratar a Mad Dogos para un evento. ¿Me pueden dar información y cotización?";
 }

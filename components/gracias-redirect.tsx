@@ -1,17 +1,20 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import posthog from "posthog-js";
 import { CART_ORDER_STORAGE_KEY, clearCartStorage } from "@/lib/cart-utils";
 import {
   buildEventInquiryMessage,
   buildWhatsAppUrl,
+  isMobileDevice,
+  openWhatsApp,
   parseStoredCartOrder,
 } from "@/lib/whatsapp";
 
 export function GraciasRedirect() {
   const searchParams = useSearchParams();
+  const [fallbackUrl, setFallbackUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const item = searchParams.get("item") ?? undefined;
@@ -52,17 +55,25 @@ export function GraciasRedirect() {
       });
     }
 
-    const url = buildWhatsAppUrl(message);
-
-    const timer = window.setTimeout(() => {
+    const redirectTimer = window.setTimeout(() => {
       if (storedOrder) {
         sessionStorage.removeItem(CART_ORDER_STORAGE_KEY);
         clearCartStorage();
       }
-      window.location.replace(url);
+      openWhatsApp(message);
     }, 200);
 
-    return () => window.clearTimeout(timer);
+    let fallbackTimer: number | undefined;
+    if (isMobileDevice()) {
+      fallbackTimer = window.setTimeout(() => {
+        setFallbackUrl(buildWhatsAppUrl(message));
+      }, 2500);
+    }
+
+    return () => {
+      window.clearTimeout(redirectTimer);
+      if (fallbackTimer) window.clearTimeout(fallbackTimer);
+    };
   }, [searchParams]);
 
   return (
@@ -70,6 +81,17 @@ export function GraciasRedirect() {
       <p className="font-display text-primary text-4xl uppercase">¡Gracias!</p>
       <p className="text-muted-foreground">Te estamos redirigiendo a WhatsApp...</p>
       <div className="border-primary size-8 animate-spin rounded-full border-4 border-t-transparent" />
+      {fallbackUrl ? (
+        <div className="mt-4 space-y-2">
+          <p className="text-muted-foreground text-sm">¿No se abrió WhatsApp?</p>
+          <a
+            href={fallbackUrl}
+            className="text-primary text-sm font-medium underline underline-offset-4"
+          >
+            Toca aquí para abrir WhatsApp
+          </a>
+        </div>
+      ) : null}
     </main>
   );
 }
