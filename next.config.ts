@@ -6,8 +6,21 @@ const revision =
   spawnSync("git", ["rev-parse", "HEAD"], { encoding: "utf-8" }).stdout?.trim() ??
   crypto.randomUUID();
 
+/** Routes precached on SW install so they work offline without a prior visit. */
+const OFFLINE_ROUTES = [
+  "/",
+  "/menu",
+  "/eventos",
+  "/ubicacion",
+  "/gracias",
+  "/api/menu",
+] as const;
+
 const withSerwist = withSerwistInit({
-  additionalPrecacheEntries: [{ url: "/~offline", revision }],
+  additionalPrecacheEntries: [
+    { url: "/~offline", revision },
+    ...OFFLINE_ROUTES.map((url) => ({ url, revision })),
+  ],
   swSrc: "app/sw.ts",
   swDest: "public/sw.js",
 });

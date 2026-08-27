@@ -3,6 +3,7 @@ import { Bebas_Neue, Inter } from "next/font/google";
 import "./globals.css";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
 import { SerwistProviderWrapper } from "@/components/pwa/serwist-provider";
+import { WarmCache } from "@/components/pwa/warm-cache";
 import { PostHogProvider } from "@/components/providers/posthog-provider";
 import { CartProvider } from "@/components/providers/cart-provider";
 import { MenuCatalogProvider } from "@/components/providers/menu-catalog-provider";
@@ -91,6 +92,7 @@ export default async function RootLayout({
               >
                 {children}
                 <CartUI />
+                <WarmCache />
                 <InstallPrompt />
               </MenuCatalogProvider>
             </CartProvider>

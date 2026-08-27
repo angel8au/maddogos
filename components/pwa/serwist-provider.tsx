@@ -13,6 +13,7 @@ export function SerwistProviderWrapper({ children }: Props) {
       swUrl="/sw.js"
       disable={process.env.NODE_ENV === "development"}
       register
+      cacheOnNavigation
       reloadOnOnline
     >
       {children}
