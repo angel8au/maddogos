@@ -3,12 +3,14 @@ import type {
   MenuItem,
   MenuIngredient,
   MenuCategory,
+  SelectedBurger,
+  SelectedDrink,
   SelectedExtra,
   SelectedIngredient,
 } from "@/lib/types";
 import { getMenuImageUrl } from "@/lib/menu-images";
 import { isValidMenuCategory } from "@/lib/cart-line-utils";
-import { requiresSauceSelection } from "@/lib/menu-config";
+import { getCustomizationRules } from "@/lib/menu-config";
 
 export function getDefaultIngredients(item: MenuItem): SelectedIngredient[] {
   if (!item.ingredients?.length) return [];
@@ -24,6 +26,9 @@ export function configSignature(
   specialInstructions?: string,
   selectedSauce?: string,
   selectedExtras: SelectedExtra[] = [],
+  selectedSauces: string[] = [],
+  selectedDrinks: SelectedDrink[] = [],
+  selectedBurger?: SelectedBurger,
 ): string {
   const ingKey = ingredients
     .map((i) => `${i.name}:${i.included ? "1" : "0"}`)
@@ -34,10 +39,19 @@ export function configSignature(
     .map((e) => `${e.id}:${e.quantity}`)
     .sort()
     .join("|");
+  const saucesKey = (selectedSauces.length ? selectedSauces : selectedSauce ? [selectedSauce] : [])
+    .join("|");
+  const drinksKey = selectedDrinks
+    .filter((d) => d.quantity > 0)
+    .map((d) => `${d.id}:${d.quantity}`)
+    .sort()
+    .join("|");
   return [
     itemId,
     ingKey,
-    selectedSauce ?? "",
+    saucesKey,
+    drinksKey,
+    selectedBurger?.id ?? "",
     extrasKey,
     specialInstructions?.trim() ?? "",
   ].join("::");
@@ -87,6 +101,31 @@ export function formatExtrasForDisplay(extras: SelectedExtra[]): string {
     .join(", ");
 }
 
+export function formatSaucesForDisplay(
+  line: Pick<CartLineItem, "selectedSauce" | "selectedSauces">,
+  labels?: string[],
+): string {
+  const sauces =
+    line.selectedSauces?.filter(Boolean) ??
+    (line.selectedSauce ? [line.selectedSauce] : []);
+  if (!sauces.length) return "";
+  if (labels?.length && sauces.length > 1) {
+    return sauces
+      .map((sauce, i) => `${labels[i] ?? `Salsa ${i + 1}`}: ${sauce}`)
+      .join(" · ");
+  }
+  if (sauces.length === 1) return `Salsa: ${sauces[0]}`;
+  return `Salsas: ${sauces.join(", ")}`;
+}
+
+export function formatDrinksForDisplay(drinks?: SelectedDrink[]): string {
+  const active = drinks?.filter((d) => d.quantity > 0) ?? [];
+  if (!active.length) return "";
+  return active
+    .map((d) => (d.quantity > 1 ? `${d.name} x${d.quantity}` : d.name))
+    .join(", ");
+}
+
 function formatMXNInline(price: number): string {
   return new Intl.NumberFormat("es-MX", {
     style: "currency",
@@ -98,10 +137,37 @@ function formatMXNInline(price: number): string {
 export function validateCartAdd(
   item: MenuItem,
   selectedSauce?: string,
+  selectedSauces: string[] = [],
+  selectedDrinks: SelectedDrink[] = [],
+  selectedBurger?: SelectedBurger,
 ): string | null {
-  if (requiresSauceSelection(item) && !selectedSauce) {
-    return "Selecciona salsa para continuar";
+  const rules = getCustomizationRules(item);
+  const sauces =
+    selectedSauces.filter(Boolean).length > 0
+      ? selectedSauces.filter(Boolean)
+      : selectedSauce
+        ? [selectedSauce]
+        : [];
+
+  if (rules.requiresBurgerChoice && !selectedBurger?.id) {
+    return "Selecciona tu hamburguesa";
   }
+
+  if (rules.sauceCount > 0 && sauces.length < rules.sauceCount) {
+    return rules.sauceCount > 1
+      ? "Selecciona salsa para alitas y boneless"
+      : "Selecciona salsa para continuar";
+  }
+
+  if (rules.includedDrinkCount > 0) {
+    const drinkTotal = selectedDrinks.reduce((sum, d) => sum + d.quantity, 0);
+    if (drinkTotal < rules.includedDrinkCount) {
+      return rules.includedDrinkCount === 1
+        ? "Selecciona tu bebida incluida"
+        : `Selecciona ${rules.includedDrinkCount} bebidas incluidas`;
+    }
+  }
+
   return null;
 }
 
@@ -148,6 +214,8 @@ function normalizeCartLine(line: CartLineItem): CartLineItem {
     imageUrl: line.imageUrl ?? getMenuImageUrl(category, slug),
     selectedIngredients: line.selectedIngredients ?? [],
     selectedExtras: line.selectedExtras ?? [],
+    selectedSauces: line.selectedSauces ?? (line.selectedSauce ? [line.selectedSauce] : []),
+    selectedDrinks: line.selectedDrinks ?? [],
   };
 }
 

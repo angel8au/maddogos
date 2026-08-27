@@ -22,6 +22,7 @@ export function cartLineToMenuItem(
     imageUrl: line.imageUrl ?? getMenuImageUrl(category, line.slug),
     customizationType: line.customizationType,
     sauceRequired: line.sauceRequired,
+    includedDrinkCount: line.includedDrinkCount,
     ingredients: line.ingredients,
   };
 }

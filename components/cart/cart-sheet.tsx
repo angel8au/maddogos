@@ -17,9 +17,12 @@ import { cartCheckoutLabel } from "@/lib/opening-status";
 import {
   CART_ORDER_STORAGE_KEY,
   clearCartStorage,
+  formatDrinksForDisplay,
   formatExtrasForDisplay,
   formatIngredientsForDisplay,
+  formatSaucesForDisplay,
 } from "@/lib/cart-utils";
+import { getCustomizationRules } from "@/lib/menu-config";
 import type { CartLineItem } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import {
@@ -260,11 +263,34 @@ export function CartSheet({ open, onOpenChange, onLineClick }: CartSheetProps) {
                             </span>
                           ) : null}
                         </p>
-                        {line.selectedSauce ? (
+                        {line.selectedBurger ? (
                           <p className="text-muted-foreground text-xs">
-                            Salsa: {line.selectedSauce}
+                            Hamburguesa: {line.selectedBurger.name}
                           </p>
                         ) : null}
+                        {(() => {
+                          const sauceText = formatSaucesForDisplay(
+                            line,
+                            getCustomizationRules({
+                              _id: line.itemId,
+                              category: line.category,
+                              sauceRequired: line.sauceRequired,
+                              customizationType: line.customizationType,
+                              includedDrinkCount: line.includedDrinkCount,
+                            }).sauceLabels,
+                          );
+                          return sauceText ? (
+                            <p className="text-muted-foreground text-xs">{sauceText}</p>
+                          ) : null;
+                        })()}
+                        {(() => {
+                          const drinksText = formatDrinksForDisplay(line.selectedDrinks);
+                          return drinksText ? (
+                            <p className="text-muted-foreground text-xs">
+                              Bebidas: {drinksText}
+                            </p>
+                          ) : null;
+                        })()}
                         {ingText ? (
                           <p className="text-muted-foreground text-xs">{ingText}</p>
                         ) : null}

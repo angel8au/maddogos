@@ -7,6 +7,7 @@ import {
 import {
   customizationTypeForFallback,
   DEFAULT_SAUCE_OPTIONS,
+  includedDrinkCountForFallback,
   LINKED_EXTRA_IDS,
   sauceRequiredForFallback,
 } from "../lib/menu-config";
@@ -73,8 +74,13 @@ async function seedMenu() {
           ? hotDogIngredients
           : undefined;
 
-    const customizationType = customizationTypeForFallback(item.category, item.name);
-    const sauceRequired = sauceRequiredForFallback(item.category);
+    const customizationType = customizationTypeForFallback(
+      item.category,
+      item.name,
+      item.id,
+    );
+    const sauceRequired = sauceRequiredForFallback(item.category, item.id);
+    const includedDrinkCount = includedDrinkCountForFallback(item.id);
     const linkedExtras = linkedExtraRefs(item.category);
 
     await client.createOrReplace({
@@ -91,6 +97,7 @@ async function seedMenu() {
       order: item.order,
       customizationType,
       sauceRequired,
+      includedDrinkCount,
       ...(ingredients ? { ingredients } : {}),
       ...(linkedExtras ? { linkedExtras } : {}),
     });

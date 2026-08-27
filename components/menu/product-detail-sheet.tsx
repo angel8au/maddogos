@@ -3,8 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { X } from "lucide-react";
 import { useCart } from "@/components/providers/cart-provider";
+import { BurgerChoicePicker } from "@/components/menu/burger-choice-picker";
 import { DrinksCarousel } from "@/components/menu/drinks-carousel";
 import { ExtrasCarousel } from "@/components/menu/extras-carousel";
+import { IncludedDrinksPicker } from "@/components/menu/included-drinks-picker";
 import { MenuItemImage } from "@/components/menu/menu-item-image";
 import { QuantityStepper } from "@/components/menu/quantity-stepper";
 import { SaucePicker } from "@/components/menu/sauce-picker";
@@ -13,9 +15,21 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Sheet, SheetBody, SheetFooter, SheetHeader } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 import { getDefaultIngredients, validateCartAdd } from "@/lib/cart-utils";
-import { requiresSauceSelection, resolveLinkedExtras } from "@/lib/menu-config";
+import {
+  burgersForChoice,
+  filterIncludedDrinks,
+  getCustomizationRules,
+  resolveLinkedExtras,
+} from "@/lib/menu-config";
 import { formatMXN } from "@/lib/whatsapp";
-import type { CartLineItem, MenuItem, SelectedExtra, SelectedIngredient } from "@/lib/types";
+import type {
+  CartLineItem,
+  MenuItem,
+  SelectedBurger,
+  SelectedDrink,
+  SelectedExtra,
+  SelectedIngredient,
+} from "@/lib/types";
 
 type ProductDetailSheetProps = {
   item: MenuItem | null;
@@ -41,14 +55,23 @@ export function ProductDetailSheet({
   const { addItem, removeLine } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [ingredients, setIngredients] = useState<SelectedIngredient[]>([]);
-  const [selectedSauce, setSelectedSauce] = useState<string | undefined>();
+  const [selectedSauces, setSelectedSauces] = useState<string[]>([]);
+  const [selectedDrinks, setSelectedDrinks] = useState<SelectedDrink[]>([]);
+  const [selectedBurger, setSelectedBurger] = useState<SelectedBurger | undefined>();
   const [extraQuantities, setExtraQuantities] = useState<Record<string, number>>({});
   const [specialInstructions, setSpecialInstructions] = useState("");
-  const [sauceError, setSauceError] = useState<string | undefined>();
+  const [formError, setFormError] = useState<string | undefined>();
 
   const availableExtras = useMemo(
     () => (item ? resolveLinkedExtras(item, allItems) : []),
     [item, allItems],
+  );
+
+  const burgerOptions = useMemo(() => burgersForChoice(allItems), [allItems]);
+
+  const rules = useMemo(
+    () => (item ? getCustomizationRules(item) : { sauceCount: 0, includedDrinkCount: 0 }),
+    [item],
   );
 
   const selectedExtras: SelectedExtra[] = useMemo(
@@ -70,7 +93,15 @@ export function ProductDetailSheet({
     if (editingLine && editingLine.itemId === item._id) {
       setQuantity(editingLine.quantity);
       setIngredients(editingLine.selectedIngredients);
-      setSelectedSauce(editingLine.selectedSauce);
+      setSelectedSauces(
+        editingLine.selectedSauces?.length
+          ? editingLine.selectedSauces
+          : editingLine.selectedSauce
+            ? [editingLine.selectedSauce]
+            : [],
+      );
+      setSelectedDrinks(editingLine.selectedDrinks ?? []);
+      setSelectedBurger(editingLine.selectedBurger);
       setExtraQuantities(
         Object.fromEntries(
           editingLine.selectedExtras.map((extra) => [extra.id, extra.quantity]),
@@ -80,26 +111,36 @@ export function ProductDetailSheet({
     } else {
       setQuantity(1);
       setIngredients(getDefaultIngredients(item));
-      setSelectedSauce(undefined);
+      setSelectedSauces([]);
+      setSelectedDrinks([]);
+      setSelectedBurger(undefined);
       setExtraQuantities({});
       setSpecialInstructions("");
     }
-    setSauceError(undefined);
+    setFormError(undefined);
   }, [item, open, editingLine]);
 
   if (!item) return null;
 
   const hasIngredients = ingredients.length > 0;
-  const needsSauce = requiresSauceSelection(item);
+  const sauceCount = rules.sauceCount;
+  const drinkCount = rules.includedDrinkCount;
+  const sauceLabels = rules.sauceLabels;
   const unitPrice =
     item.price +
     selectedExtras.reduce((sum, extra) => sum + extra.price * extra.quantity, 0);
   const lineTotal = unitPrice * quantity;
 
   const handleAdd = () => {
-    const validationError = validateCartAdd(item, selectedSauce);
+    const validationError = validateCartAdd(
+      item,
+      selectedSauces[0],
+      selectedSauces,
+      selectedDrinks,
+      selectedBurger,
+    );
     if (validationError) {
-      setSauceError(validationError);
+      setFormError(validationError);
       return;
     }
 
@@ -108,7 +149,10 @@ export function ProductDetailSheet({
     const added = addItem(item, {
       quantity,
       selectedIngredients: ingredients,
-      selectedSauce,
+      selectedSauce: selectedSauces[0],
+      selectedSauces,
+      selectedDrinks,
+      selectedBurger,
       selectedExtras,
       specialInstructions: specialInstructions.trim() || undefined,
     });
@@ -117,6 +161,14 @@ export function ProductDetailSheet({
   };
 
   const isEditing = Boolean(editingLine);
+  const burgerError =
+    formError && formError.toLowerCase().includes("hamburguesa")
+      ? formError
+      : undefined;
+  const sauceError =
+    formError && formError.toLowerCase().includes("salsa") ? formError : undefined;
+  const drinkError =
+    formError && formError.toLowerCase().includes("bebida") ? formError : undefined;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange} zIndexClass={zIndexClass}>
@@ -152,15 +204,74 @@ export function ProductDetailSheet({
           />
         </div>
 
-        {needsSauce ? (
+        {rules.requiresBurgerChoice ? (
+          <BurgerChoicePicker
+            burgers={burgerOptions}
+            value={selectedBurger}
+            onChange={(burger) => {
+              setSelectedBurger(burger);
+              setFormError(undefined);
+            }}
+            error={burgerError}
+          />
+        ) : null}
+
+        {sauceCount === 1 ? (
           <SaucePicker
             options={sauceOptions}
-            value={selectedSauce}
+            value={selectedSauces[0]}
             onChange={(sauce) => {
-              setSelectedSauce(sauce);
-              setSauceError(undefined);
+              setSelectedSauces([sauce]);
+              setFormError(undefined);
             }}
             error={sauceError}
+          />
+        ) : null}
+
+        {sauceCount > 1
+          ? Array.from({ length: sauceCount }, (_, index) => (
+              <SaucePicker
+                key={`sauce-slot-${index}`}
+                options={sauceOptions}
+                value={selectedSauces[index]}
+                idPrefix={`sauce-${item._id}-${index}`}
+                title={sauceLabels?.[index] ?? `Salsa ${index + 1}`}
+                description={
+                  index === 0 ? "Elige una salsa distinta para cada proteína" : undefined
+                }
+                onChange={(sauce) => {
+                  setSelectedSauces((prev) => {
+                    const next = Array.from(
+                      { length: sauceCount },
+                      (_, i) => prev[i] ?? "",
+                    );
+                    next[index] = sauce;
+                    return next;
+                  });
+                  setFormError(undefined);
+                }}
+                error={
+                  sauceError && !selectedSauces[index] ? sauceError : undefined
+                }
+              />
+            ))
+          : null}
+
+        {drinkCount > 0 ? (
+          <IncludedDrinksPicker
+            drinks={filterIncludedDrinks(item, drinks)}
+            requiredCount={drinkCount}
+            value={selectedDrinks}
+            onChange={(next) => {
+              setSelectedDrinks(next);
+              setFormError(undefined);
+            }}
+            error={drinkError}
+            hint={
+              rules.includedDrinkIds?.length
+                ? "Incluidas · solo Té de Jazmín o Jamaica"
+                : undefined
+            }
           />
         ) : null}
 
@@ -221,7 +332,9 @@ export function ProductDetailSheet({
           }
         />
 
-        {item.category !== "bebidas" ? <DrinksCarousel drinks={drinks} /> : null}
+        {item.category !== "bebidas" && drinkCount === 0 ? (
+          <DrinksCarousel drinks={drinks} />
+        ) : null}
       </SheetBody>
 
       <SheetFooter>

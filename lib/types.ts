@@ -24,6 +24,17 @@ export type MenuExtra = {
   price: number;
 };
 
+export type SelectedDrink = {
+  id: string;
+  name: string;
+  quantity: number;
+};
+
+export type SelectedBurger = {
+  id: string;
+  name: string;
+};
+
 export type MenuItem = {
   _id: string;
   name: string;
@@ -37,6 +48,8 @@ export type MenuItem = {
   imageUrl?: string;
   customizationType?: CustomizationType;
   sauceRequired?: boolean;
+  /** Bebidas incluidas en el precio (obligatorias). 0 = no aplica. */
+  includedDrinkCount?: number;
   ingredients?: MenuIngredient[];
   linkedExtras?: MenuExtra[];
 };
@@ -64,10 +77,16 @@ export type CartLineItem = {
   slug: string;
   description?: string;
   sauceRequired?: boolean;
+  includedDrinkCount?: number;
   customizationType?: CustomizationType;
   ingredients?: MenuIngredient[];
   selectedIngredients: SelectedIngredient[];
+  /** Salsa única (compat) o primera de selectedSauces */
   selectedSauce?: string;
+  /** Una o más salsas (ej. alitas + boneless) */
+  selectedSauces?: string[];
+  selectedDrinks?: SelectedDrink[];
+  selectedBurger?: SelectedBurger;
   selectedExtras: SelectedExtra[];
   specialInstructions?: string;
 };

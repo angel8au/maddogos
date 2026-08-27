@@ -8,16 +8,29 @@ type SaucePickerProps = {
   value?: string;
   onChange: (sauce: string) => void;
   error?: string;
+  title?: string;
+  description?: string;
+  idPrefix?: string;
 };
 
-export function SaucePicker({ options, value, onChange, error }: SaucePickerProps) {
+export function SaucePicker({
+  options,
+  value,
+  onChange,
+  error,
+  title = "Selecciona salsa",
+  description = "Obligatorio para alitas y boneless",
+  idPrefix = "sauce",
+}: SaucePickerProps) {
   return (
     <section className="space-y-3">
       <div>
         <h3 className="font-semibold">
-          Selecciona salsa <span className="text-destructive">*</span>
+          {title} <span className="text-destructive">*</span>
         </h3>
-        <p className="text-muted-foreground text-xs">Obligatorio para alitas y boneless</p>
+        {description ? (
+          <p className="text-muted-foreground text-xs">{description}</p>
+        ) : null}
       </div>
 
       <RadioGroup
@@ -27,7 +40,7 @@ export function SaucePicker({ options, value, onChange, error }: SaucePickerProp
         aria-invalid={Boolean(error)}
       >
         {options.map((sauce) => {
-          const id = `sauce-${sauce.replace(/\s+/g, "-").toLowerCase()}`;
+          const id = `${idPrefix}-${sauce.replace(/\s+/g, "-").toLowerCase()}`;
           const selected = value === sauce;
 
           return (

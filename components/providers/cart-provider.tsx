@@ -25,6 +25,8 @@ import { requiresDetailBeforeAdd } from "@/lib/menu-config";
 import type {
   CartLineItem,
   MenuItem,
+  SelectedBurger,
+  SelectedDrink,
   SelectedExtra,
   SelectedIngredient,
 } from "@/lib/types";
@@ -33,6 +35,9 @@ type AddToCartOptions = {
   quantity?: number;
   selectedIngredients?: SelectedIngredient[];
   selectedSauce?: string;
+  selectedSauces?: string[];
+  selectedDrinks?: SelectedDrink[];
+  selectedBurger?: SelectedBurger;
   selectedExtras?: SelectedExtra[];
   specialInstructions?: string;
 };
@@ -101,11 +106,22 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const selectedIngredients =
       options?.selectedIngredients ?? getDefaultIngredients(item);
     const selectedExtras = options?.selectedExtras ?? [];
-    const selectedSauce = options?.selectedSauce;
+    const selectedSauces =
+      options?.selectedSauces?.filter(Boolean) ??
+      (options?.selectedSauce ? [options.selectedSauce] : []);
+    const selectedSauce = selectedSauces[0];
+    const selectedDrinks = (options?.selectedDrinks ?? []).filter((d) => d.quantity > 0);
+    const selectedBurger = options?.selectedBurger;
     const specialInstructions = options?.specialInstructions?.trim() || undefined;
     const quantity = options?.quantity ?? 1;
 
-    const validationError = validateCartAdd(item, selectedSauce);
+    const validationError = validateCartAdd(
+      item,
+      selectedSauce,
+      selectedSauces,
+      selectedDrinks,
+      selectedBurger,
+    );
     if (validationError) return false;
 
     const signature = configSignature(
@@ -114,6 +130,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
       specialInstructions,
       selectedSauce,
       selectedExtras,
+      selectedSauces,
+      selectedDrinks,
+      selectedBurger,
     );
 
     setLines((prev) => {
@@ -125,6 +144,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
             line.specialInstructions,
             line.selectedSauce,
             line.selectedExtras,
+            line.selectedSauces,
+            line.selectedDrinks,
+            line.selectedBurger,
           ) === signature,
       );
 
@@ -149,10 +171,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
           slug: item.slug,
           description: item.description,
           sauceRequired: item.sauceRequired,
+          includedDrinkCount: item.includedDrinkCount,
           customizationType: item.customizationType,
           ingredients: item.ingredients,
           selectedIngredients,
           selectedSauce,
+          selectedSauces,
+          selectedDrinks,
+          selectedBurger,
           selectedExtras,
           specialInstructions,
         },

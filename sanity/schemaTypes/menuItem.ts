@@ -104,8 +104,17 @@ export const menuItemType = defineType({
       name: "sauceRequired",
       title: "Salsa obligatoria",
       type: "boolean",
-      description: "El cliente debe elegir salsa antes de agregar (alitas, boneless)",
+      description: "El cliente debe elegir salsa antes de agregar (alitas, boneless, combos)",
       initialValue: false,
+    }),
+    defineField({
+      name: "includedDrinkCount",
+      title: "Bebidas incluidas (obligatorias)",
+      type: "number",
+      description:
+        "Cantidad de bebidas incluidas en el precio que el cliente debe elegir antes de agregar (0 = no aplica)",
+      initialValue: 0,
+      validation: (rule) => rule.min(0).max(6).integer(),
     }),
     defineField({
       name: "linkedExtras",

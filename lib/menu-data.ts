@@ -2,6 +2,7 @@ import type { MenuCategory, MenuItem } from "@/lib/types";
 import { ingredientsForFallbackItem } from "@/lib/cart-utils";
 import {
   customizationTypeForFallback,
+  includedDrinkCountForFallback,
   sauceRequiredForFallback,
 } from "@/lib/menu-config";
 import { getMenuImageUrl } from "@/lib/menu-images";
@@ -122,7 +123,7 @@ const items: SeedItem[] = [
   // Charolas
   { id: "charola-burguer", name: "Charola MadCombo Burguer", description: "1 MadBurguer, alitas, boneless, vegetales, papas y 2 bebidas", price: 450, category: "charolas" },
   { id: "charola-dogos", name: "Charola MadCombo Dogos", description: "2 Hot Dogs (no BeefDog), alitas, boneless, vegetales, papas y 2 bebidas", price: 450, category: "charolas" },
-  { id: "charola-especial", name: "Charola Especial MadDogos", description: "1 Hawaiana/MadWest/MadDouble, alitas, boneless, vegetales, papas y 2 bebidas", price: 480, category: "charolas" },
+  { id: "charola-especial", name: "Charola Especial MadDogos", description: "1 hamburguesa a elección, alitas, boneless, vegetales, papas y 2 bebidas (Té o Jamaica)", price: 480, category: "charolas" },
 
   // Combos
   { id: "combo-dr-alitas", name: "Combo Dr Alitas", description: "1 Hot Dog + papas + ½ orden de alitas", price: 160, category: "combos" },
@@ -208,8 +209,9 @@ export const fallbackMenuItems: MenuItem[] = menuSeed.map((item) => {
     featured: item.featured ?? false,
     order: item.order,
     imageUrl: getMenuImageUrl(item.category, slug),
-    customizationType: customizationTypeForFallback(item.category, item.name),
-    sauceRequired: sauceRequiredForFallback(item.category),
+    customizationType: customizationTypeForFallback(item.category, item.name, item.id),
+    sauceRequired: sauceRequiredForFallback(item.category, item.id),
+    includedDrinkCount: includedDrinkCountForFallback(item.id),
     ingredients: ingredientsForFallbackItem(item.category, item.name),
   };
 });

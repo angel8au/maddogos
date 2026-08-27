@@ -1,11 +1,14 @@
 import type { CartLineItem } from "@/lib/types";
 import {
   cartTotal,
+  formatDrinksForDisplay,
   formatExtrasForDisplay,
   formatIngredientsForDisplay,
+  formatSaucesForDisplay,
   lineSubtotal,
   lineUnitPrice,
 } from "@/lib/cart-utils";
+import { getCustomizationRules } from "@/lib/menu-config";
 
 export type OrderFulfillment = "pickup" | "delivery";
 
@@ -108,7 +111,22 @@ export function buildOrderMessage(
       const parts = [
         `• ${line.quantity}x ${line.name} — ${formatMXN(lineSubtotal(line))}`,
       ];
-      if (line.selectedSauce) parts.push(`  Salsa: ${line.selectedSauce}`);
+      const sauceText = formatSaucesForDisplay(
+        line,
+        getCustomizationRules({
+          _id: line.itemId,
+          category: line.category,
+          sauceRequired: line.sauceRequired,
+          customizationType: line.customizationType,
+          includedDrinkCount: line.includedDrinkCount,
+        }).sauceLabels,
+      );
+      if (line.selectedBurger) {
+        parts.push(`  Hamburguesa: ${line.selectedBurger.name}`);
+      }
+      if (sauceText) parts.push(`  ${sauceText}`);
+      const drinksText = formatDrinksForDisplay(line.selectedDrinks);
+      if (drinksText) parts.push(`  Bebidas: ${drinksText}`);
       const ing = formatIngredientsForDisplay(line.selectedIngredients);
       if (ing) parts.push(`  ${ing}`);
       const extras = formatExtrasForDisplay(line.selectedExtras);
