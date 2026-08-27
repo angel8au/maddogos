@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { X } from "lucide-react";
 import { useCart } from "@/components/providers/cart-provider";
 import { BurgerChoicePicker } from "@/components/menu/burger-choice-picker";
+import { DogChoicePicker } from "@/components/menu/dog-choice-picker";
 import { DrinksCarousel } from "@/components/menu/drinks-carousel";
 import { ExtrasCarousel } from "@/components/menu/extras-carousel";
 import { IncludedDrinksPicker } from "@/components/menu/included-drinks-picker";
@@ -17,6 +18,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { getDefaultIngredients, validateCartAdd } from "@/lib/cart-utils";
 import {
   burgersForChoice,
+  dogsForChoice,
   filterIncludedDrinks,
   getCustomizationRules,
   resolveLinkedExtras,
@@ -26,6 +28,7 @@ import type {
   CartLineItem,
   MenuItem,
   SelectedBurger,
+  SelectedDog,
   SelectedDrink,
   SelectedExtra,
   SelectedIngredient,
@@ -58,6 +61,7 @@ export function ProductDetailSheet({
   const [selectedSauces, setSelectedSauces] = useState<string[]>([]);
   const [selectedDrinks, setSelectedDrinks] = useState<SelectedDrink[]>([]);
   const [selectedBurger, setSelectedBurger] = useState<SelectedBurger | undefined>();
+  const [selectedDog, setSelectedDog] = useState<SelectedDog | undefined>();
   const [extraQuantities, setExtraQuantities] = useState<Record<string, number>>({});
   const [specialInstructions, setSpecialInstructions] = useState("");
   const [formError, setFormError] = useState<string | undefined>();
@@ -68,6 +72,10 @@ export function ProductDetailSheet({
   );
 
   const burgerOptions = useMemo(() => burgersForChoice(allItems), [allItems]);
+  const dogOptions = useMemo(
+    () => (item ? dogsForChoice(allItems, item) : []),
+    [allItems, item],
+  );
 
   const rules = useMemo(
     () => (item ? getCustomizationRules(item) : { sauceCount: 0, includedDrinkCount: 0 }),
@@ -102,6 +110,7 @@ export function ProductDetailSheet({
       );
       setSelectedDrinks(editingLine.selectedDrinks ?? []);
       setSelectedBurger(editingLine.selectedBurger);
+      setSelectedDog(editingLine.selectedDog);
       setExtraQuantities(
         Object.fromEntries(
           editingLine.selectedExtras.map((extra) => [extra.id, extra.quantity]),
@@ -114,6 +123,7 @@ export function ProductDetailSheet({
       setSelectedSauces([]);
       setSelectedDrinks([]);
       setSelectedBurger(undefined);
+      setSelectedDog(undefined);
       setExtraQuantities({});
       setSpecialInstructions("");
     }
@@ -138,6 +148,7 @@ export function ProductDetailSheet({
       selectedSauces,
       selectedDrinks,
       selectedBurger,
+      selectedDog,
     );
     if (validationError) {
       setFormError(validationError);
@@ -153,6 +164,7 @@ export function ProductDetailSheet({
       selectedSauces,
       selectedDrinks,
       selectedBurger,
+      selectedDog,
       selectedExtras,
       specialInstructions: specialInstructions.trim() || undefined,
     });
@@ -161,6 +173,10 @@ export function ProductDetailSheet({
   };
 
   const isEditing = Boolean(editingLine);
+  const dogError =
+    formError && formError.toLowerCase().includes("hot dog")
+      ? formError
+      : undefined;
   const burgerError =
     formError && formError.toLowerCase().includes("hamburguesa")
       ? formError
@@ -224,6 +240,23 @@ export function ProductDetailSheet({
             }
           />
         </div>
+
+        {rules.requiresDogChoice ? (
+          <DogChoicePicker
+            dogs={dogOptions}
+            value={selectedDog}
+            onChange={(dog) => {
+              setSelectedDog(dog);
+              setFormError(undefined);
+            }}
+            error={dogError}
+            hint={
+              dogOptions.length > 2
+                ? "Una opción para los 2. Si quieres distintos, escríbelo en instrucciones"
+                : "Si quieres distintos, indícalo en instrucciones especiales"
+            }
+          />
+        ) : null}
 
         {rules.requiresBurgerChoice ? (
           <BurgerChoicePicker
@@ -290,7 +323,7 @@ export function ProductDetailSheet({
             error={drinkError}
             hint={
               rules.includedDrinkIds?.length
-                ? "Incluidas · solo Té de Jazmín o Jamaica"
+                ? "Incluidas · solo Té o Jamaica"
                 : undefined
             }
           />

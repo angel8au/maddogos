@@ -9,6 +9,7 @@ import {
   lineUnitPrice,
 } from "@/lib/cart-utils";
 import { getCustomizationRules } from "@/lib/menu-config";
+import { formatComplementsForDisplay } from "@/lib/order-complements";
 
 export type OrderFulfillment = "pickup" | "delivery";
 
@@ -98,6 +99,8 @@ export function buildOrderMessage(
     fulfillment: OrderFulfillment;
     scheduled?: boolean;
     scheduleNote?: string;
+    customerName?: string;
+    complements?: string[];
   },
 ): string {
   if (!lines.length) {
@@ -121,6 +124,9 @@ export function buildOrderMessage(
           includedDrinkCount: line.includedDrinkCount,
         }).sauceLabels,
       );
+      if (line.selectedDog) {
+        parts.push(`  Hot dog: ${line.selectedDog.name}`);
+      }
       if (line.selectedBurger) {
         parts.push(`  Hamburguesa: ${line.selectedBurger.name}`);
       }
@@ -143,8 +149,14 @@ export function buildOrderMessage(
       ? "Hola, quiero PROGRAMAR el siguiente pedido:"
       : "Hola, quiero hacer el siguiente pedido:",
     "",
-    `Modalidad: ${fulfillmentLabel(options.fulfillment)}`,
   ];
+
+  const name = options.customerName?.trim();
+  if (name) {
+    linesOut.push(`Cliente: ${name}`);
+  }
+
+  linesOut.push(`Modalidad: ${fulfillmentLabel(options.fulfillment)}`);
 
   if (options.scheduled) {
     linesOut.push(
@@ -158,7 +170,14 @@ export function buildOrderMessage(
     );
   }
 
-  linesOut.push("", items, "", `Total: ${formatMXN(cartTotal(lines))}`);
+  linesOut.push(
+    "",
+    `Complementos: ${formatComplementsForDisplay(options.complements ?? [])}`,
+    "",
+    items,
+    "",
+    `Total: ${formatMXN(cartTotal(lines))}`,
+  );
 
   return linesOut.join("\n");
 }

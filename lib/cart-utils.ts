@@ -4,6 +4,7 @@ import type {
   MenuIngredient,
   MenuCategory,
   SelectedBurger,
+  SelectedDog,
   SelectedDrink,
   SelectedExtra,
   SelectedIngredient,
@@ -29,6 +30,7 @@ export function configSignature(
   selectedSauces: string[] = [],
   selectedDrinks: SelectedDrink[] = [],
   selectedBurger?: SelectedBurger,
+  selectedDog?: SelectedDog,
 ): string {
   const ingKey = ingredients
     .map((i) => `${i.name}:${i.included ? "1" : "0"}`)
@@ -52,6 +54,7 @@ export function configSignature(
     saucesKey,
     drinksKey,
     selectedBurger?.id ?? "",
+    selectedDog?.id ?? "",
     extrasKey,
     specialInstructions?.trim() ?? "",
   ].join("::");
@@ -140,6 +143,7 @@ export function validateCartAdd(
   selectedSauces: string[] = [],
   selectedDrinks: SelectedDrink[] = [],
   selectedBurger?: SelectedBurger,
+  selectedDog?: SelectedDog,
 ): string | null {
   const rules = getCustomizationRules(item);
   const sauces =
@@ -148,6 +152,10 @@ export function validateCartAdd(
       : selectedSauce
         ? [selectedSauce]
         : [];
+
+  if (rules.requiresDogChoice && !selectedDog?.id) {
+    return "Selecciona tu hot dog";
+  }
 
   if (rules.requiresBurgerChoice && !selectedBurger?.id) {
     return "Selecciona tu hamburguesa";

@@ -6,6 +6,7 @@ import posthog from "posthog-js";
 import { useCart } from "@/components/providers/cart-provider";
 import { MenuItemImage } from "@/components/menu/menu-item-image";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   ConfirmDialog,
   confirmRemoveMessage,
@@ -23,6 +24,11 @@ import {
   formatSaucesForDisplay,
 } from "@/lib/cart-utils";
 import { getCustomizationRules } from "@/lib/menu-config";
+import {
+  ORDER_COMPLEMENTS,
+  formatComplementsForDisplay,
+  resolveComplementNames,
+} from "@/lib/order-complements";
 import type { CartLineItem } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import {
@@ -44,9 +50,9 @@ type CartSheetProps = {
   onLineClick: (line: CartLineItem) => void;
 };
 
-type CheckoutStep = "cart" | "fulfillment";
+type CheckoutStep = "cart" | "details" | "fulfillment";
 
-const STEPS: CheckoutStep[] = ["cart", "fulfillment"];
+const STEPS: CheckoutStep[] = ["cart", "details", "fulfillment"];
 
 const STEP_COPY: Record<
   CheckoutStep,
@@ -55,6 +61,10 @@ const STEP_COPY: Record<
   cart: {
     title: "Tu pedido",
     subtitle: "Revisa lo que vas a pedir",
+  },
+  details: {
+    title: "Complementos y nombre",
+    subtitle: "Opcional — solo mandamos lo que elijas",
   },
   fulfillment: {
     title: "Modalidad",
@@ -86,15 +96,21 @@ export function CartSheet({ open, onOpenChange, onLineClick }: CartSheetProps) {
   const [lineToRemove, setLineToRemove] = useState<string | null>(null);
   const [step, setStep] = useState<CheckoutStep>("cart");
   const [fulfillment, setFulfillment] = useState<OrderFulfillment | "">("");
+  const [selectedComplements, setSelectedComplements] = useState<string[]>([]);
+  const [customerName, setCustomerName] = useState("");
   const [stepAttempted, setStepAttempted] = useState(false);
 
   const linePendingRemoval = lines.find((line) => line.lineId === lineToRemove);
   const locationStatus = locations[0];
   const isScheduledOrder = locationStatus?.isScheduled ?? siteIsScheduled;
+  const complementSummary = formatComplementsForDisplay(selectedComplements);
+  const trimmedName = customerName.trim();
 
   const resetCheckout = () => {
     setStep("cart");
     setFulfillment("");
+    setSelectedComplements([]);
+    setCustomerName("");
     setStepAttempted(false);
   };
 
@@ -116,13 +132,26 @@ export function CartSheet({ open, onOpenChange, onLineClick }: CartSheetProps) {
 
   const goBack = () => {
     setStepAttempted(false);
-    if (step === "fulfillment") setStep("cart");
+    if (step === "fulfillment") setStep("details");
+    else if (step === "details") setStep("cart");
+  };
+
+  const goToDetailsStep = () => {
+    if (!lines.length) return;
+    setStepAttempted(false);
+    setStep("details");
   };
 
   const goToFulfillmentStep = () => {
     if (!lines.length) return;
     setStepAttempted(false);
     setStep("fulfillment");
+  };
+
+  const toggleComplement = (id: string, checked: boolean) => {
+    setSelectedComplements((prev) =>
+      checked ? [...prev, id] : prev.filter((current) => current !== id),
+    );
   };
 
   const handleCheckout = () => {
@@ -135,6 +164,13 @@ export function CartSheet({ open, onOpenChange, onLineClick }: CartSheetProps) {
       fulfillment,
       scheduled: isScheduledOrder,
       scheduleNote: locationStatus?.detailEs,
+      customerName: trimmedName || undefined,
+      complements: selectedComplements,
+    });
+
+    posthog.capture("cart_checkout_details", {
+      complements_count: selectedComplements.length,
+      has_customer_name: Boolean(trimmedName),
     });
 
     posthog.capture("whatsapp_redirect", {
@@ -266,6 +302,11 @@ export function CartSheet({ open, onOpenChange, onLineClick }: CartSheetProps) {
                             </span>
                           ) : null}
                         </p>
+                        {line.selectedDog ? (
+                          <p className="text-muted-foreground text-xs">
+                            Hot dog: {line.selectedDog.name}
+                          </p>
+                        ) : null}
                         {line.selectedBurger ? (
                           <p className="text-muted-foreground text-xs">
                             Hamburguesa: {line.selectedBurger.name}
@@ -344,6 +385,56 @@ export function CartSheet({ open, onOpenChange, onLineClick }: CartSheetProps) {
                 );
               })
             )
+          ) : null}
+
+          {step === "details" ? (
+            <section className="space-y-6">
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <h3 className="font-semibold">Complementos</h3>
+                  <p className="text-muted-foreground text-xs leading-relaxed">
+                    Solo mandamos lo que elijas. Si no marcas nada, van cubiertos y
+                    servilletas.
+                  </p>
+                </div>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {ORDER_COMPLEMENTS.map((complement) => (
+                    <Checkbox
+                      key={complement.id}
+                      id={`complement-${complement.id}`}
+                      label={complement.name}
+                      checked={selectedComplements.includes(complement.id)}
+                      onCheckedChange={(checked) =>
+                        toggleComplement(complement.id, checked)
+                      }
+                    />
+                  ))}
+                </div>
+                <p className="text-muted-foreground text-xs">
+                  {selectedComplements.length
+                    ? `Elegiste: ${resolveComplementNames(selectedComplements).join(", ")}`
+                    : "Sin complementos"}
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="customer-name" className="font-semibold">
+                  Nombre de quien ordena
+                </label>
+                <input
+                  id="customer-name"
+                  type="text"
+                  autoComplete="name"
+                  placeholder="Ej. Kevin"
+                  value={customerName}
+                  onChange={(e) => setCustomerName(e.target.value)}
+                  className="border-border bg-background placeholder:text-muted-foreground focus-visible:ring-primary w-full rounded-xl border px-4 py-3 text-sm outline-none focus-visible:ring-2"
+                />
+                <p className="text-muted-foreground text-xs leading-relaxed">
+                  Nos ayuda a confirmar tu pedido y darte seguimiento por WhatsApp
+                </p>
+              </div>
+            </section>
           ) : null}
 
           {step === "fulfillment" ? (
@@ -431,6 +522,14 @@ export function CartSheet({ open, onOpenChange, onLineClick }: CartSheetProps) {
                     {fulfillmentLabel(fulfillment)} · {formatMXN(total)}
                     {isScheduledOrder ? " · Pedido programado" : ""}
                   </p>
+                  {trimmedName ? (
+                    <p className="text-muted-foreground mt-1 text-xs">
+                      Cliente: {trimmedName}
+                    </p>
+                  ) : null}
+                  <p className="text-muted-foreground mt-1 text-xs">
+                    Complementos: {complementSummary}
+                  </p>
                 </div>
               ) : null}
             </section>
@@ -440,6 +539,18 @@ export function CartSheet({ open, onOpenChange, onLineClick }: CartSheetProps) {
         {lines.length > 0 ? (
           <SheetFooter className="space-y-3">
             {step === "cart" ? (
+              <>
+                <div className="flex items-center justify-between text-lg font-bold">
+                  <span>Total</span>
+                  <span>{formatMXN(total)}</span>
+                </div>
+                <Button size="lg" className="w-full" onClick={goToDetailsStep}>
+                  Continuar
+                </Button>
+              </>
+            ) : null}
+
+            {step === "details" ? (
               <>
                 <div className="flex items-center justify-between text-lg font-bold">
                   <span>Total</span>

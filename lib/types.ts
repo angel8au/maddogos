@@ -35,6 +35,11 @@ export type SelectedBurger = {
   name: string;
 };
 
+export type SelectedDog = {
+  id: string;
+  name: string;
+};
+
 export type MenuItem = {
   _id: string;
   name: string;
@@ -66,6 +71,12 @@ export type SelectedExtra = {
   quantity: number;
 };
 
+/** Condimento gratuito opcional a nivel de pedido (opt-in). */
+export type OrderComplement = {
+  id: string;
+  name: string;
+};
+
 export type CartLineItem = {
   lineId: string;
   itemId: string;
@@ -87,6 +98,7 @@ export type CartLineItem = {
   selectedSauces?: string[];
   selectedDrinks?: SelectedDrink[];
   selectedBurger?: SelectedBurger;
+  selectedDog?: SelectedDog;
   selectedExtras: SelectedExtra[];
   specialInstructions?: string;
 };

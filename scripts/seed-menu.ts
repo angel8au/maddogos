@@ -104,6 +104,16 @@ async function seedMenu() {
     console.log(`  ✓ ${item.name}`);
   }
 
+  // Extra Combo DR $75 ya no se vende (reemplazado por Combo DR + Bebida en promos)
+  await client
+    .patch("menuItem.extra-combo-dr")
+    .set({ available: false })
+    .commit()
+    .catch(() => {
+      /* doc may not exist */
+    });
+  console.log("  ✓ menuItem.extra-combo-dr → available: false (si existía)");
+
   console.log("\nMenú cargado en Sanity.");
 }
 

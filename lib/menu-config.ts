@@ -6,7 +6,22 @@ export const DEFAULT_SAUCE_OPTIONS = [
   "Teriyaki",
   "MadDogos Sauce",
   "Mango Habanero",
+  "Natural",
 ] as const;
+
+/** Hot dogs por defecto (Combo DR, Sampler, etc.): Easy Dog / Easy Dog Especial */
+export const DOG_CHOICE_IDS = ["easy-dog", "easy-dog-especial"] as const;
+
+/** Charola MadCombo Dogos: 4 opciones */
+export const CHAROLA_DOG_CHOICE_IDS = [
+  "easy-dog",
+  "easy-dog-especial",
+  "chilli-dog",
+  "perro-bacon",
+] as const;
+
+/** Bebidas incluidas típicas en charolas / Combo DR */
+export const INCLUDED_DRINK_TE_JAMAICA = ["bebida-jazmin", "bebida-jamaica"] as const;
 
 /** Extras vinculables por categoría (IDs del seed/fallback) */
 export const LINKED_EXTRA_IDS: Record<string, string[]> = {
@@ -33,6 +48,10 @@ export type ItemCustomizationRules = {
   includedDrinkIds?: string[];
   /** Debe elegir 1 hamburguesa del menú (incluida en el combo) */
   requiresBurgerChoice?: boolean;
+  /** Debe elegir un hot dog incluido (lista según dogChoiceIds) */
+  requiresDogChoice?: boolean;
+  /** IDs de hot dogs elegibles; default = DOG_CHOICE_IDS */
+  dogChoiceIds?: readonly string[];
 };
 
 /**
@@ -40,32 +59,54 @@ export type ItemCustomizationRules = {
  * Combos/promos/charolas con alitas/boneless y/o bebidas incluidas.
  */
 export const ITEM_CUSTOMIZATION_RULES: Record<string, ItemCustomizationRules> = {
-  "combo-dr": { sauceCount: 1, includedDrinkCount: 1 },
-  "combo-dr-alitas": { sauceCount: 1, includedDrinkCount: 0 },
-  "combo-dr-boneless": { sauceCount: 1, includedDrinkCount: 0 },
+  "combo-dr": {
+    sauceCount: 1,
+    includedDrinkCount: 1,
+    includedDrinkIds: [...INCLUDED_DRINK_TE_JAMAICA],
+    requiresDogChoice: true,
+  },
+  "combo-dr-alitas": {
+    sauceCount: 1,
+    includedDrinkCount: 0,
+    requiresDogChoice: true,
+  },
+  "combo-dr-boneless": {
+    sauceCount: 1,
+    includedDrinkCount: 0,
+    requiresDogChoice: true,
+  },
   "alitas-boneless-pieza": { sauceCount: 1, includedDrinkCount: 0 },
   "sampler-madburguer": {
     sauceCount: 2,
     sauceLabels: ["Salsa alitas", "Salsa boneless"],
     includedDrinkCount: 0,
+    requiresDogChoice: true,
   },
   "charola-burguer": {
     sauceCount: 2,
     sauceLabels: ["Salsa alitas", "Salsa boneless"],
     includedDrinkCount: 2,
-    includedDrinkIds: ["bebida-jazmin", "bebida-jamaica"],
+    includedDrinkIds: [...INCLUDED_DRINK_TE_JAMAICA],
   },
   "charola-dogos": {
     sauceCount: 2,
     sauceLabels: ["Salsa alitas", "Salsa boneless"],
     includedDrinkCount: 2,
-    includedDrinkIds: ["bebida-jazmin", "bebida-jamaica"],
+    includedDrinkIds: [...INCLUDED_DRINK_TE_JAMAICA],
+    requiresDogChoice: true,
+    dogChoiceIds: [...CHAROLA_DOG_CHOICE_IDS],
+  },
+  "charola-sv": {
+    sauceCount: 2,
+    sauceLabels: ["Salsa alitas", "Salsa boneless"],
+    includedDrinkCount: 2,
+    includedDrinkIds: [...INCLUDED_DRINK_TE_JAMAICA],
   },
   "charola-especial": {
     sauceCount: 2,
     sauceLabels: ["Salsa alitas", "Salsa boneless"],
     includedDrinkCount: 2,
-    includedDrinkIds: ["bebida-jazmin", "bebida-jamaica"],
+    includedDrinkIds: [...INCLUDED_DRINK_TE_JAMAICA],
     requiresBurgerChoice: true,
   },
 };
@@ -100,7 +141,8 @@ export function requiresDetailBeforeAdd(item: MenuItem): boolean {
   return (
     rules.sauceCount > 0 ||
     rules.includedDrinkCount > 0 ||
-    Boolean(rules.requiresBurgerChoice)
+    Boolean(rules.requiresBurgerChoice) ||
+    Boolean(rules.requiresDogChoice)
   );
 }
 
@@ -116,8 +158,31 @@ export function requiresBurgerSelection(item: MenuItem): boolean {
   return Boolean(getCustomizationRules(item).requiresBurgerChoice);
 }
 
+export function requiresDogSelection(item: MenuItem): boolean {
+  return Boolean(getCustomizationRules(item).requiresDogChoice);
+}
+
 export function burgersForChoice(allItems: MenuItem[]): MenuItem[] {
   return allItems.filter((i) => i.category === "hamburguesas");
+}
+
+export function dogChoiceIdsForItem(
+  item: Pick<MenuItem, "_id">,
+): readonly string[] {
+  const rules = ITEM_CUSTOMIZATION_RULES[menuItemIdKey(item._id)];
+  return rules?.dogChoiceIds?.length ? rules.dogChoiceIds : DOG_CHOICE_IDS;
+}
+
+export function dogsForChoice(
+  allItems: MenuItem[],
+  item?: Pick<MenuItem, "_id">,
+): MenuItem[] {
+  const orderedIds = item ? dogChoiceIdsForItem(item) : DOG_CHOICE_IDS;
+  const allowed = new Set(orderedIds);
+  const found = allItems.filter((i) => allowed.has(menuItemIdKey(i._id)));
+  return orderedIds
+    .map((id) => found.find((i) => menuItemIdKey(i._id) === id))
+    .filter((i): i is MenuItem => Boolean(i));
 }
 
 export function resolveLinkedExtras(

@@ -26,6 +26,7 @@ import type {
   CartLineItem,
   MenuItem,
   SelectedBurger,
+  SelectedDog,
   SelectedDrink,
   SelectedExtra,
   SelectedIngredient,
@@ -38,6 +39,7 @@ type AddToCartOptions = {
   selectedSauces?: string[];
   selectedDrinks?: SelectedDrink[];
   selectedBurger?: SelectedBurger;
+  selectedDog?: SelectedDog;
   selectedExtras?: SelectedExtra[];
   specialInstructions?: string;
 };
@@ -112,6 +114,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const selectedSauce = selectedSauces[0];
     const selectedDrinks = (options?.selectedDrinks ?? []).filter((d) => d.quantity > 0);
     const selectedBurger = options?.selectedBurger;
+    const selectedDog = options?.selectedDog;
     const specialInstructions = options?.specialInstructions?.trim() || undefined;
     const quantity = options?.quantity ?? 1;
 
@@ -121,6 +124,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       selectedSauces,
       selectedDrinks,
       selectedBurger,
+      selectedDog,
     );
     if (validationError) return false;
 
@@ -133,6 +137,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       selectedSauces,
       selectedDrinks,
       selectedBurger,
+      selectedDog,
     );
 
     setLines((prev) => {
@@ -147,6 +152,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
             line.selectedSauces,
             line.selectedDrinks,
             line.selectedBurger,
+            line.selectedDog,
           ) === signature,
       );
 
@@ -179,6 +185,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
           selectedSauces,
           selectedDrinks,
           selectedBurger,
+          selectedDog,
           selectedExtras,
           specialInstructions,
         },
