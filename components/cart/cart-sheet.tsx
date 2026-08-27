@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { ChevronLeft, Minus, Plus, Trash2, X } from "lucide-react";
+import posthog from "posthog-js";
 import { useCart } from "@/components/providers/cart-provider";
 import { MenuItemImage } from "@/components/menu/menu-item-image";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,7 @@ import { useSiteOpenStatus } from "@/hooks/use-open-status";
 import { cartCheckoutLabel } from "@/lib/opening-status";
 import {
   CART_ORDER_STORAGE_KEY,
+  clearCartStorage,
   formatExtrasForDisplay,
   formatIngredientsForDisplay,
 } from "@/lib/cart-utils";
@@ -26,8 +27,10 @@ import {
   buildOrderMessage,
   formatMXN,
   fulfillmentLabel,
+  isMobileDevice,
   lineSubtotal,
   lineUnitPrice,
+  openWhatsApp,
   type OrderFulfillment,
   type StoredCartOrder,
 } from "@/lib/whatsapp";
@@ -75,7 +78,6 @@ function StepProgress({ step }: { step: CheckoutStep }) {
 }
 
 export function CartSheet({ open, onOpenChange, onLineClick }: CartSheetProps) {
-  const router = useRouter();
   const { lines, total, itemCount, updateLineQuantity, removeLine } = useCart();
   const { isScheduled: siteIsScheduled, detailEs, locations } = useSiteOpenStatus();
   const [lineToRemove, setLineToRemove] = useState<string | null>(null);
@@ -131,13 +133,28 @@ export function CartSheet({ open, onOpenChange, onLineClick }: CartSheetProps) {
       scheduled: isScheduledOrder,
       scheduleNote: locationStatus?.detailEs,
     });
+
+    posthog.capture("whatsapp_redirect", {
+      source: "cart",
+      type: "order",
+      fulfillment,
+    });
+
+    handleOpenChange(false);
+    clearCartStorage();
+
+    // Mobile/PWA: open WhatsApp in the same tap (required by iOS standalone apps).
+    if (isMobileDevice()) {
+      openWhatsApp(orderMessage);
+      return;
+    }
+
     const payload: StoredCartOrder = {
       message: orderMessage,
       fulfillment,
     };
     sessionStorage.setItem(CART_ORDER_STORAGE_KEY, JSON.stringify(payload));
-    handleOpenChange(false);
-    router.push(buildGraciasUrl({ source: "cart" }));
+    window.location.assign(buildGraciasUrl({ source: "cart" }));
   };
 
   const confirmRemoveLine = () => {

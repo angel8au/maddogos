@@ -51,16 +51,34 @@ export function isMobileDevice(userAgent = typeof navigator !== "undefined" ? na
   return /Android|iPhone|iPad|iPod/i.test(userAgent);
 }
 
-/** Opens WhatsApp — native app on mobile (works with WhatsApp ilimitado), wa.me on desktop. */
+export function isStandalonePwa(): boolean {
+  if (typeof window === "undefined") return false;
+  return (
+    window.matchMedia("(display-mode: standalone)").matches ||
+    ("standalone" in navigator &&
+      (navigator as Navigator & { standalone?: boolean }).standalone === true)
+  );
+}
+
+/** Best URL for the current device — deep link on mobile, wa.me on desktop. */
+export function getWhatsAppHref(message?: string): string {
+  return isMobileDevice() ? buildWhatsAppDeepLink(message) : buildWhatsAppUrl(message);
+}
+
+/**
+ * Opens WhatsApp via a temporary anchor click.
+ * Works reliably when called from a user gesture (button/link click).
+ */
 export function openWhatsApp(message?: string): void {
   if (typeof window === "undefined") return;
 
-  if (isMobileDevice()) {
-    window.location.href = buildWhatsAppDeepLink(message);
-    return;
-  }
-
-  window.location.href = buildWhatsAppUrl(message);
+  const link = document.createElement("a");
+  link.href = getWhatsAppHref(message);
+  link.rel = "noopener noreferrer";
+  link.style.display = "none";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 }
 
 export function buildEventInquiryMessage(): string {
