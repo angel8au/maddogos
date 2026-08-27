@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { SiteOpenStatusBadge } from "@/components/open-status-badge";
@@ -16,13 +16,33 @@ const navLinks = [
 
 export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!menuOpen) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+
+    const frame = requestAnimationFrame(() => {
+      const firstLink = menuRef.current?.querySelector<HTMLElement>("a, button");
+      firstLink?.focus();
+    });
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+
     return () => {
+      cancelAnimationFrame(frame);
       document.body.style.overflow = prev;
+      document.removeEventListener("keydown", onKeyDown);
+      toggleRef.current?.focus();
     };
   }, [menuOpen]);
 
@@ -34,7 +54,7 @@ export function SiteHeader() {
         <div className="mx-auto flex h-[4.5rem] w-full max-w-6xl items-center justify-between gap-4 px-4 md:px-6">
           <SiteLogo onClick={closeMenu} />
 
-          <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
+          <nav className="hidden items-center gap-6 text-sm font-medium md:flex" aria-label="Principal">
             {navLinks.map((link) => (
               <Link key={link.href} href={link.href} className="hover:text-primary">
                 {link.label}
@@ -51,13 +71,19 @@ export function SiteHeader() {
               Ordenar
             </Link>
             <button
+              ref={toggleRef}
               type="button"
               aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
               aria-expanded={menuOpen}
+              aria-controls="mobile-nav-menu"
               onClick={() => setMenuOpen((open) => !open)}
               className="hover:bg-muted flex size-10 items-center justify-center rounded-lg transition-colors md:hidden"
             >
-              {menuOpen ? <X className="size-6" /> : <Menu className="size-6" />}
+              {menuOpen ? (
+                <X className="size-6" aria-hidden />
+              ) : (
+                <Menu className="size-6" aria-hidden />
+              )}
             </button>
           </div>
         </div>
@@ -65,6 +91,8 @@ export function SiteHeader() {
 
       {menuOpen ? (
         <div
+          ref={menuRef}
+          id="mobile-nav-menu"
           className="bg-background fixed inset-0 z-[60] flex flex-col md:hidden"
           role="dialog"
           aria-modal="true"
@@ -78,11 +106,14 @@ export function SiteHeader() {
               onClick={closeMenu}
               className="hover:bg-muted flex size-10 items-center justify-center rounded-lg transition-colors"
             >
-              <X className="size-6" />
+              <X className="size-6" aria-hidden />
             </button>
           </div>
 
-          <nav className="mx-auto flex w-full max-w-6xl flex-1 flex-col justify-center gap-2 px-6 py-10">
+          <nav
+            className="mx-auto flex w-full max-w-6xl flex-1 flex-col justify-center gap-2 px-6 py-10"
+            aria-label="Móvil"
+          >
             <div className="mb-4">
               <SiteOpenStatusBadge size="md" showDetail />
             </div>

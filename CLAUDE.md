@@ -196,10 +196,8 @@ defineType({
 |---|---|---|
 | Easy Dog | $70 | Salchicha de pavo con tocino |
 | Easy Dog Especial | $80 | Easy Dog envuelto en queso manchego y jamón de pavo |
-| Easy Dog Especial Jumbo | $100 | Salchicha jumbo de pavo envuelta en tocino, queso manchego y jamón de pavo |
 | Chilli Dog | $95 | Salchicha de puerco con queso y chile jalapeño, envuelto en queso manchego y jamón de pavo |
 | Perro Bacon | $95 | Salchicha de puerco con queso y tocino, envuelto en queso manchego y jamón de pavo |
-| Beef Dog | $100 | Salchicha de res con queso y perejil, envuelto en queso manchego y jamón de pavo |
 | Maddogo Especial | $100 | Salchicha de mezcla especial de carne de res y tocino, envuelta en tocino, queso manchego, jamón de pavo y cebolla asada |
 
 ### HAMBURGUESAS
@@ -253,7 +251,7 @@ defineType({
 | Nombre | Precio | Descripción |
 |---|---|---|
 | Charola MadCombo Burguer | $450 | 1 MadBurguer, alitas, boneless, vegetales, papas y 2 bebidas |
-| Charola MadCombo Dogos | $450 | 2 Hot Dogs (no BeefDog), alitas, boneless, vegetales, papas y 2 bebidas |
+| Charola MadCombo Dogos | $450 | 2 Hot Dogs, alitas, boneless, vegetales, papas y 2 bebidas |
 | Charola Especial MadDogos | $480 | 1 Hawaiana/MadWest/MadDouble, alitas, boneless, vegetales, papas y 2 bebidas |
 
 ### COMBOS
@@ -287,12 +285,9 @@ defineType({
 ### BEBIDAS
 | Nombre | Precio |
 |---|---|
-| Fresa Limón | $25 |
-| Naranjita | $25 |
 | Té de Jazmín | $25 |
 | Coca-Cola 500ml | $25 |
 | Coca-Cola 600ml | $30 |
-| Limonada | $25 |
 | Jamaica | $25 |
 | Vaso con Hielo | $5 |
 
@@ -333,6 +328,7 @@ posthog.capture('rental_inquiry')                                     // CTA de 
 
 ## Variables de entorno (.env.local)
 ```
+NEXT_PUBLIC_SITE_URL=https://maddogos.com
 NEXT_PUBLIC_SANITY_PROJECT_ID=
 NEXT_PUBLIC_SANITY_DATASET=production
 SANITY_API_TOKEN=
@@ -343,12 +339,13 @@ NEXT_PUBLIC_GTM_ID=
 ```
 
 ## SEO / Schema
-- `LocalBusiness` JSON-LD en layout.tsx
-- `Restaurant` type dentro del LocalBusiness
-- OG tags por página (title, description, image)
-- `sitemap.xml` con next-sitemap
-- `robots.txt`
-- Canonical URLs
+- `LocalBusiness` + `Restaurant` + `FastFoodRestaurant` JSON-LD en layout
+- `Menu` JSON-LD en `/menu`; `Service` JSON-LD en `/eventos`
+- OG tags + Twitter cards + `app/opengraph-image.tsx`
+- `sitemap.xml` / `robots.txt` App Router con `SITE_URL` (`https://maddogos.com`)
+- Canonical URLs por página
+- 301 de `maddogos.vercel.app` y `www.maddogos.com` → apex (`proxy.ts`)
+- Redirect `/renta` → `/eventos`
 
 ## Reglas de desarrollo
 - Siempre App Router — nunca pages/

@@ -1,8 +1,8 @@
-import Link from "next/link";
 import type { Metadata } from "next";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { MenuView } from "@/components/menu/menu-view";
+import { MenuJsonLd } from "@/components/seo/menu-jsonld";
 import { getMenuPageData } from "@/lib/queries";
 
 export const revalidate = 60;
@@ -11,6 +11,13 @@ export const metadata: Metadata = {
   title: "Menú",
   description:
     "Menú completo de Mad Dogos: hot dogs, hamburguesas, alitas, boneless, conos, charolas y más en Culiacán.",
+  alternates: { canonical: "/menu" },
+  openGraph: {
+    url: "/menu",
+    title: "Menú | Mad Dogos Hotdogs Culiacán",
+    description:
+      "Menú completo de Mad Dogos: hot dogs, hamburguesas, alitas, boneless, conos, charolas y más en Culiacán.",
+  },
 };
 
 export default async function MenuPage() {
@@ -18,8 +25,12 @@ export default async function MenuPage() {
 
   return (
     <>
+      <MenuJsonLd items={items} />
       <SiteHeader />
-      <main className="mx-auto w-full max-w-6xl px-4 py-6 pb-28 md:px-6">
+      <main
+        id="contenido-principal"
+        className="mx-auto w-full max-w-6xl px-4 py-6 pb-28 md:px-6"
+      >
         <h1 className="font-display mb-6 text-4xl tracking-wide uppercase md:text-5xl">
           Menú Mad Dogos
         </h1>

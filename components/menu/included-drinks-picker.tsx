@@ -89,6 +89,7 @@ export function IncludedDrinksPicker({
                   <QuantityStepper
                     size="sm"
                     quantity={qty}
+                    productName={drink.name}
                     itemName={qty > 0 ? drink.name : undefined}
                     onIncrement={() => setQuantity(drink, qty + 1)}
                     onDecrement={() => setQuantity(drink, qty - 1)}
@@ -106,7 +107,11 @@ export function IncludedDrinksPicker({
         })}
       </div>
 
-      {error ? <p className="text-destructive text-xs">{error}</p> : null}
+      {error ? (
+        <p role="alert" className="text-destructive text-xs">
+          {error}
+        </p>
+      ) : null}
     </section>
   );
 }

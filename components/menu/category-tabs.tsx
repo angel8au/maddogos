@@ -83,8 +83,32 @@ export function CategoryTabs({
             type="button"
             role="tab"
             aria-selected={isActive}
+            aria-controls={category}
             id={`menu-tab-${category}`}
+            tabIndex={isActive ? 0 : -1}
             onClick={() => onCategorySelect(category)}
+            onKeyDown={(event) => {
+              const currentIndex = categories.indexOf(category);
+              if (currentIndex < 0) return;
+
+              let nextIndex: number | null = null;
+              if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+                nextIndex = (currentIndex + 1) % categories.length;
+              } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+                nextIndex =
+                  (currentIndex - 1 + categories.length) % categories.length;
+              } else if (event.key === "Home") {
+                nextIndex = 0;
+              } else if (event.key === "End") {
+                nextIndex = categories.length - 1;
+              }
+
+              if (nextIndex === null) return;
+              event.preventDefault();
+              const next = categories[nextIndex];
+              onCategorySelect(next);
+              tabRefs.current.get(next)?.focus();
+            }}
             className={cn(
               "relative z-20 flex h-11 shrink-0 items-center px-4 text-sm font-medium transition-colors",
               isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground",

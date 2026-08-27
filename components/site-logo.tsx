@@ -33,7 +33,7 @@ export function SiteLogo({
     >
       <Image
         src={LOGO_SRC}
-        alt="Mad Dogos Hotdogs"
+        alt=""
         width={dimensions.width}
         height={dimensions.height}
         className={cn(dimensions.className, "object-contain", imageClassName)}

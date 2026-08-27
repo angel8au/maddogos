@@ -46,24 +46,22 @@ export function PromoGridCard({ item, onOpenDetail, className }: PromoGridCardPr
 
   return (
     <article
-      role="button"
-      tabIndex={0}
-      onClick={() => onOpenDetail(item)}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          onOpenDetail(item);
-        }
-      }}
       className={cn(
-        "bg-card group flex w-full cursor-pointer overflow-hidden rounded-xl border-2 border-accent/40 shadow-sm transition-shadow hover:border-accent hover:shadow-md",
+        "bg-card group relative flex w-full overflow-hidden rounded-xl border-2 border-accent/40 shadow-sm transition-shadow hover:border-accent hover:shadow-md",
         className,
       )}
     >
-      <div className="bg-muted relative aspect-[4/3] w-[42%] shrink-0 sm:w-[38%]">
+      <button
+        type="button"
+        onClick={() => onOpenDetail(item)}
+        className="absolute inset-0 z-0 focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none"
+        aria-label={`Ver detalles de ${item.name}`}
+      />
+
+      <div className="bg-muted pointer-events-none relative aspect-[4/3] w-[42%] shrink-0 sm:w-[38%]">
         <MenuItemImage
           src={item.imageUrl}
-          alt={item.name}
+          alt=""
           category={item.category}
           slug={item.slug}
           sizes="(max-width: 768px) 40vw, 220px"
@@ -72,8 +70,8 @@ export function PromoGridCard({ item, onOpenDetail, className }: PromoGridCardPr
           Promo
         </span>
       </div>
-      <div className="flex min-w-0 flex-1 flex-col justify-between gap-2 p-3 sm:p-4">
-        <div className="space-y-1">
+      <div className="relative z-10 flex min-w-0 flex-1 flex-col justify-between gap-2 p-3 sm:p-4">
+        <div className="pointer-events-none space-y-1 text-left">
           <p className="line-clamp-2 text-sm leading-tight font-semibold sm:text-base">
             {item.name}
           </p>
@@ -84,18 +82,17 @@ export function PromoGridCard({ item, onOpenDetail, className }: PromoGridCardPr
           ) : null}
         </div>
         <div className="flex items-center justify-between gap-2">
-          <p className="text-primary text-base font-bold sm:text-lg">
+          <p className="text-primary pointer-events-none text-base font-bold sm:text-lg">
             {formatMXN(item.price)}
           </p>
-          <div onClick={(e) => e.stopPropagation()}>
-            <QuantityStepper
-              size="sm"
-              quantity={quantity}
-              itemName={quantity > 0 ? item.name : undefined}
-              onIncrement={handleIncrement}
-              onDecrement={handleDecrement}
-            />
-          </div>
+          <QuantityStepper
+            size="sm"
+            quantity={quantity}
+            productName={item.name}
+            itemName={quantity > 0 ? item.name : undefined}
+            onIncrement={handleIncrement}
+            onDecrement={handleDecrement}
+          />
         </div>
       </div>
     </article>

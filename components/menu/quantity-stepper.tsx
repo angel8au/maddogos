@@ -14,8 +14,10 @@ type QuantityStepperProps = {
   onDecrement: () => void;
   size?: "sm" | "md";
   className?: string;
-  /** Si se define, al bajar de 1 a 0 pide confirmación */
+  /** Product name for VoiceOver labels and remove confirmation. */
   itemName?: string;
+  /** Always used for aria-labels even when quantity is 0. */
+  productName?: string;
 };
 
 export function QuantityStepper({
@@ -25,11 +27,16 @@ export function QuantityStepper({
   size = "md",
   className,
   itemName,
+  productName,
 }: QuantityStepperProps) {
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const labelName = productName ?? itemName;
+  const addLabel = labelName ? `Agregar ${labelName}` : "Agregar";
+  const removeLabel = labelName ? `Eliminar ${labelName}` : "Eliminar";
+  const decreaseLabel = labelName ? `Restar ${labelName}` : "Restar";
 
   const handleDecrement = () => {
-    if (quantity === 1 && itemName) {
+    if (quantity === 1 && (itemName || productName)) {
       setConfirmOpen(true);
       return;
     }
@@ -45,7 +52,7 @@ export function QuantityStepper({
     return (
       <button
         type="button"
-        aria-label="Agregar"
+        aria-label={addLabel}
         onClick={(e) => {
           e.stopPropagation();
           onIncrement();
@@ -56,7 +63,7 @@ export function QuantityStepper({
           className,
         )}
       >
-        <Plus className="size-4" />
+        <Plus className="size-4" aria-hidden />
       </button>
     );
   }
@@ -69,11 +76,10 @@ export function QuantityStepper({
           size === "sm" ? "h-8" : "h-9",
           className,
         )}
-        onClick={(e) => e.stopPropagation()}
       >
         <button
           type="button"
-          aria-label={quantity === 1 ? "Eliminar" : "Restar"}
+          aria-label={quantity === 1 ? removeLabel : decreaseLabel}
           onClick={(e) => {
             e.stopPropagation();
             handleDecrement();
@@ -81,30 +87,32 @@ export function QuantityStepper({
           className="hover:bg-muted flex size-7 items-center justify-center rounded-full transition-colors"
         >
           {quantity === 1 ? (
-            <Trash2 className="size-3.5" />
+            <Trash2 className="size-3.5" aria-hidden />
           ) : (
-            <Minus className="size-3.5" />
+            <Minus className="size-3.5" aria-hidden />
           )}
         </button>
-        <span className="min-w-5 text-center text-sm font-semibold">{quantity}</span>
+        <span className="min-w-5 text-center text-sm font-semibold" aria-live="polite">
+          {quantity}
+        </span>
         <button
           type="button"
-          aria-label="Agregar"
+          aria-label={addLabel}
           onClick={(e) => {
             e.stopPropagation();
             onIncrement();
           }}
           className="hover:bg-muted flex size-7 items-center justify-center rounded-full transition-colors"
         >
-          <Plus className="size-3.5" />
+          <Plus className="size-3.5" aria-hidden />
         </button>
       </div>
 
-      {itemName ? (
+      {itemName || productName ? (
         <ConfirmDialog
           open={confirmOpen}
           title="¿Eliminar del pedido?"
-          description={confirmRemoveMessage(itemName)}
+          description={confirmRemoveMessage(itemName || productName || "")}
           onConfirm={handleConfirmRemove}
           onCancel={() => setConfirmOpen(false)}
         />

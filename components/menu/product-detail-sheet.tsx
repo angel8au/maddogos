@@ -171,14 +171,30 @@ export function ProductDetailSheet({
     formError && formError.toLowerCase().includes("bebida") ? formError : undefined;
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange} zIndexClass={zIndexClass}>
+    <Sheet
+      open={open}
+      onOpenChange={onOpenChange}
+      zIndexClass={zIndexClass}
+      titleId="product-detail-title"
+      descriptionId={item.description ? "product-detail-description" : undefined}
+    >
       <SheetHeader>
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
-            <h2 className="font-display text-2xl tracking-wide uppercase">{item.name}</h2>
+            <h2
+              id="product-detail-title"
+              className="font-display text-2xl tracking-wide uppercase"
+            >
+              {item.name}
+            </h2>
             <p className="text-lg font-bold">{formatMXN(item.price)}</p>
             {item.description ? (
-              <p className="text-muted-foreground mt-1 text-sm">{item.description}</p>
+              <p
+                id="product-detail-description"
+                className="text-muted-foreground mt-1 text-sm"
+              >
+                {item.description}
+              </p>
             ) : null}
           </div>
           <button
@@ -187,7 +203,7 @@ export function ProductDetailSheet({
             onClick={() => onOpenChange(false)}
             className="hover:bg-muted flex size-8 shrink-0 items-center justify-center rounded-full transition-colors"
           >
-            <X className="size-5" />
+            <X className="size-5" aria-hidden />
           </button>
         </div>
       </SheetHeader>
@@ -201,6 +217,11 @@ export function ProductDetailSheet({
             slug={item.slug}
             sizes="(max-width: 768px) 100vw, 480px"
             priority
+            className={
+              item.category === "extras" || item.category === "bebidas"
+                ? "object-contain p-3"
+                : undefined
+            }
           />
         </div>
 
@@ -305,6 +326,7 @@ export function ProductDetailSheet({
           <h3 className="font-semibold">Cantidad</h3>
           <QuantityStepper
             quantity={quantity}
+            productName={item.name}
             onIncrement={() => setQuantity((q) => q + 1)}
             onDecrement={() => setQuantity((q) => Math.max(1, q - 1))}
           />
@@ -338,6 +360,11 @@ export function ProductDetailSheet({
       </SheetBody>
 
       <SheetFooter>
+        {formError ? (
+          <p role="alert" className="text-destructive mb-2 text-sm">
+            {formError}
+          </p>
+        ) : null}
         <Button size="lg" className="w-full" onClick={handleAdd}>
           {isEditing ? "Actualizar" : "Agregar"} · {formatMXN(lineTotal)}
         </Button>

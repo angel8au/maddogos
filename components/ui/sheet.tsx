@@ -1,9 +1,18 @@
 "use client";
 
-import { useEffect, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useRef,
+  type ReactNode,
+} from "react";
 import { cn } from "@/lib/utils";
 
 type SheetSide = "bottom" | "right" | "responsive";
+
+const FOCUSABLE_SELECTOR =
+  'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 type SheetProps = {
   open: boolean;
@@ -13,6 +22,10 @@ type SheetProps = {
   fullscreen?: boolean;
   zIndexClass?: string;
   side?: SheetSide;
+  /** Element id for aria-labelledby (e.g. sheet title h2). */
+  titleId?: string;
+  /** Element id for aria-describedby. */
+  descriptionId?: string;
 };
 
 export function Sheet({
@@ -23,15 +36,78 @@ export function Sheet({
   fullscreen = false,
   zIndexClass = "z-50",
   side = "responsive",
+  titleId,
+  descriptionId,
 }: SheetProps) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+  const autoTitleId = useId();
+  const resolvedTitleId = titleId ?? autoTitleId;
+
+  const getFocusable = useCallback(() => {
+    const root = dialogRef.current;
+    if (!root) return [] as HTMLElement[];
+    return Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(
+      (el) => !el.hasAttribute("disabled") && el.getAttribute("aria-hidden") !== "true",
+    );
+  }, []);
+
   useEffect(() => {
     if (!open) return;
-    const prev = document.body.style.overflow;
+
+    previousFocusRef.current = document.activeElement as HTMLElement | null;
+    const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prev;
+
+    const focusFirst = () => {
+      const focusable = getFocusable();
+      const target =
+        focusable.find((el) => el.getAttribute("aria-label") === "Cerrar") ??
+        focusable[0] ??
+        dialogRef.current;
+      target?.focus();
     };
-  }, [open]);
+
+    const frame = requestAnimationFrame(focusFirst);
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onOpenChange(false);
+        return;
+      }
+
+      if (event.key !== "Tab") return;
+
+      const focusable = getFocusable();
+      if (focusable.length === 0) {
+        event.preventDefault();
+        dialogRef.current?.focus();
+        return;
+      }
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+
+      if (event.shiftKey && active === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      cancelAnimationFrame(frame);
+      document.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = prevOverflow;
+      previousFocusRef.current?.focus?.();
+    };
+  }, [open, onOpenChange, getFocusable]);
 
   if (!open) return null;
 
@@ -54,12 +130,17 @@ export function Sheet({
         aria-label="Cerrar"
         className="absolute inset-0 bg-black/50"
         onClick={() => onOpenChange(false)}
+        tabIndex={-1}
       />
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
+        aria-labelledby={resolvedTitleId}
+        aria-describedby={descriptionId}
+        tabIndex={-1}
         className={cn(
-          "bg-background relative z-10 flex w-full flex-col shadow-2xl duration-300",
+          "bg-background relative z-10 flex w-full flex-col shadow-2xl duration-300 outline-none",
           isBottom &&
             !fullscreen &&
             "max-md:max-h-[92vh] max-md:animate-in max-md:slide-in-from-bottom max-md:rounded-t-2xl",
@@ -72,6 +153,11 @@ export function Sheet({
           className,
         )}
       >
+        {!titleId ? (
+          <span id={resolvedTitleId} className="sr-only">
+            Diálogo
+          </span>
+        ) : null}
         {children}
       </div>
     </div>

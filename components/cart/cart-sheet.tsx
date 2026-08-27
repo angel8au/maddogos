@@ -182,7 +182,7 @@ export function CartSheet({ open, onOpenChange, onLineClick }: CartSheetProps) {
 
   return (
     <>
-      <Sheet open={open} onOpenChange={handleOpenChange} fullscreen>
+      <Sheet open={open} onOpenChange={handleOpenChange} fullscreen titleId="cart-sheet-title">
         <SheetHeader>
           <div className="flex items-center justify-between gap-3">
             <div className="flex min-w-0 items-start gap-2">
@@ -193,14 +193,17 @@ export function CartSheet({ open, onOpenChange, onLineClick }: CartSheetProps) {
                   onClick={goBack}
                   className="hover:bg-muted mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full transition-colors"
                 >
-                  <ChevronLeft className="size-5" />
+                  <ChevronLeft className="size-5" aria-hidden />
                 </button>
               ) : null}
               <div className="min-w-0 space-y-1">
                 <p className="text-muted-foreground text-[11px] font-medium tracking-wide uppercase">
                   Paso {stepIndex + 1} de {STEPS.length}
                 </p>
-                <h2 className="font-display text-2xl tracking-wide uppercase">
+                <h2
+                  id="cart-sheet-title"
+                  className="font-display text-2xl tracking-wide uppercase"
+                >
                   {copy.title}
                 </h2>
                 <p className="text-muted-foreground text-sm">{headerSubtitle}</p>
@@ -212,7 +215,7 @@ export function CartSheet({ open, onOpenChange, onLineClick }: CartSheetProps) {
               onClick={() => handleOpenChange(false)}
               className="hover:bg-muted flex size-8 shrink-0 items-center justify-center rounded-full transition-colors"
             >
-              <X className="size-5" />
+              <X className="size-5" aria-hidden />
             </button>
           </div>
           <div className="mt-3">

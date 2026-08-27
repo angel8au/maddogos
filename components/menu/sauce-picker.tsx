@@ -62,7 +62,11 @@ export function SaucePicker({
         })}
       </RadioGroup>
 
-      {error ? <p className="text-destructive text-xs">{error}</p> : null}
+      {error ? (
+        <p role="alert" className="text-destructive text-xs">
+          {error}
+        </p>
+      ) : null}
     </section>
   );
 }

@@ -37,6 +37,7 @@ function ExtraCard({
           <QuantityStepper
             size="sm"
             quantity={quantity}
+            productName={extra.name}
             onIncrement={() => onQuantityChange(quantity + 1)}
             onDecrement={() => onQuantityChange(Math.max(0, quantity - 1))}
           />

@@ -28,6 +28,7 @@ function DrinkCard({ drink }: { drink: MenuItem }) {
           <QuantityStepper
             size="sm"
             quantity={quantity}
+            productName={drink.name}
             itemName={quantity > 0 ? drink.name : undefined}
             onIncrement={() => addDefaultItem(drink)}
             onDecrement={() => removeDefaultItem(drink)}

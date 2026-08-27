@@ -47,25 +47,22 @@ export function MenuCard({ item, onOpenDetail, compact, variant = "list" }: Menu
 
   return (
     <article
-      role="button"
-      tabIndex={0}
-      onClick={() => onOpenDetail(item)}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          onOpenDetail(item);
-        }
-      }}
       className={cn(
-        "group flex cursor-pointer gap-3 transition-colors",
-        variant === "list" &&
-          "border-b py-4 last:border-b-0",
+        "group relative flex gap-3 transition-colors",
+        variant === "list" && "border-b py-4 last:border-b-0",
         variant === "grid" &&
           "border-border py-4 md:rounded-xl md:border md:p-3 md:hover:bg-muted/30",
         compact ? "px-0" : variant === "list" ? "px-1" : "px-0",
       )}
     >
-      <div className="min-w-0 flex-1 space-y-1">
+      <button
+        type="button"
+        onClick={() => onOpenDetail(item)}
+        className="absolute inset-0 z-0 rounded-xl focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none"
+        aria-label={`Ver detalles de ${item.name}`}
+      />
+
+      <div className="pointer-events-none relative z-10 min-w-0 flex-1 space-y-1 text-left">
         <div className="flex items-start gap-2">
           <h3 className="font-semibold leading-snug">{item.name}</h3>
           {item.badge ? (
@@ -78,22 +75,20 @@ export function MenuCard({ item, onOpenDetail, compact, variant = "list" }: Menu
         <p className="text-muted-foreground line-clamp-2 text-sm">{item.description}</p>
       </div>
 
-      <div className="relative size-28 shrink-0 self-start">
-        <div className="bg-muted relative size-full overflow-hidden rounded-xl">
+      <div className="relative z-10 size-28 shrink-0 self-start">
+        <div className="bg-muted pointer-events-none relative size-full overflow-hidden rounded-xl">
           <MenuItemImage
             src={item.imageUrl}
-            alt={item.name}
+            alt=""
             category={item.category}
             slug={item.slug}
             sizes="112px"
           />
         </div>
-        <div
-          className="absolute right-1 bottom-1"
-          onClick={(e) => e.stopPropagation()}
-        >
+        <div className="absolute right-1 bottom-1">
           <QuantityStepper
             quantity={quantity}
+            productName={item.name}
             itemName={quantity > 0 ? item.name : undefined}
             onIncrement={handleIncrement}
             onDecrement={handleDecrement}

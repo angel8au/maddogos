@@ -145,6 +145,7 @@ export function MenuView({
             <section
               key={category}
               id={category}
+              role="tabpanel"
               aria-labelledby={`menu-tab-${category}`}
               className="space-y-3"
               style={{ scrollMarginTop: SCROLL_SPY_OFFSET }}

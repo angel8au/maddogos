@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { SiteOpenStatusBadge } from "@/components/open-status-badge";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -12,6 +13,16 @@ import { cn } from "@/lib/utils";
 
 export const revalidate = 60;
 
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+  openGraph: {
+    url: "/",
+    title: "Mad Dogos | Hot Dogs y Hamburguesas a Domicilio en Culiacán",
+    description:
+      "Pide tus hot dogs, hamburguesas, alitas y boneless a domicilio en Culiacán. Mad Dogos Hotdogs — entrega rápida directo por WhatsApp.",
+  },
+};
+
 export default async function Home() {
   const { items: menuItems, sauceOptions } = await getMenuPageData();
   const promotions = menuItems
@@ -22,7 +33,7 @@ export default async function Home() {
     <>
       <SiteHeader />
 
-      <main>
+      <main id="contenido-principal">
         <section className="bg-primary text-primary-foreground">
           <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-16 md:px-6 md:py-24">
             <p className="text-sm font-medium uppercase tracking-[0.2em] opacity-90">

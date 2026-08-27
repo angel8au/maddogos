@@ -1,8 +1,9 @@
-import { Clock, MapPin, PartyPopper } from "lucide-react";
+import { PartyPopper } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { ServiceJsonLd } from "@/components/seo/service-jsonld";
 import { buttonVariants } from "@/components/ui/button";
 import { EVENT_INCLUDES, EVENT_TYPES } from "@/lib/site-info";
 import { buildGraciasUrl } from "@/lib/whatsapp";
@@ -12,13 +13,21 @@ export const metadata: Metadata = {
   title: "Eventos",
   description:
     "Renta el carrito de Mad Dogos para tu evento en Culiacán. Bodas, XV años, fiestas y eventos corporativos.",
+  alternates: { canonical: "/eventos" },
+  openGraph: {
+    url: "/eventos",
+    title: "Eventos | Mad Dogos Hotdogs Culiacán",
+    description:
+      "Renta el carrito de Mad Dogos para tu evento en Culiacán. Bodas, XV años, fiestas y eventos corporativos.",
+  },
 };
 
 export default function EventosPage() {
   return (
     <>
+      <ServiceJsonLd />
       <SiteHeader />
-      <main>
+      <main id="contenido-principal">
         <section className="bg-primary text-primary-foreground">
           <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-16 md:px-6 md:py-24">
             <p className="text-sm font-medium uppercase tracking-[0.2em] opacity-90">

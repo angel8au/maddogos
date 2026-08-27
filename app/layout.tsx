@@ -8,8 +8,10 @@ import { PostHogProvider } from "@/components/providers/posthog-provider";
 import { CartProvider } from "@/components/providers/cart-provider";
 import { MenuCatalogProvider } from "@/components/providers/menu-catalog-provider";
 import { CartUI } from "@/components/cart/cart-ui";
-import { LocalBusinessJsonLd } from "@/components/local-business-jsonld";
+import { SkipToContent } from "@/components/skip-to-content";
+import { RestaurantJsonLd } from "@/components/seo/restaurant-jsonld";
 import { getMenuPageData } from "@/lib/queries";
+import { SITE_NAME, SITE_URL } from "@/lib/site-url";
 
 const bebasNeue = Bebas_Neue({
   weight: "400",
@@ -24,17 +26,22 @@ const inter = Inter({
   display: "swap",
 });
 
+const defaultTitle =
+  "Mad Dogos | Hot Dogs y Hamburguesas a Domicilio en Culiacán";
+const defaultDescription =
+  "Pide tus hot dogs, hamburguesas, alitas y boneless a domicilio en Culiacán. Mad Dogos Hotdogs — entrega rápida directo por WhatsApp.";
+
 export const metadata: Metadata = {
   applicationName: "Mad Dogos",
   title: {
-    default: "Mad Dogos | Hot Dogs y Hamburguesas a Domicilio en Culiacán",
+    default: defaultTitle,
     template: "%s | Mad Dogos Culiacán",
   },
-  description:
-    "Pide tus hot dogs, hamburguesas, alitas y boneless a domicilio en Culiacán. Mad Dogos Hotdogs — entrega rápida directo por WhatsApp.",
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://maddogos.vercel.app",
-  ),
+  description: defaultDescription,
+  metadataBase: new URL(SITE_URL),
+  alternates: {
+    canonical: "/",
+  },
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },
@@ -51,9 +58,17 @@ export const metadata: Metadata = {
     telephone: false,
   },
   openGraph: {
-    siteName: "Mad Dogos Hotdogs",
-    locale: "es_MX",
     type: "website",
+    locale: "es_MX",
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    title: defaultTitle,
+    description: defaultDescription,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: defaultTitle,
+    description: defaultDescription,
   },
   robots: {
     index: true,
@@ -65,7 +80,6 @@ export const viewport: Viewport = {
   themeColor: "#CC1717",
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
 };
 
 export default async function RootLayout({
@@ -82,7 +96,8 @@ export default async function RootLayout({
       style={{ colorScheme: "light" }}
     >
       <body className="min-h-full flex flex-col">
-        <LocalBusinessJsonLd />
+        <RestaurantJsonLd />
+        <SkipToContent />
         <SerwistProviderWrapper>
           <PostHogProvider>
             <CartProvider>

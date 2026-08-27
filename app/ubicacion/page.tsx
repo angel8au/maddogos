@@ -16,13 +16,20 @@ export const metadata: Metadata = {
   title: "Ubicación",
   description:
     "Visítanos en Mad Dogos Hotdogs. Francisco Zarco 510-528, Antonio Rosales, Culiacán. Horario y mapa.",
+  alternates: { canonical: "/ubicacion" },
+  openGraph: {
+    url: "/ubicacion",
+    title: "Ubicación | Mad Dogos Hotdogs Culiacán",
+    description:
+      "Visítanos en Mad Dogos Hotdogs. Francisco Zarco 510-528, Antonio Rosales, Culiacán. Horario y mapa.",
+  },
 };
 
 export default function UbicacionPage() {
   return (
     <>
       <SiteHeader />
-      <main>
+      <main id="contenido-principal">
         <section className="bg-primary text-primary-foreground">
           <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-16 md:px-6 md:py-20">
             <p className="text-sm font-medium uppercase tracking-[0.2em] opacity-90">
