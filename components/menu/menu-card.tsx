@@ -16,6 +16,7 @@ type MenuCardProps = {
 };
 
 export function MenuCard({ item, onOpenDetail, compact, variant = "list" }: MenuCardProps) {
+  const titleId = `menu-card-title-${item._id}`;
   const {
     getDefaultLineQuantity,
     getQuantityForItem,
@@ -48,22 +49,20 @@ export function MenuCard({ item, onOpenDetail, compact, variant = "list" }: Menu
   return (
     <article
       className={cn(
-        "group relative flex gap-3 transition-colors",
+        "group relative transition-colors",
         variant === "list" && "border-b py-4 last:border-b-0",
         variant === "grid" &&
-          "border-border py-4 md:rounded-xl md:border md:p-3 md:hover:bg-muted/30",
+          "border-border md:rounded-xl md:border md:p-3 md:hover:bg-muted/30",
         compact ? "px-0" : variant === "list" ? "px-1" : "px-0",
+        variant === "grid" && "py-4",
       )}
     >
-      <button
-        type="button"
-        onClick={() => onOpenDetail(item)}
-        className="hover:bg-muted/40 flex min-w-0 flex-1 gap-3 rounded-xl text-left transition-colors focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none"
-        aria-label={`Ver detalles de ${item.name}`}
-      >
-        <div className="min-w-0 flex-1 space-y-1">
+      <div className="pointer-events-none relative z-0 flex gap-3">
+        <div className="min-w-0 flex-1 space-y-1 text-left">
           <div className="flex items-start gap-2">
-            <h3 className="font-semibold leading-snug">{item.name}</h3>
+            <h3 id={titleId} className="font-semibold leading-snug">
+              {item.name}
+            </h3>
             {item.badge ? (
               <span className="bg-accent text-accent-foreground shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase">
                 {item.badge}
@@ -83,7 +82,14 @@ export function MenuCard({ item, onOpenDetail, compact, variant = "list" }: Menu
             sizes="112px"
           />
         </div>
-      </button>
+      </div>
+
+      <button
+        type="button"
+        onClick={() => onOpenDetail(item)}
+        aria-labelledby={titleId}
+        className="absolute inset-0 z-[1] rounded-xl transition-colors focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none group-hover:bg-muted/40 group-focus-visible:bg-muted/40"
+      />
 
       <div
         className={cn(

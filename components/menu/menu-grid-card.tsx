@@ -15,6 +15,7 @@ type MenuGridCardProps = {
 };
 
 export function MenuGridCard({ item, onOpenDetail, className }: MenuGridCardProps) {
+  const titleId = `menu-grid-card-title-${item._id}`;
   const {
     getDefaultLineQuantity,
     getQuantityForItem,
@@ -51,12 +52,7 @@ export function MenuGridCard({ item, onOpenDetail, className }: MenuGridCardProp
         className,
       )}
     >
-      <button
-        type="button"
-        onClick={() => onOpenDetail(item)}
-        className="block w-full text-left focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none"
-        aria-label={`Ver detalles de ${item.name}`}
-      >
+      <div className="pointer-events-none relative z-0">
         <div className="bg-muted relative aspect-square">
           <MenuItemImage
             src={item.imageUrl}
@@ -66,21 +62,30 @@ export function MenuGridCard({ item, onOpenDetail, className }: MenuGridCardProp
             sizes="(max-width: 768px) 50vw, 280px"
           />
           {item.badge ? (
-            <span className="bg-accent text-accent-foreground pointer-events-none absolute top-2 left-2 z-10 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase">
+            <span className="bg-accent text-accent-foreground absolute top-2 left-2 z-10 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase">
               {item.badge}
             </span>
           ) : null}
         </div>
-        <div className="space-y-1 p-3">
-          <p className="line-clamp-2 text-sm leading-tight font-semibold">{item.name}</p>
+        <div className="space-y-1 p-3 text-left">
+          <p id={titleId} className="line-clamp-2 text-sm leading-tight font-semibold">
+            {item.name}
+          </p>
           <p className="text-sm font-semibold">{formatMXN(item.price)}</p>
           {item.description ? (
             <p className="text-muted-foreground line-clamp-2 text-xs">{item.description}</p>
           ) : null}
         </div>
-      </button>
+      </div>
 
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-20 aspect-square">
+      <button
+        type="button"
+        onClick={() => onOpenDetail(item)}
+        aria-labelledby={titleId}
+        className="absolute inset-0 z-[1] transition-colors focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none group-hover:bg-muted/20 group-focus-visible:bg-muted/20"
+      />
+
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-10 aspect-square">
         <div className="pointer-events-auto absolute right-1.5 bottom-1.5">
           <QuantityStepper
             size="sm"

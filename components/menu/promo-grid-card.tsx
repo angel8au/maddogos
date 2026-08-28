@@ -15,6 +15,7 @@ type PromoGridCardProps = {
 };
 
 export function PromoGridCard({ item, onOpenDetail, className }: PromoGridCardProps) {
+  const titleId = `promo-card-title-${item._id}`;
   const {
     getDefaultLineQuantity,
     getQuantityForItem,
@@ -47,16 +48,11 @@ export function PromoGridCard({ item, onOpenDetail, className }: PromoGridCardPr
   return (
     <article
       className={cn(
-        "bg-card group relative flex w-full overflow-hidden rounded-xl border-2 border-accent/40 shadow-sm transition-shadow hover:border-accent hover:shadow-md",
+        "bg-card group relative w-full overflow-hidden rounded-xl border-2 border-accent/40 shadow-sm transition-shadow hover:border-accent hover:shadow-md",
         className,
       )}
     >
-      <button
-        type="button"
-        onClick={() => onOpenDetail(item)}
-        className="flex min-w-0 flex-1 text-left focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none"
-        aria-label={`Ver detalles de ${item.name}`}
-      >
+      <div className="pointer-events-none relative z-0 flex min-h-[7.5rem]">
         <div className="bg-muted relative aspect-[4/3] w-[42%] shrink-0 sm:w-[38%]">
           <MenuItemImage
             src={item.imageUrl}
@@ -65,13 +61,13 @@ export function PromoGridCard({ item, onOpenDetail, className }: PromoGridCardPr
             slug={item.slug}
             sizes="(max-width: 768px) 40vw, 220px"
           />
-          <span className="bg-accent text-accent-foreground pointer-events-none absolute top-2 left-2 rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide">
+          <span className="bg-accent text-accent-foreground absolute top-2 left-2 rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide">
             Promo
           </span>
         </div>
-        <div className="flex min-w-0 flex-1 flex-col justify-between gap-2 p-3 sm:p-4">
+        <div className="flex min-w-0 flex-1 flex-col justify-between gap-2 p-3 text-left sm:p-4">
           <div className="space-y-1">
-            <p className="line-clamp-2 text-sm leading-tight font-semibold sm:text-base">
+            <p id={titleId} className="line-clamp-2 text-sm leading-tight font-semibold sm:text-base">
               {item.name}
             </p>
             {item.description ? (
@@ -82,7 +78,14 @@ export function PromoGridCard({ item, onOpenDetail, className }: PromoGridCardPr
           </div>
           <p className="text-primary text-base font-bold sm:text-lg">{formatMXN(item.price)}</p>
         </div>
-      </button>
+      </div>
+
+      <button
+        type="button"
+        onClick={() => onOpenDetail(item)}
+        aria-labelledby={titleId}
+        className="absolute inset-0 z-[1] transition-colors focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none group-hover:bg-muted/20 group-focus-visible:bg-muted/20"
+      />
 
       <div className="pointer-events-none absolute right-3 bottom-3 z-10 sm:right-4 sm:bottom-4">
         <div className="pointer-events-auto">
