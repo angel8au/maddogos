@@ -293,38 +293,50 @@ defineType({
 
 ---
 
+## Medición digital (OBLIGATORIO en cada cambio)
+
+> **Leer antes de tocar CTAs, carrito, menú o conversión:** [`docs/analytics-measurement.md`](docs/analytics-measurement.md)
+
+Resumen para LLMs:
+
+- **Un solo punto de emisión:** `track()` en `lib/analytics.ts` — nunca `posthog.capture()` directo en componentes
+- **Conversión principal:** `whatsapp_redirect` (proxy de pedido — no hay confirmación backend)
+- **Intención vs conversión:** `whatsapp_click` (intención) ≠ `whatsapp_redirect` (conversión)
+- **Modelo actual:** carrito-first (menú → carrito → checkout 3 pasos → WhatsApp)
+- **CTAs WhatsApp:** usar `TrackedWhatsAppLink` / `OrderWhatsAppButton` — no `<Link href="/gracias">` sin tracking
+- **CTAs navegación:** usar `TrackedCtaLink` con `cta_label`, `cta_destination`, `cta_location`
+- **dataLayer + PostHog + GTM:** eventos agnósticos; GA4/Meta se configuran en GTM ([`docs/analytics-gtm-setup.md`](docs/analytics-gtm-setup.md))
+- **Deduplicación crítica:** `whatsapp_redirect` solo UNA vez — desktop en tap de `/gracias`, mobile en cart-sheet
+
+Docs: [`analytics-measurement.md`](docs/analytics-measurement.md) · [`analytics-gtm-setup.md`](docs/analytics-gtm-setup.md) · [`analytics-posthog-dashboards.md`](docs/analytics-posthog-dashboards.md) · [`analytics-qa.md`](docs/analytics-qa.md)
+
 ## CTA de WhatsApp — patrón estándar
-Los CTAs no redirigen directo a `wa.me` — van a `/gracias?item=X&src=Y` que dispara el evento PostHog y luego hace el redirect.
+La mayoría de CTAs van a `/gracias?src=Y` (puente de medición) antes de abrir WhatsApp. Excepción: **mobile cart** abre WA directo por UX iOS/PWA, pero emite los mismos eventos de conversión.
 
 ```ts
-// utils/whatsapp.ts
-export function buildWhatsAppUrl(item?: string) {
-  const number = process.env.NEXT_PUBLIC_WA_NUMBER // 526671900771
-  const message = item
-    ? `Hola, quiero pedir: ${item}`
-    : `Hola, quiero hacer un pedido`
-  return `https://wa.me/${number}?text=${encodeURIComponent(message)}`
-}
-
-export function buildGraciasUrl(item?: string, source?: string) {
-  const params = new URLSearchParams()
-  if (item) params.set('item', item)
-  if (source) params.set('src', source)
-  return `/gracias?${params}`
-}
+// lib/whatsapp.ts
+buildGraciasUrl({ item?, source })  // → /gracias?item=X&src=Y
+buildWhatsAppUrl(message?)          // → wa.me (solo en /gracias o mobile cart)
 ```
 
-## Pixel events — PostHog
-```ts
-posthog.capture('$pageview')                                          // automático
-posthog.capture('product_viewed', { name, price, category })          // al ver un producto
-posthog.capture('whatsapp_click', { name, price, source })            // al tocar CTA (intención)
-posthog.capture('whatsapp_redirect', { name, price, source })         // en /gracias (conversión real)
-posthog.capture('menu_filter', { category })                          // al filtrar menú
-posthog.capture('rental_inquiry')                                     // CTA de /renta
-```
+Fuentes `src` en uso: `cart`, `footer`, `eventos`, `ubicacion`. Landing soporta `?src=qr`, UTMs, etc.
 
-`whatsapp_click` = intención. `whatsapp_redirect` = conversión. Usar `whatsapp_redirect` como métrica principal de conversión en PostHog.
+## Eventos de medición — contrato actual
+Definidos en `lib/analytics-events.ts`. Emitir solo via `track()`:
+
+| Evento | Cuándo |
+|--------|--------|
+| `page_view` / `$pageview` | Cambio de ruta (automático) |
+| `menu_category_view` | Tab/scroll de categoría en menú |
+| `product_view` | Abrir detalle de producto |
+| `add_to_cart` / `remove_from_cart` | Carrito (cart-provider) |
+| `cart_open` → `cart_checkout_*` → `cart_fulfillment_select` | Checkout 3 pasos |
+| `whatsapp_click` | Intención — click en CTA WA |
+| `conversion_page_view` | Carga de `/gracias` |
+| `whatsapp_redirect` | **Conversión** — justo antes de abrir WA |
+| `rental_inquiry_click` | Click "Cotizar" en /eventos |
+
+`whatsapp_redirect` = métrica principal de conversión en PostHog y GA4 (`generate_lead` via GTM).
 
 ## Variables de entorno (.env.local)
 ```
@@ -352,7 +364,8 @@ NEXT_PUBLIC_GTM_ID=
 - Componentes del menú: RSC por default, `'use client'` solo si necesita interactividad
 - Imágenes de Sanity: siempre `next/image` + `urlFor()` de `@sanity/image-url`; incluir `alt` del campo `image.alt`
 - ISR en /menu: `revalidate: 60` + webhook de Sanity para on-demand revalidation (`/api/revalidate`)
-- Todos los CTAs de WhatsApp redirigen a `/gracias` (no directo a `wa.me`) para trackear conversión real
+- **Medición:** toda funcionalidad nueva debe evaluar impacto en funnels — ver [`docs/analytics-measurement.md`](docs/analytics-measurement.md) y checklist de medición
+- CTAs WhatsApp: usar componentes tracked; desktop va a `/gracias`, mobile cart puede abrir WA directo (con eventos completos)
 - Tipografía display: Bebas Neue para h1 y hero
 - No usar colores hardcoded — siempre CSS variables
 - shadcn components para UI base, custom solo para componentes de negocio

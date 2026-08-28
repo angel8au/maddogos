@@ -4,6 +4,8 @@ import "./globals.css";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
 import { SerwistProviderWrapper } from "@/components/pwa/serwist-provider";
 import { WarmCache } from "@/components/pwa/warm-cache";
+import { GoogleTagManager, GoogleTagManagerNoScript } from "@/components/gtm";
+import { AnalyticsProvider } from "@/components/providers/analytics-provider";
 import { PostHogProvider } from "@/components/providers/posthog-provider";
 import { CartProvider } from "@/components/providers/cart-provider";
 import { MenuCatalogProvider } from "@/components/providers/menu-catalog-provider";
@@ -96,21 +98,25 @@ export default async function RootLayout({
       style={{ colorScheme: "light" }}
     >
       <body className="min-h-full flex flex-col">
+        <GoogleTagManagerNoScript />
         <RestaurantJsonLd />
         <SkipToContent />
+        <GoogleTagManager />
         <SerwistProviderWrapper>
           <PostHogProvider>
-            <CartProvider>
-              <MenuCatalogProvider
-                initialItems={items}
-                initialSauceOptions={sauceOptions}
-              >
-                {children}
-                <CartUI />
-                <WarmCache />
-                <InstallPrompt />
-              </MenuCatalogProvider>
-            </CartProvider>
+            <AnalyticsProvider>
+              <CartProvider>
+                <MenuCatalogProvider
+                  initialItems={items}
+                  initialSauceOptions={sauceOptions}
+                >
+                  {children}
+                  <CartUI />
+                  <WarmCache />
+                  <InstallPrompt />
+                </MenuCatalogProvider>
+              </CartProvider>
+            </AnalyticsProvider>
           </PostHogProvider>
         </SerwistProviderWrapper>
       </body>
