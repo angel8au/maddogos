@@ -428,7 +428,7 @@ export function CartSheet({ open, onOpenChange, onLineClick }: CartSheetProps) {
                   placeholder="Ej. Kevin"
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
-                  className="border-border bg-background placeholder:text-muted-foreground focus-visible:ring-primary w-full rounded-xl border px-4 py-3 text-sm outline-none focus-visible:ring-2"
+                  className="border-border bg-background placeholder:text-muted-foreground focus-visible:ring-primary w-full rounded-xl border px-4 py-3 text-base outline-none focus-visible:ring-2"
                 />
                 <p className="text-muted-foreground text-xs leading-relaxed">
                   Nos ayuda a confirmar tu pedido y darte seguimiento por WhatsApp

@@ -54,12 +54,10 @@ export function MenuGridCard({ item, onOpenDetail, className }: MenuGridCardProp
       <button
         type="button"
         onClick={() => onOpenDetail(item)}
-        className="absolute inset-0 z-0 focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none"
+        className="block w-full text-left focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none"
         aria-label={`Ver detalles de ${item.name}`}
-      />
-
-      <div className="bg-muted relative aspect-square">
-        <div className="pointer-events-none absolute inset-0">
+      >
+        <div className="bg-muted relative aspect-square">
           <MenuItemImage
             src={item.imageUrl}
             alt=""
@@ -67,13 +65,23 @@ export function MenuGridCard({ item, onOpenDetail, className }: MenuGridCardProp
             slug={item.slug}
             sizes="(max-width: 768px) 50vw, 280px"
           />
+          {item.badge ? (
+            <span className="bg-accent text-accent-foreground pointer-events-none absolute top-2 left-2 z-10 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase">
+              {item.badge}
+            </span>
+          ) : null}
         </div>
-        {item.badge ? (
-          <span className="bg-accent text-accent-foreground pointer-events-none absolute top-2 left-2 z-10 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase">
-            {item.badge}
-          </span>
-        ) : null}
-        <div className="absolute right-1.5 bottom-1.5 z-20">
+        <div className="space-y-1 p-3">
+          <p className="line-clamp-2 text-sm leading-tight font-semibold">{item.name}</p>
+          <p className="text-sm font-semibold">{formatMXN(item.price)}</p>
+          {item.description ? (
+            <p className="text-muted-foreground line-clamp-2 text-xs">{item.description}</p>
+          ) : null}
+        </div>
+      </button>
+
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-20 aspect-square">
+        <div className="pointer-events-auto absolute right-1.5 bottom-1.5">
           <QuantityStepper
             size="sm"
             quantity={quantity}
@@ -83,13 +91,6 @@ export function MenuGridCard({ item, onOpenDetail, className }: MenuGridCardProp
             onDecrement={handleDecrement}
           />
         </div>
-      </div>
-      <div className="pointer-events-none relative z-10 space-y-1 p-3 text-left">
-        <p className="line-clamp-2 text-sm leading-tight font-semibold">{item.name}</p>
-        <p className="text-sm font-semibold">{formatMXN(item.price)}</p>
-        {item.description ? (
-          <p className="text-muted-foreground line-clamp-2 text-xs">{item.description}</p>
-        ) : null}
       </div>
     </article>
   );

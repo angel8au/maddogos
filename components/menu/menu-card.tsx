@@ -58,25 +58,23 @@ export function MenuCard({ item, onOpenDetail, compact, variant = "list" }: Menu
       <button
         type="button"
         onClick={() => onOpenDetail(item)}
-        className="absolute inset-0 z-0 rounded-xl focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none"
+        className="hover:bg-muted/40 flex min-w-0 flex-1 gap-3 rounded-xl text-left transition-colors focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none"
         aria-label={`Ver detalles de ${item.name}`}
-      />
-
-      <div className="pointer-events-none relative z-10 min-w-0 flex-1 space-y-1 text-left">
-        <div className="flex items-start gap-2">
-          <h3 className="font-semibold leading-snug">{item.name}</h3>
-          {item.badge ? (
-            <span className="bg-accent text-accent-foreground shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase">
-              {item.badge}
-            </span>
-          ) : null}
+      >
+        <div className="min-w-0 flex-1 space-y-1">
+          <div className="flex items-start gap-2">
+            <h3 className="font-semibold leading-snug">{item.name}</h3>
+            {item.badge ? (
+              <span className="bg-accent text-accent-foreground shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase">
+                {item.badge}
+              </span>
+            ) : null}
+          </div>
+          <p className="text-sm font-semibold">{formatMXN(item.price)}</p>
+          <p className="text-muted-foreground line-clamp-2 text-sm">{item.description}</p>
         </div>
-        <p className="text-sm font-semibold">{formatMXN(item.price)}</p>
-        <p className="text-muted-foreground line-clamp-2 text-sm">{item.description}</p>
-      </div>
 
-      <div className="relative z-10 size-28 shrink-0 self-start">
-        <div className="bg-muted pointer-events-none relative size-full overflow-hidden rounded-xl">
+        <div className="bg-muted relative size-28 shrink-0 self-start overflow-hidden rounded-xl">
           <MenuItemImage
             src={item.imageUrl}
             alt=""
@@ -85,7 +83,15 @@ export function MenuCard({ item, onOpenDetail, compact, variant = "list" }: Menu
             sizes="112px"
           />
         </div>
-        <div className="absolute right-1 bottom-1">
+      </button>
+
+      <div
+        className={cn(
+          "pointer-events-none absolute z-10 size-28",
+          variant === "list" ? "right-1 top-4" : "right-0 top-4 md:right-3 md:top-3",
+        )}
+      >
+        <div className="pointer-events-auto absolute right-1 bottom-1">
           <QuantityStepper
             quantity={quantity}
             productName={item.name}

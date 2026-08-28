@@ -41,8 +41,11 @@ export function Sheet({
 }: SheetProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
+  const onOpenChangeRef = useRef(onOpenChange);
   const autoTitleId = useId();
   const resolvedTitleId = titleId ?? autoTitleId;
+
+  onOpenChangeRef.current = onOpenChange;
 
   const getFocusable = useCallback(() => {
     const root = dialogRef.current;
@@ -73,7 +76,7 @@ export function Sheet({
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
-        onOpenChange(false);
+        onOpenChangeRef.current(false);
         return;
       }
 
@@ -107,7 +110,7 @@ export function Sheet({
       document.body.style.overflow = prevOverflow;
       previousFocusRef.current?.focus?.();
     };
-  }, [open, onOpenChange, getFocusable]);
+  }, [open, getFocusable]);
 
   if (!open) return null;
 
