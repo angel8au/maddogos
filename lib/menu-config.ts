@@ -1,4 +1,5 @@
 import type { MenuCategory, MenuExtra, MenuItem } from "@/lib/types";
+import { ITEM_INGREDIENTS } from "@/lib/item-ingredients";
 
 export const DEFAULT_SAUCE_OPTIONS = [
   "BBQ",
@@ -23,18 +24,29 @@ export const CHAROLA_DOG_CHOICE_IDS = [
 /** Bebidas incluidas típicas en charolas / Combo DR */
 export const INCLUDED_DRINK_TE_JAMAICA = ["bebida-jazmin", "bebida-jamaica"] as const;
 
+/** Todos los extras del menú — vinculados a hot dogs y hamburguesas */
+export const ALL_EXTRA_IDS = [
+  "extra-animal",
+  "extra-chile",
+  "extra-guacamole",
+  "extra-gratinado",
+  "extra-ranch",
+  "extra-bbq",
+  "extra-redhot",
+  "extra-teriyaki",
+  "extra-maddogos",
+  "extra-nachos",
+  "extra-mango",
+  "extra-aro",
+  "extra-papas",
+] as const;
+
 /** Extras vinculables por categoría (IDs del seed/fallback) */
 export const LINKED_EXTRA_IDS: Record<string, string[]> = {
   alitas: ["extra-gratinado", "extra-ranch", "extra-bbq", "extra-papas"],
   boneless: ["extra-gratinado", "extra-ranch", "extra-bbq", "extra-papas"],
-  hamburguesas: [
-    "extra-guacamole",
-    "extra-animal",
-    "extra-ranch",
-    "extra-aro",
-    "extra-papas",
-  ],
-  "hot-dogs": ["extra-chile", "extra-guacamole", "extra-ranch"],
+  hamburguesas: [...ALL_EXTRA_IDS],
+  "hot-dogs": [...ALL_EXTRA_IDS],
   papas: ["extra-gratinado", "extra-animal", "extra-ranch"],
 };
 
@@ -80,8 +92,17 @@ export const ITEM_CUSTOMIZATION_RULES: Record<string, ItemCustomizationRules> = 
     sauceCount: 2,
     sauceLabels: ["Salsa alitas", "Salsa boneless"],
     includedDrinkCount: 0,
+  },
+  "sampler-maddogos": {
+    sauceCount: 2,
+    sauceLabels: ["Salsa alitas", "Salsa boneless"],
+    includedDrinkCount: 0,
     requiresDogChoice: true,
   },
+  "madbon-burguer": { sauceCount: 1, includedDrinkCount: 0 },
+  "madcono-chico": { sauceCount: 1, includedDrinkCount: 0 },
+  "madcono-grande": { sauceCount: 1, includedDrinkCount: 0 },
+  "madcono-salvaje": { sauceCount: 1, includedDrinkCount: 0 },
   "charola-burguer": {
     sauceCount: 2,
     sauceLabels: ["Salsa alitas", "Salsa boneless"],
@@ -206,12 +227,17 @@ export function customizationTypeForFallback(
   name: string,
   id?: string,
 ): MenuItem["customizationType"] {
-  if (id && (ITEM_CUSTOMIZATION_RULES[menuItemIdKey(id)]?.sauceCount ?? 0) > 0) {
+  const key = id ? menuItemIdKey(id) : "";
+  const rules = key ? ITEM_CUSTOMIZATION_RULES[key] : undefined;
+  if (rules?.sauceCount && rules.sauceCount > 0) {
+    if (category === "hamburguesas" && ITEM_INGREDIENTS[key]) return "ingredients";
     return "sauce";
   }
   if (category === "hamburguesas") return "ingredients";
   if (category === "hot-dogs" && name !== "Easy Dog") return "ingredients";
-  if (category === "alitas" || category === "boneless") return "sauce";
+  if (category === "alitas" || category === "boneless" || category === "conos") {
+    return rules?.sauceCount ? "sauce" : "none";
+  }
   return "none";
 }
 

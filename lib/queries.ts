@@ -8,6 +8,7 @@ import {
   resolveLinkedExtras,
   sauceRequiredForFallback,
 } from "@/lib/menu-config";
+import { resolveItemIngredients } from "@/lib/item-ingredients";
 import { getMenuImageUrl } from "@/lib/menu-images";
 import { isSanityConfigured, sanityClient, urlForImage } from "@/lib/sanity";
 import type { MenuCategory, MenuItem, SiteConfig } from "@/lib/types";
@@ -73,6 +74,16 @@ function mapMenuItem(item: SanityMenuItem): MenuItem {
     ? urlForImage(item.image).width(800).height(600).fit("crop").url()
     : getMenuImageUrl(category, slug);
 
+  const resolvedIngredients = resolveItemIngredients({
+    _id: item._id,
+    category,
+    name: item.name,
+    ingredients: item.ingredients?.map((ing) => ({
+      name: ing.name,
+      includedByDefault: ing.includedByDefault ?? true,
+    })),
+  });
+
   const mapped: MenuItem = {
     _id: item._id,
     name: item.name,
@@ -91,10 +102,7 @@ function mapMenuItem(item: SanityMenuItem): MenuItem {
       item.sauceRequired ?? sauceRequiredForFallback(category, item._id),
     includedDrinkCount:
       item.includedDrinkCount ?? includedDrinkCountForFallback(item._id),
-    ingredients: item.ingredients?.map((ing) => ({
-      name: ing.name,
-      includedByDefault: ing.includedByDefault ?? true,
-    })),
+    ingredients: resolvedIngredients,
     linkedExtras: item.linkedExtras?.filter(Boolean).map((extra) => ({
       _id: extra._id,
       name: extra.name,
@@ -102,15 +110,17 @@ function mapMenuItem(item: SanityMenuItem): MenuItem {
     })),
   };
 
-  // Reglas por ID (combos) tienen prioridad sobre flags genéricos del CMS
   const rules = getCustomizationRules(mapped);
+  const hasIngredients = Boolean(mapped.ingredients?.length);
   return {
     ...mapped,
     sauceRequired: rules.sauceCount > 0,
     customizationType:
-      rules.sauceCount > 0
+      rules.sauceCount > 0 && !hasIngredients
         ? "sauce"
-        : mapped.customizationType,
+        : hasIngredients
+          ? "ingredients"
+          : mapped.customizationType,
     includedDrinkCount: rules.includedDrinkCount,
   };
 }
@@ -143,15 +153,20 @@ export async function getMenuItems(): Promise<MenuItem[]> {
 
 function enrichFallbackItems(items: MenuItem[]): MenuItem[] {
   return items.map((item) => {
-    const rules = getCustomizationRules(item);
+    const ingredients = resolveItemIngredients(item);
+    const base = { ...item, ingredients };
+    const rules = getCustomizationRules(base);
+    const hasIngredients = Boolean(ingredients?.length);
     const enriched: MenuItem = {
-      ...item,
+      ...base,
       imageUrl: item.imageUrl ?? getMenuImageUrl(item.category, item.slug),
       customizationType:
-        rules.sauceCount > 0
+        rules.sauceCount > 0 && !hasIngredients
           ? "sauce"
-          : (item.customizationType ??
-            customizationTypeForFallback(item.category, item.name, item._id)),
+          : hasIngredients
+            ? "ingredients"
+            : (item.customizationType ??
+              customizationTypeForFallback(item.category, item.name, item._id)),
       sauceRequired: rules.sauceCount > 0,
       includedDrinkCount: rules.includedDrinkCount,
     };

@@ -1,5 +1,5 @@
 import type { MenuCategory, MenuItem } from "@/lib/types";
-import { ingredientsForFallbackItem } from "@/lib/cart-utils";
+import { resolveItemIngredients } from "@/lib/item-ingredients";
 import {
   customizationTypeForFallback,
   includedDrinkCountForFallback,
@@ -62,6 +62,14 @@ const items: SeedItem[] = [
   },
   {
     id: "sampler-madburguer",
+    name: "Sampler MadBurger",
+    description: "5 alitas + 5 boneless + 4 aros de cebolla.",
+    price: 299,
+    category: "promociones",
+    badge: "Promo",
+  },
+  {
+    id: "sampler-maddogos",
     name: "Sampler MadDogos",
     description:
       "2 Easy Dog o Easy Dog Especial + 5 alitas + 5 boneless + 4 aros de cebolla.",
@@ -91,7 +99,7 @@ const items: SeedItem[] = [
   { id: "mad-double-burguer", name: "MadDouble Burguer", description: "Mezcla especial doble con salsa, queso gouda, jamón, lechuga, tomate y cebolla", price: 185, category: "hamburguesas" },
   { id: "madburguer-hawaiana", name: "MadBurguer Hawaiana", description: "Carne y tocino con salsa, piña, guacamole, queso manchego, jamón, lechuga, tomate y cebolla asada", price: 185, category: "hamburguesas" },
   { id: "madburguer-camaron", name: "MadBurguer Camarón", description: "Camarones asados al pastor en costra de queso, lechuga, tomate, cebolla asada, pan brioche, aderezo chipotle spicy", price: 180, category: "hamburguesas" },
-  { id: "smash-madburger", name: "Smash MadBurger", description: "Doble carne 200gr estilo smash, queso americano, tocino, pepinillos, pan brioche, aderezo especial", price: 180, category: "hamburguesas" },
+  { id: "smash-madburger", name: "Smash MadBurger", description: "Doble carne 200gr estilo smash, queso americano, tocino, cebolla y pepinillos en pan brioche", price: 180, category: "hamburguesas" },
   { id: "lowcarb-burguer", name: "LowCarb Burguer", description: "Sin papas. Lechuga romana con carne y tocino, queso manchego, jamón, lechuga, tomate, cebolla asada, vegetales y guacamole", price: 155, category: "hamburguesas", badge: "Sin papas" },
   { id: "lowcarb-double", name: "LowCarb Double Burguer", description: "Sin papas. LowCarb con doble carne, doble queso, doble jamón, vegetales y guacamole", price: 185, category: "hamburguesas", badge: "Sin papas" },
   { id: "mad-cheese-burguer", name: "Mad Cheese Burguer", description: "200gr carne rellena de queso americano, jamón, tocino, lechuga, tomate y cebolla", price: 185, category: "hamburguesas" },
@@ -212,6 +220,10 @@ export const fallbackMenuItems: MenuItem[] = menuSeed.map((item) => {
     customizationType: customizationTypeForFallback(item.category, item.name, item.id),
     sauceRequired: sauceRequiredForFallback(item.category, item.id),
     includedDrinkCount: includedDrinkCountForFallback(item.id),
-    ingredients: ingredientsForFallbackItem(item.category, item.name),
+    ingredients: resolveItemIngredients({
+      _id: item.id,
+      category: item.category,
+      name: item.name,
+    }),
   };
 });

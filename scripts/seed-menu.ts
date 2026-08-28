@@ -1,9 +1,6 @@
 import { config } from "dotenv";
 import { createClient } from "@sanity/client";
-import {
-  burgerIngredients,
-  hotDogIngredients,
-} from "../lib/cart-utils";
+import { menuSeed } from "../lib/menu-data";
 import {
   customizationTypeForFallback,
   DEFAULT_SAUCE_OPTIONS,
@@ -11,7 +8,7 @@ import {
   LINKED_EXTRA_IDS,
   sauceRequiredForFallback,
 } from "../lib/menu-config";
-import { menuSeed } from "../lib/menu-data";
+import { resolveItemIngredients } from "../lib/item-ingredients";
 
 config({ path: ".env.local" });
 
@@ -67,12 +64,11 @@ async function seedMenu() {
   console.log(`Subiendo ${menuSeed.length} productos a Sanity (${dataset})...`);
 
   for (const item of menuSeed) {
-    const ingredients =
-      item.category === "hamburguesas"
-        ? burgerIngredients
-        : item.category === "hot-dogs" && item.name !== "Easy Dog"
-          ? hotDogIngredients
-          : undefined;
+    const ingredients = resolveItemIngredients({
+      _id: item.id,
+      category: item.category,
+      name: item.name,
+    });
 
     const customizationType = customizationTypeForFallback(
       item.category,

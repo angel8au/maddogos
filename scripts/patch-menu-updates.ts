@@ -1,6 +1,6 @@
 import { config } from "dotenv";
 import { createClient } from "@sanity/client";
-import { burgerIngredients, hotDogIngredients } from "../lib/cart-utils";
+import { resolveItemIngredients } from "../lib/item-ingredients";
 import {
   customizationTypeForFallback,
   DEFAULT_SAUCE_OPTIONS,
@@ -79,12 +79,11 @@ async function main() {
       id,
     });
 
-    const ingredients =
-      item.category === "hamburguesas"
-        ? burgerIngredients
-        : item.category === "hot-dogs" && item.name !== "Easy Dog"
-          ? hotDogIngredients
-          : undefined;
+    const ingredients = resolveItemIngredients({
+      _id: item.id,
+      category: item.category,
+      name: item.name,
+    });
 
     const customizationType = customizationTypeForFallback(
       item.category,

@@ -12,10 +12,12 @@ import type {
 import { getMenuImageUrl } from "@/lib/menu-images";
 import { isValidMenuCategory } from "@/lib/cart-line-utils";
 import { getCustomizationRules } from "@/lib/menu-config";
+import { resolveItemIngredients } from "@/lib/item-ingredients";
 
 export function getDefaultIngredients(item: MenuItem): SelectedIngredient[] {
-  if (!item.ingredients?.length) return [];
-  return item.ingredients.map((ing) => ({
+  const list = resolveItemIngredients(item);
+  if (!list?.length) return [];
+  return list.map((ing) => ({
     name: ing.name,
     included: ing.includedByDefault,
   }));
@@ -179,16 +181,6 @@ export function validateCartAdd(
   return null;
 }
 
-export const burgerIngredients: MenuIngredient[] = [
-  { name: "Lechuga", includedByDefault: true },
-  { name: "Tomate", includedByDefault: true },
-  { name: "Cebolla", includedByDefault: true },
-  { name: "Queso", includedByDefault: true },
-  { name: "Jamón", includedByDefault: true },
-  { name: "Tocino", includedByDefault: true },
-  { name: "Salsa", includedByDefault: true },
-];
-
 export const hotDogIngredients: MenuIngredient[] = [
   { name: "Queso manchego", includedByDefault: true },
   { name: "Jamón de pavo", includedByDefault: true },
@@ -196,13 +188,17 @@ export const hotDogIngredients: MenuIngredient[] = [
   { name: "Cebolla asada", includedByDefault: true },
 ];
 
+/** @deprecated Usar resolveItemIngredients */
 export function ingredientsForFallbackItem(
   category: MenuItem["category"],
   name: string,
+  id?: string,
 ): MenuIngredient[] | undefined {
-  if (category === "hamburguesas") return burgerIngredients;
-  if (category === "hot-dogs" && name !== "Easy Dog") return hotDogIngredients;
-  return undefined;
+  return resolveItemIngredients({
+    _id: id ?? "",
+    category,
+    name,
+  });
 }
 
 export const CART_ORDER_STORAGE_KEY = "maddogos_cart_order";
