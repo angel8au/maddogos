@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
+import { TrackedWhatsAppLink } from "@/components/analytics/tracked-cta-link";
 import { useSiteOpenStatus } from "@/hooks/use-open-status";
 import { orderActionLabel } from "@/lib/opening-status";
 import { buildGraciasUrl } from "@/lib/whatsapp";
@@ -33,8 +34,11 @@ export function OrderWhatsAppButton({
 
   return (
     <div className={cn("flex w-full flex-col gap-2 sm:w-auto", className)}>
-      <Link
+      <TrackedWhatsAppLink
         href={buildGraciasUrl({ item, source })}
+        source={source}
+        type={item ? "single" : "general"}
+        productName={item}
         className={cn(
           buttonVariants({ size }),
           "w-full sm:w-auto",
@@ -45,7 +49,7 @@ export function OrderWhatsAppButton({
         )}
       >
         {label}
-      </Link>
+      </TrackedWhatsAppLink>
       {isScheduled ? (
         <p
           className={cn(

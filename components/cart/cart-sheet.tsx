@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { ChevronLeft, Minus, Plus, Trash2, X } from "lucide-react";
-import posthog from "posthog-js";
 import { useCart } from "@/components/providers/cart-provider";
 import { MenuItemImage } from "@/components/menu/menu-item-image";
 import { Button } from "@/components/ui/button";
@@ -15,6 +14,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Sheet, SheetBody, SheetFooter, SheetHeader } from "@/components/ui/sheet";
 import { useSiteOpenStatus } from "@/hooks/use-open-status";
 import { cartCheckoutLabel } from "@/lib/opening-status";
+import { track } from "@/lib/analytics";
+import { cartAnalyticsSnapshot } from "@/lib/analytics-cart";
 import {
   CART_ORDER_STORAGE_KEY,
   clearCartStorage,
@@ -139,12 +140,22 @@ export function CartSheet({ open, onOpenChange, onLineClick }: CartSheetProps) {
   const goToDetailsStep = () => {
     if (!lines.length) return;
     setStepAttempted(false);
+    track({
+      event: "cart_checkout_start",
+      ...cartAnalyticsSnapshot(lines),
+    });
     setStep("details");
   };
 
   const goToFulfillmentStep = () => {
     if (!lines.length) return;
     setStepAttempted(false);
+    track({
+      event: "cart_checkout_details",
+      complements_count: selectedComplements.length,
+      has_customer_name: Boolean(trimmedName),
+      ...cartAnalyticsSnapshot(lines),
+    });
     setStep("fulfillment");
   };
 
@@ -168,15 +179,14 @@ export function CartSheet({ open, onOpenChange, onLineClick }: CartSheetProps) {
       complements: selectedComplements,
     });
 
-    posthog.capture("cart_checkout_details", {
-      complements_count: selectedComplements.length,
-      has_customer_name: Boolean(trimmedName),
-    });
+    const snapshot = cartAnalyticsSnapshot(lines);
 
-    posthog.capture("whatsapp_redirect", {
+    track({
+      event: "whatsapp_click",
       source: "cart",
       type: "order",
       fulfillment,
+      ...snapshot,
     });
 
     handleOpenChange(false);
@@ -184,6 +194,20 @@ export function CartSheet({ open, onOpenChange, onLineClick }: CartSheetProps) {
 
     // Mobile/PWA: open WhatsApp in the same tap (required by iOS standalone apps).
     if (isMobileDevice()) {
+      track({
+        event: "whatsapp_redirect",
+        source: "cart",
+        type: "order",
+        fulfillment,
+        ...snapshot,
+      });
+      track({
+        event: "whatsapp_open",
+        source: "cart",
+        type: "order",
+        auto_open: true,
+        fulfillment,
+      });
       openWhatsApp(orderMessage);
       return;
     }
@@ -453,6 +477,12 @@ export function CartSheet({ open, onOpenChange, onLineClick }: CartSheetProps) {
                   if (value === "pickup" || value === "delivery") {
                     setFulfillment(value);
                     setStepAttempted(false);
+                    track({
+                      event: "cart_fulfillment_select",
+                      fulfillment: value,
+                      is_scheduled: isScheduledOrder,
+                      ...cartAnalyticsSnapshot(lines),
+                    });
                   }
                 }}
                 className="grid gap-3"

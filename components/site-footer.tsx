@@ -1,5 +1,11 @@
+"use client";
+
 import Link from "next/link";
 import { SiteLogo } from "@/components/site-logo";
+import {
+  TrackedOutboundLink,
+  TrackedWhatsAppLink,
+} from "@/components/analytics/tracked-cta-link";
 import { buttonVariants } from "@/components/ui/button";
 import {
   BUSINESS_ADDRESS,
@@ -43,32 +49,36 @@ export function SiteFooter({ className }: SiteFooterProps) {
               ))}
             </nav>
             <div className="flex flex-wrap items-center gap-4 text-sm">
-              <a
+              <TrackedOutboundLink
                 href={SOCIAL_LINKS.instagram}
                 target="_blank"
                 rel="noopener noreferrer"
+                linkText="Instagram"
                 className="text-white/80 transition-opacity hover:text-white"
               >
                 Instagram
-              </a>
-              <a
+              </TrackedOutboundLink>
+              <TrackedOutboundLink
                 href={SOCIAL_LINKS.facebook}
                 target="_blank"
                 rel="noopener noreferrer"
+                linkText="Facebook"
                 className="text-white/80 transition-opacity hover:text-white"
               >
                 Facebook
-              </a>
+              </TrackedOutboundLink>
             </div>
-            <Link
+            <TrackedWhatsAppLink
               href={buildGraciasUrl({ source: "footer" })}
+              source="footer"
+              type="general"
               className={cn(
                 buttonVariants({ variant: "secondary", size: "sm" }),
                 "w-fit bg-white text-black hover:bg-white/90",
               )}
             >
               Ordenar por WhatsApp
-            </Link>
+            </TrackedWhatsAppLink>
           </div>
         </div>
         <p className="text-xs text-white/50">

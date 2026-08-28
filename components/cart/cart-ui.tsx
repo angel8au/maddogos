@@ -5,12 +5,16 @@ import { CartBar } from "@/components/cart/cart-bar";
 import { CartFeedbackToast } from "@/components/cart/cart-add-toast";
 import { CartSheet } from "@/components/cart/cart-sheet";
 import { ProductDetailSheet } from "@/components/menu/product-detail-sheet";
+import { useCart } from "@/components/providers/cart-provider";
 import { useMenuCatalog } from "@/components/providers/menu-catalog-provider";
+import { track } from "@/lib/analytics";
+import { cartAnalyticsSnapshot } from "@/lib/analytics-cart";
 import { cartLineToMenuItem } from "@/lib/cart-line-utils";
 import type { CartLineItem } from "@/lib/types";
 
 export function CartUI() {
   const { items, sauceOptions } = useMenuCatalog();
+  const { lines } = useCart();
   const [cartOpen, setCartOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
   const [editingLine, setEditingLine] = useState<CartLineItem | null>(null);
@@ -38,7 +42,15 @@ export function CartUI() {
   return (
     <>
       <CartFeedbackToast />
-      <CartBar onOpenCart={() => setCartOpen(true)} />
+      <CartBar
+        onOpenCart={() => {
+          track({
+            event: "cart_open",
+            ...cartAnalyticsSnapshot(lines),
+          });
+          setCartOpen(true);
+        }}
+      />
       <CartSheet
         open={cartOpen}
         onOpenChange={setCartOpen}

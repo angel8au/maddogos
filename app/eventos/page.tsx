@@ -1,6 +1,6 @@
 import { PartyPopper } from "lucide-react";
-import Link from "next/link";
 import type { Metadata } from "next";
+import { RentalInquiryLink } from "@/components/analytics/tracked-cta-link";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { ServiceJsonLd } from "@/components/seo/service-jsonld";
@@ -41,15 +41,16 @@ export default function EventosPage() {
               corporativos. Tus invitados disfrutan hot dogs y más, recién hechos en el
               lugar.
             </p>
-            <Link
+            <RentalInquiryLink
               href={buildGraciasUrl({ source: "eventos" })}
+              ctaLocation="hero"
               className={cn(
                 buttonVariants({ size: "lg" }),
                 "bg-accent text-accent-foreground w-fit shadow-md hover:bg-accent-hover hover:shadow-lg",
               )}
             >
               Cotizar por WhatsApp
-            </Link>
+            </RentalInquiryLink>
           </div>
         </section>
 
@@ -134,15 +135,16 @@ export default function EventosPage() {
             <h2 className="font-display text-4xl tracking-wide uppercase">
               ¿Tienes un evento próximo?
             </h2>
-            <Link
+            <RentalInquiryLink
               href={buildGraciasUrl({ source: "eventos" })}
+              ctaLocation="footer"
               className={cn(
                 buttonVariants({ size: "lg" }),
                 "bg-accent text-accent-foreground shadow-md hover:bg-accent-hover hover:shadow-lg",
               )}
             >
               Cotizar por WhatsApp
-            </Link>
+            </RentalInquiryLink>
           </div>
         </section>
       </main>

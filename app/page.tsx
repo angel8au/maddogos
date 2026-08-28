@@ -1,15 +1,14 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { HomeFinalCta, HomeHeroCta } from "@/components/analytics/home-ctas";
 import { SiteOpenStatusBadge } from "@/components/open-status-badge";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { PromotionsMenu } from "@/components/menu/promotions-menu";
 import { MenuView } from "@/components/menu/menu-view";
 import { Testimonios } from "@/components/testimonios";
-import { buttonVariants } from "@/components/ui/button";
 import { getMenuPageData } from "@/lib/queries";
 import { GOOGLE_TESTIMONIALS_SUMMARY } from "@/lib/testimonials-data";
-import { cn } from "@/lib/utils";
 
 export const revalidate = 60;
 
@@ -48,15 +47,7 @@ export default async function Home() {
               por WhatsApp.
             </p>
             <div className="flex flex-wrap items-start gap-3">
-              <Link
-                href="/menu"
-                className={cn(
-                  buttonVariants({ size: "lg" }),
-                  "bg-accent text-accent-foreground shadow-md hover:bg-accent-hover hover:shadow-lg active:bg-accent/95",
-                )}
-              >
-                Ver menú y ordenar
-              </Link>
+              <HomeHeroCta />
             </div>
           </div>
         </section>
@@ -98,15 +89,7 @@ export default async function Home() {
             <h2 className="font-display text-4xl tracking-wide uppercase">
               ¿Tienes hambre? Ordena ahora
             </h2>
-            <Link
-              href="/menu"
-              className={cn(
-                buttonVariants({ size: "lg" }),
-                "bg-accent text-accent-foreground shadow-md hover:bg-accent-hover hover:shadow-lg active:bg-accent/95",
-              )}
-            >
-              Arma tu pedido
-            </Link>
+            <HomeFinalCta />
           </div>
         </section>
       </main>

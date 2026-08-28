@@ -22,6 +22,8 @@ import {
 } from "@/lib/cart-utils";
 import { getMenuImageUrl } from "@/lib/menu-images";
 import { requiresDetailBeforeAdd } from "@/lib/menu-config";
+import { track } from "@/lib/analytics";
+import { cartAnalyticsSnapshot, productAnalyticsProps } from "@/lib/analytics-cart";
 import type {
   CartLineItem,
   MenuItem,
@@ -156,40 +158,51 @@ export function CartProvider({ children }: { children: ReactNode }) {
           ) === signature,
       );
 
+      let nextLines: CartLineItem[];
+
       if (existing) {
-        return prev.map((line) =>
+        nextLines = prev.map((line) =>
           line.lineId === existing.lineId
             ? { ...line, quantity: line.quantity + quantity }
             : line,
         );
+      } else {
+        nextLines = [
+          ...prev,
+          {
+            lineId: createLineId(),
+            itemId: item._id,
+            name: item.name,
+            basePrice: item.price,
+            quantity,
+            imageUrl: item.imageUrl ?? getMenuImageUrl(item.category, item.slug),
+            category: item.category,
+            slug: item.slug,
+            description: item.description,
+            sauceRequired: item.sauceRequired,
+            includedDrinkCount: item.includedDrinkCount,
+            customizationType: item.customizationType,
+            ingredients: item.ingredients,
+            selectedIngredients,
+            selectedSauce,
+            selectedSauces,
+            selectedDrinks,
+            selectedBurger,
+            selectedDog,
+            selectedExtras,
+            specialInstructions,
+          },
+        ];
       }
 
-      return [
-        ...prev,
-        {
-          lineId: createLineId(),
-          itemId: item._id,
-          name: item.name,
-          basePrice: item.price,
-          quantity,
-          imageUrl: item.imageUrl ?? getMenuImageUrl(item.category, item.slug),
-          category: item.category,
-          slug: item.slug,
-          description: item.description,
-          sauceRequired: item.sauceRequired,
-          includedDrinkCount: item.includedDrinkCount,
-          customizationType: item.customizationType,
-          ingredients: item.ingredients,
-          selectedIngredients,
-          selectedSauce,
-          selectedSauces,
-          selectedDrinks,
-          selectedBurger,
-          selectedDog,
-          selectedExtras,
-          specialInstructions,
-        },
-      ];
+      track({
+        event: "add_to_cart",
+        ...productAnalyticsProps(item),
+        quantity,
+        ...cartAnalyticsSnapshot(nextLines),
+      });
+
+      return nextLines;
     });
 
     fireFeedback("add", item.name, quantity);
@@ -207,6 +220,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
       });
     },
     [addItem],
+  );
+
+  const trackRemoveFromCart = useCallback(
+    (line: CartLineItem, removedQuantity: number, nextLines: CartLineItem[]) => {
+      track({
+        event: "remove_from_cart",
+        product_id: line.itemId,
+        product_name: line.name,
+        category: line.category,
+        price: line.basePrice,
+        quantity: removedQuantity,
+        ...cartAnalyticsSnapshot(nextLines),
+      });
+    },
+    [],
   );
 
   const removeDefaultItem = useCallback(
@@ -232,17 +260,19 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (!line) return;
 
       if (line.quantity <= 1) {
-        setLines((prev) => prev.filter((l) => l.lineId !== line.lineId));
+        const nextLines = lines.filter((l) => l.lineId !== line.lineId);
+        setLines(nextLines);
+        trackRemoveFromCart(line, 1, nextLines);
         fireFeedback("remove", item.name, 1);
       } else {
-        setLines((prev) =>
-          prev.map((l) =>
-            l.lineId === line.lineId ? { ...l, quantity: l.quantity - 1 } : l,
-          ),
+        const nextLines = lines.map((l) =>
+          l.lineId === line.lineId ? { ...l, quantity: l.quantity - 1 } : l,
         );
+        setLines(nextLines);
+        trackRemoveFromCart(line, 1, nextLines);
       }
     },
-    [lines, fireFeedback],
+    [lines, fireFeedback, trackRemoveFromCart],
   );
 
   const decrementItem = useCallback(
@@ -251,17 +281,19 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (!line) return;
 
       if (line.quantity <= 1) {
-        setLines((prev) => prev.filter((l) => l.lineId !== line.lineId));
+        const nextLines = lines.filter((l) => l.lineId !== line.lineId);
+        setLines(nextLines);
+        trackRemoveFromCart(line, 1, nextLines);
         fireFeedback("remove", line.name, 1);
       } else {
-        setLines((prev) =>
-          prev.map((l) =>
-            l.lineId === line.lineId ? { ...l, quantity: l.quantity - 1 } : l,
-          ),
+        const nextLines = lines.map((l) =>
+          l.lineId === line.lineId ? { ...l, quantity: l.quantity - 1 } : l,
         );
+        setLines(nextLines);
+        trackRemoveFromCart(line, 1, nextLines);
       }
     },
-    [lines, fireFeedback],
+    [lines, fireFeedback, trackRemoveFromCart],
   );
 
   const updateLineQuantity = useCallback((lineId: string, quantity: number) => {
@@ -276,10 +308,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const removeLine = useCallback(
     (lineId: string) => {
       const line = lines.find((l) => l.lineId === lineId);
-      setLines((prev) => prev.filter((l) => l.lineId !== lineId));
-      if (line) fireFeedback("remove", line.name, line.quantity);
+      if (!line) return;
+      const nextLines = lines.filter((l) => l.lineId !== lineId);
+      setLines(nextLines);
+      trackRemoveFromCart(line, line.quantity, nextLines);
+      fireFeedback("remove", line.name, line.quantity);
     },
-    [lines, fireFeedback],
+    [lines, fireFeedback, trackRemoveFromCart],
   );
 
   const clearCart = useCallback(() => {

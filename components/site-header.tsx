@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
+import { TrackedCtaLink } from "@/components/analytics/tracked-cta-link";
 import { SiteOpenStatusBadge } from "@/components/open-status-badge";
 import { SiteLogo } from "@/components/site-logo";
 import { buttonVariants } from "@/components/ui/button";
@@ -64,12 +65,14 @@ export function SiteHeader() {
 
           <div className="flex items-center gap-2">
             <SiteOpenStatusBadge className="hidden sm:inline-flex" />
-            <Link
+            <TrackedCtaLink
               href="/menu"
+              ctaLabel="Ordenar"
+              ctaLocation="header-desktop"
               className={cn(buttonVariants(), "hidden shrink-0 text-sm sm:inline-flex")}
             >
               Ordenar
-            </Link>
+            </TrackedCtaLink>
             <button
               ref={toggleRef}
               type="button"
@@ -127,8 +130,10 @@ export function SiteHeader() {
                 {link.label}
               </Link>
             ))}
-            <Link
+            <TrackedCtaLink
               href="/menu"
+              ctaLabel="Ordenar ahora"
+              ctaLocation="header-mobile"
               onClick={closeMenu}
               className={cn(
                 buttonVariants({ size: "lg" }),
@@ -136,7 +141,7 @@ export function SiteHeader() {
               )}
             >
               Ordenar ahora
-            </Link>
+            </TrackedCtaLink>
           </nav>
         </div>
       ) : null}

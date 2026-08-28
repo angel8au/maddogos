@@ -16,6 +16,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Sheet, SheetBody, SheetFooter, SheetHeader } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 import { getDefaultIngredients, validateCartAdd } from "@/lib/cart-utils";
+import { track } from "@/lib/analytics";
+import { productAnalyticsProps } from "@/lib/analytics-cart";
 import {
   burgersForChoice,
   dogsForChoice,
@@ -24,6 +26,7 @@ import {
   resolveLinkedExtras,
 } from "@/lib/menu-config";
 import { formatMXN } from "@/lib/whatsapp";
+import { cn } from "@/lib/utils";
 import type {
   CartLineItem,
   MenuItem,
@@ -94,6 +97,15 @@ export function ProductDetailSheet({
         })),
     [availableExtras, extraQuantities],
   );
+
+  useEffect(() => {
+    if (!item || !open) return;
+
+    track({
+      event: "product_view",
+      ...productAnalyticsProps(item),
+    });
+  }, [item, open]);
 
   useEffect(() => {
     if (!item || !open) return;
@@ -225,7 +237,12 @@ export function ProductDetailSheet({
       </SheetHeader>
 
       <SheetBody className="space-y-5">
-        <div className="bg-muted relative aspect-[16/10] overflow-hidden rounded-xl">
+        <div
+          className={cn(
+            "relative aspect-[16/10] overflow-hidden rounded-xl",
+            item.category === "extras" ? "bg-white" : "bg-muted",
+          )}
+        >
           <MenuItemImage
             src={item.imageUrl}
             alt={item.name}
@@ -233,11 +250,6 @@ export function ProductDetailSheet({
             slug={item.slug}
             sizes="(max-width: 768px) 100vw, 480px"
             priority
-            className={
-              item.category === "extras" || item.category === "bebidas"
-                ? "object-contain p-3"
-                : undefined
-            }
           />
         </div>
 

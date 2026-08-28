@@ -9,6 +9,7 @@ import {
 import { MenuItemsList } from "@/components/menu/menu-items-list";
 import { ProductDetailSheet } from "@/components/menu/product-detail-sheet";
 import { categoryLabels, categoryOrder } from "@/lib/menu-data";
+import { track } from "@/lib/analytics";
 import type { MenuCategory, MenuItem } from "@/lib/types";
 
 const SCROLL_SPY_OFFSET = MENU_STICKY_HEADER_OFFSET_PX + MENU_TAB_BAR_HEIGHT_PX + 8;
@@ -28,6 +29,8 @@ export function MenuView({
   const [detailOpen, setDetailOpen] = useState(false);
   const isScrollingRef = useRef(false);
   const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const categoryInteractionRef = useRef<"click" | "scroll">("scroll");
+  const lastTrackedCategoryRef = useRef<MenuCategory | null>(null);
 
   const drinks = useMemo(
     () => items.filter((item) => item.category === "bebidas"),
@@ -60,7 +63,18 @@ export function MenuView({
         current = category;
       }
     }
-    setActiveCategory((prev) => (prev === current ? prev : current));
+    setActiveCategory((prev) => {
+      if (prev === current) return prev;
+      if (lastTrackedCategoryRef.current !== current) {
+        lastTrackedCategoryRef.current = current;
+        track({
+          event: "menu_category_view",
+          category: current,
+          interaction: categoryInteractionRef.current,
+        });
+      }
+      return current;
+    });
   }, [availableCategories]);
 
   useEffect(() => {
@@ -77,13 +91,23 @@ export function MenuView({
     const section = document.getElementById(category);
     if (!section) return;
 
+    categoryInteractionRef.current = "click";
     isScrollingRef.current = true;
     setActiveCategory(category);
+    if (lastTrackedCategoryRef.current !== category) {
+      lastTrackedCategoryRef.current = category;
+      track({
+        event: "menu_category_view",
+        category,
+        interaction: "click",
+      });
+    }
     section.scrollIntoView({ behavior: "smooth", block: "start" });
 
     if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
     scrollTimeoutRef.current = setTimeout(() => {
       isScrollingRef.current = false;
+      categoryInteractionRef.current = "scroll";
       updateActiveFromScroll();
     }, 700);
   }, [updateActiveFromScroll]);
