@@ -185,7 +185,6 @@ export const categoryLabels: Record<MenuCategory, string> = {
 };
 
 export const categoryOrder: MenuCategory[] = [
-  "promociones",
   "hot-dogs",
   "hamburguesas",
   "alitas",
@@ -196,6 +195,7 @@ export const categoryOrder: MenuCategory[] = [
   "combos",
   "extras",
   "bebidas",
+  "promociones",
 ];
 
 export const menuSeed = items.map((item) => {
