@@ -25,7 +25,7 @@ function ExtraCard({
 }) {
   return (
     <div className="bg-card w-36 shrink-0 overflow-hidden rounded-xl border shadow-sm">
-      <div className="bg-muted relative aspect-square">
+      <div className="relative aspect-square bg-white">
         <MenuItemImage
           src={menuItem?.imageUrl}
           alt={extra.name}

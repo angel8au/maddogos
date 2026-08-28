@@ -19,6 +19,12 @@ const HOT_DOG_WRAPPED: MenuIngredient[] = [
   { name: "Cebolla asada", includedByDefault: true },
 ];
 
+const HOT_DOG_WRAPPED_NO_BACON: MenuIngredient[] = [
+  { name: "Queso manchego", includedByDefault: true },
+  { name: "Jamón de pavo", includedByDefault: true },
+  { name: "Cebolla asada", includedByDefault: true },
+];
+
 /** Ingredientes por ID de producto (sin prefijo menuItem.). */
 export const ITEM_INGREDIENTS: Record<string, MenuIngredient[]> = {
   "maddogo-especial": [
@@ -27,8 +33,8 @@ export const ITEM_INGREDIENTS: Record<string, MenuIngredient[]> = {
     { name: "Cebolla asada", includedByDefault: true },
   ],
   "easy-dog-especial": HOT_DOG_WRAPPED,
-  "chilli-dog": HOT_DOG_WRAPPED,
-  "perro-bacon": HOT_DOG_WRAPPED,
+  "chilli-dog": HOT_DOG_WRAPPED_NO_BACON,
+  "perro-bacon": HOT_DOG_WRAPPED_NO_BACON,
   "mad-burguer": BURGER_STD_NO_BACON,
   "madbon-burguer": BURGER_STD_NO_BACON,
   "mad-double-burguer": BURGER_STD_NO_BACON,
@@ -85,7 +91,14 @@ export function resolveItemIngredients(
   if (ITEM_INGREDIENTS[id]) return ITEM_INGREDIENTS[id];
   if (item.ingredients?.length) return item.ingredients;
   if (item.category === "hamburguesas") return BURGER_STD_NO_BACON;
-  if (item.category === "hot-dogs" && item.name !== "Easy Dog") return HOT_DOG_WRAPPED;
+  if (item.category === "hot-dogs" && item.name !== "Easy Dog") {
+    const noBacon =
+      id === "chilli-dog" ||
+      id === "perro-bacon" ||
+      item.name === "Chilli Dog" ||
+      item.name === "Perro Bacon";
+    return noBacon ? HOT_DOG_WRAPPED_NO_BACON : HOT_DOG_WRAPPED;
+  }
   return undefined;
 }
 

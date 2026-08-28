@@ -73,7 +73,12 @@ export function MenuCard({ item, onOpenDetail, compact, variant = "list" }: Menu
           <p className="text-muted-foreground line-clamp-2 text-sm">{item.description}</p>
         </div>
 
-        <div className="bg-muted relative size-28 shrink-0 self-start overflow-hidden rounded-xl">
+        <div
+          className={cn(
+            "relative size-28 shrink-0 self-start overflow-hidden rounded-xl",
+            item.category === "extras" ? "bg-white" : "bg-muted",
+          )}
+        >
           <MenuItemImage
             src={item.imageUrl}
             alt=""

@@ -46,7 +46,10 @@ export function MenuItemImage({
       width={width}
       height={height}
       sizes={sizes}
-      className={cn(fill && "object-cover", className)}
+      className={cn(
+        fill && (category === "extras" ? "object-contain" : "object-cover"),
+        className,
+      )}
       priority={priority}
       onError={() => setImgSrc(fallback)}
     />
