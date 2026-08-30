@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Bebas_Neue, Inter } from "next/font/google";
 import "./globals.css";
-import { InstallPrompt } from "@/components/pwa/install-prompt";
 import { SerwistProviderWrapper } from "@/components/pwa/serwist-provider";
 import { WarmCache } from "@/components/pwa/warm-cache";
 import { GoogleTagManager, GoogleTagManagerNoScript } from "@/components/gtm";
@@ -113,7 +112,6 @@ export default async function RootLayout({
                   {children}
                   <CartUI />
                   <WarmCache />
-                  <InstallPrompt />
                 </MenuCatalogProvider>
               </CartProvider>
             </AnalyticsProvider>
