@@ -8,6 +8,7 @@ import {
   resolveLinkedExtras,
   sauceRequiredForFallback,
 } from "@/lib/menu-config";
+import { enhanceMenuDescription } from "@/lib/menu-descriptions";
 import { resolveItemIngredients } from "@/lib/item-ingredients";
 import { getMenuImageUrl } from "@/lib/menu-images";
 import { isSanityConfigured, sanityClient, urlForImage } from "@/lib/sanity";
@@ -88,7 +89,7 @@ function mapMenuItem(item: SanityMenuItem): MenuItem {
     _id: item._id,
     name: item.name,
     slug,
-    description: item.description,
+    description: enhanceMenuDescription(item._id, category, item.description),
     price: item.price,
     category,
     badge: item.badge,

@@ -1,4 +1,5 @@
 import type { MenuCategory, MenuItem } from "@/lib/types";
+import { enhanceMenuDescription } from "@/lib/menu-descriptions";
 import { resolveItemIngredients } from "@/lib/item-ingredients";
 import {
   customizationTypeForFallback,
@@ -119,11 +120,46 @@ const items: SeedItem[] = [
   { id: "boneless-salvajes", name: "Boneless Salvajes", description: "10 pzas con papas salvajes", price: 195, category: "boneless" },
 
   // Papas
-  { id: "papas-francesa", name: "Papas a la Francesa", description: "Papas naturales a la francesa", price: 80, category: "papas" },
-  { id: "papas-curly", name: "Papas Curly Lemonpepper", description: "Papas curly con pimienta y limón", price: 80, category: "papas" },
-  { id: "papas-animal", name: "Orden de Papas Animal Fries", description: "Papas con queso manchego, tocino frito y aderezo IN-N-OUT", price: 100, category: "papas" },
-  { id: "papas-salvajes", name: "Papas Salvajes", description: "Papas con jamón de pavo, queso manchego y salchicha de jalapeño", price: 100, category: "papas" },
-  { id: "aros-cebolla", name: "Orden de Aros de Cebolla", description: "8 aros de cebolla con papas a la francesa", price: 110, category: "papas" },
+  {
+    id: "papas-francesa",
+    name: "Papas a la Francesa",
+    description:
+      "Papas 100% naturales, cortadas de la papa fresca y preparadas al momento, a la francesa",
+    price: 80,
+    category: "papas",
+  },
+  {
+    id: "papas-curly",
+    name: "Papas Curly Lemonpepper",
+    description:
+      "Papas curly 100% naturales, cortadas de la papa fresca y preparadas al momento, con pimienta y limón",
+    price: 80,
+    category: "papas",
+  },
+  {
+    id: "papas-animal",
+    name: "Orden de Papas Animal Fries",
+    description:
+      "Papas 100% naturales, cortadas de la papa fresca y preparadas al momento, con queso manchego, tocino frito y aderezo IN-N-OUT",
+    price: 100,
+    category: "papas",
+  },
+  {
+    id: "papas-salvajes",
+    name: "Papas Salvajes",
+    description:
+      "Papas 100% naturales, cortadas de la papa fresca y preparadas al momento, con jamón de pavo, queso manchego y salchicha de jalapeño",
+    price: 100,
+    category: "papas",
+  },
+  {
+    id: "aros-cebolla",
+    name: "Orden de Aros de Cebolla",
+    description:
+      "8 aros de cebolla con papas 100% naturales, cortadas de la papa fresca y preparadas al momento, a la francesa",
+    price: 110,
+    category: "papas",
+  },
 
   // Conos
   { id: "madcono-chico", name: "MadCono Chico", description: "Media orden de boneless en papas curly lemonpepper, queso de nachos y ranch", price: 125, category: "conos" },
@@ -201,7 +237,11 @@ export const categoryOrder: MenuCategory[] = [
 export const menuSeed = items.map((item) => {
   const order = (orderByCategory.get(item.category) ?? 0) + 1;
   orderByCategory.set(item.category, order);
-  return { ...item, order };
+  return {
+    ...item,
+    order,
+    description: enhanceMenuDescription(item.id, item.category, item.description),
+  };
 });
 
 export const fallbackMenuItems: MenuItem[] = menuSeed.map((item) => {
