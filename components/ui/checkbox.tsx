@@ -23,7 +23,7 @@ export function Checkbox({
       htmlFor={id}
       className={cn(
         "flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-2.5 transition-colors",
-        checked ? "border-primary bg-primary/5" : "border-border bg-card",
+        checked ? "border-success bg-success/5" : "border-border bg-card",
         className,
       )}
     >
@@ -31,7 +31,7 @@ export function Checkbox({
         className={cn(
           "flex size-5 shrink-0 items-center justify-center rounded border transition-colors",
           checked
-            ? "border-primary bg-primary text-primary-foreground"
+            ? "border-success bg-success text-success-foreground"
             : "border-muted-foreground/40 bg-background",
         )}
       >

@@ -160,7 +160,7 @@ export function MenuView({
         />
       </div>
 
-      <div className="flex flex-col gap-10">
+      <div className="mt-6 flex flex-col gap-10 md:mt-8">
         {availableCategories.map((category) => {
           const categoryItems = items.filter((item) => item.category === category);
           if (!categoryItems.length) return null;
@@ -174,7 +174,7 @@ export function MenuView({
               className="space-y-3"
               style={{ scrollMarginTop: SCROLL_SPY_OFFSET }}
             >
-              <h2 className="font-display border-primary text-3xl tracking-wide border-l-4 pl-3 uppercase">
+              <h2 className="font-display border-accent inline-block border-b-4 pb-1 text-3xl tracking-tight">
                 {categoryLabels[category]}
               </h2>
               <MenuItemsList items={categoryItems} onOpenDetail={openDetail} />

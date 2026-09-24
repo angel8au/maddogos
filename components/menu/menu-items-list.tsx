@@ -12,7 +12,7 @@ export function MenuItemsList({ items, onOpenDetail }: MenuItemsListProps) {
   if (!items.length) return null;
 
   return (
-    <div className="grid grid-cols-1 divide-y md:grid-cols-3 md:gap-4 md:divide-y-0">
+    <div className="grid grid-cols-1 gap-3 md:grid-cols-3 md:gap-4">
       {items.map((item) => (
         <MenuCard
           key={item._id}

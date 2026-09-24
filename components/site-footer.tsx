@@ -27,14 +27,14 @@ type SiteFooterProps = {
 
 export function SiteFooter({ className }: SiteFooterProps) {
   return (
-    <footer className={cn("mt-16 bg-black text-white", className)}>
+    <footer className={cn("bg-foreground text-background mt-16", className)}>
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-10 md:px-6">
         <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
           <div className="space-y-3">
             <SiteLogo size="footer" />
-            <p className="text-sm text-white/80">Hot dogs estilo Sinaloa en Culiacán</p>
-            <p className="max-w-sm text-xs text-white/60">{BUSINESS_ADDRESS.full}</p>
-            <p className="text-xs text-white/60">{OPENING_HOURS_SUMMARY}</p>
+            <p className="text-background/80 text-sm">Hot dogs estilo Sinaloa en Culiacán</p>
+            <p className="text-background/60 max-w-sm text-xs">{BUSINESS_ADDRESS.full}</p>
+            <p className="text-background/60 text-xs">{OPENING_HOURS_SUMMARY}</p>
           </div>
           <div className="flex flex-col gap-4">
             <nav className="flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium">
@@ -42,7 +42,7 @@ export function SiteFooter({ className }: SiteFooterProps) {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="text-white/80 transition-opacity hover:text-white"
+                  className="text-background/80 hover:text-background transition-opacity"
                 >
                   {link.label}
                 </Link>
@@ -54,7 +54,7 @@ export function SiteFooter({ className }: SiteFooterProps) {
                 target="_blank"
                 rel="noopener noreferrer"
                 linkText="Instagram"
-                className="text-white/80 transition-opacity hover:text-white"
+                className="text-background/80 hover:text-background transition-opacity"
               >
                 Instagram
               </TrackedOutboundLink>
@@ -63,7 +63,7 @@ export function SiteFooter({ className }: SiteFooterProps) {
                 target="_blank"
                 rel="noopener noreferrer"
                 linkText="Facebook"
-                className="text-white/80 transition-opacity hover:text-white"
+                className="text-background/80 hover:text-background transition-opacity"
               >
                 Facebook
               </TrackedOutboundLink>
@@ -74,14 +74,14 @@ export function SiteFooter({ className }: SiteFooterProps) {
               type="general"
               className={cn(
                 buttonVariants({ variant: "secondary", size: "sm" }),
-                "w-fit bg-white text-black hover:bg-white/90",
+                "bg-background text-foreground hover:bg-background/90 w-fit",
               )}
             >
               Ordenar por WhatsApp
             </TrackedWhatsAppLink>
           </div>
         </div>
-        <p className="text-xs text-white/50">
+        <p className="text-background/50 text-xs">
           © {new Date().getFullYear()} Mad Dogos Hotdogs
         </p>
       </div>

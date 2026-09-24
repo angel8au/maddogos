@@ -73,7 +73,7 @@ export function IncludedDrinksPicker({
               key={drink._id}
               className={cn(
                 "bg-card w-36 shrink-0 overflow-hidden rounded-xl border shadow-sm transition-colors",
-                selected && "border-primary ring-primary/20 ring-2",
+                selected && "border-success ring-success/20 ring-2",
                 error && !selectedTotal && "border-destructive/50",
               )}
             >

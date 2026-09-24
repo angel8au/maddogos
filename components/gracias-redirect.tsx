@@ -117,7 +117,7 @@ export function GraciasRedirect() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-6 px-4 text-center">
       <div className="space-y-2">
-        <p className="font-display text-primary text-4xl uppercase">¡Listo!</p>
+        <p className="font-display text-primary text-4xl tracking-tight">¡Listo!</p>
         <p className="text-muted-foreground max-w-sm text-sm">
           {opened
             ? "Si WhatsApp no se abrió, toca el botón de abajo."

@@ -63,7 +63,7 @@ export function ExtrasCarousel({
 
   return (
     <section className="space-y-3">
-      <h3 className="font-display text-xl tracking-wide uppercase">Agrega extras</h3>
+      <h3 className="font-display text-xl tracking-tight">Agrega extras</h3>
       <div className="scrollbar-hide -mx-4 flex gap-3 overflow-x-auto px-4 pb-1">
         {extras.map((extra) => (
           <ExtraCard

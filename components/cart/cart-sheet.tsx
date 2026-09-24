@@ -262,7 +262,7 @@ export function CartSheet({ open, onOpenChange, onLineClick }: CartSheetProps) {
                 </p>
                 <h2
                   id="cart-sheet-title"
-                  className="font-display text-2xl tracking-wide uppercase"
+                  className="font-display text-2xl tracking-tight"
                 >
                   {copy.title}
                 </h2>
@@ -511,8 +511,8 @@ export function CartSheet({ open, onOpenChange, onLineClick }: CartSheetProps) {
                       className={cn(
                         "flex w-full cursor-pointer items-start justify-between gap-3 rounded-xl border px-4 py-3.5 text-sm transition-colors",
                         selected
-                          ? "border-primary bg-primary/5 text-primary"
-                          : "border-border hover:border-primary/40",
+                          ? "border-success bg-success/5 text-success"
+                          : "border-border hover:border-success/40",
                         stepAttempted && !fulfillment && "border-destructive/50",
                       )}
                     >
@@ -574,7 +574,12 @@ export function CartSheet({ open, onOpenChange, onLineClick }: CartSheetProps) {
                   <span>Total</span>
                   <span>{formatMXN(total)}</span>
                 </div>
-                <Button size="lg" className="w-full" onClick={goToDetailsStep}>
+                <Button
+                  size="lg"
+                  variant="success"
+                  className="w-full"
+                  onClick={goToDetailsStep}
+                >
                   Continuar
                 </Button>
               </>
@@ -586,7 +591,12 @@ export function CartSheet({ open, onOpenChange, onLineClick }: CartSheetProps) {
                   <span>Total</span>
                   <span>{formatMXN(total)}</span>
                 </div>
-                <Button size="lg" className="w-full" onClick={goToFulfillmentStep}>
+                <Button
+                  size="lg"
+                  variant="success"
+                  className="w-full"
+                  onClick={goToFulfillmentStep}
+                >
                   Continuar
                 </Button>
               </>
@@ -598,7 +608,12 @@ export function CartSheet({ open, onOpenChange, onLineClick }: CartSheetProps) {
                   <span>Total</span>
                   <span>{formatMXN(total)}</span>
                 </div>
-                <Button size="lg" className="w-full" onClick={handleCheckout}>
+                <Button
+                  size="lg"
+                  variant="success"
+                  className="w-full"
+                  onClick={handleCheckout}
+                >
                   {cartCheckoutLabel(isScheduledOrder)}
                 </Button>
                 {isScheduledOrder ? (

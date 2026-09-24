@@ -211,7 +211,7 @@ export function ProductDetailSheet({
           <div className="min-w-0">
             <h2
               id="product-detail-title"
-              className="font-display text-2xl tracking-wide uppercase"
+              className="font-display text-2xl tracking-tight"
             >
               {item.name}
             </h2>
@@ -410,7 +410,7 @@ export function ProductDetailSheet({
             {formError}
           </p>
         ) : null}
-        <Button size="lg" className="w-full" onClick={handleAdd}>
+        <Button size="lg" variant="success" className="w-full" onClick={handleAdd}>
           {isEditing ? "Actualizar" : "Agregar"} · {formatMXN(lineTotal)}
         </Button>
       </SheetFooter>

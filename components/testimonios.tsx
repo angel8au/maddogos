@@ -63,7 +63,7 @@ export function Testimonios({ data, className }: TestimoniosProps) {
     <section className={cn("space-y-6", className)} aria-label="Testimonios de clientes">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 md:flex-row md:items-end md:justify-between md:px-6">
         <div className="space-y-2">
-          <h2 className="font-display text-3xl tracking-wide uppercase md:text-4xl">
+          <h2 className="font-display text-3xl tracking-tight md:text-4xl">
             Lo que dicen nuestros clientes
           </h2>
           <div className="flex flex-wrap items-center gap-3">

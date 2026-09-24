@@ -46,19 +46,30 @@ export function MenuCard({ item, onOpenDetail, compact, variant = "list" }: Menu
     removeDefaultItem(item);
   };
 
+  const isGrid = variant === "grid";
+
   return (
     <article
       className={cn(
-        "group relative transition-colors",
+        "group relative transition-[border-color]",
         variant === "list" && "border-b py-4 last:border-b-0",
-        variant === "grid" &&
-          "border-border md:rounded-xl md:border md:p-3 md:hover:bg-muted/30",
-        compact ? "px-0" : variant === "list" ? "px-1" : "px-0",
-        variant === "grid" && "py-4",
+        variant === "list" && (compact ? "px-0" : "px-1"),
+        isGrid &&
+          "overflow-hidden rounded-xl border-2 border-border hover:border-primary",
       )}
     >
-      <div className="pointer-events-none relative z-0 flex gap-3">
-        <div className="min-w-0 flex-1 space-y-1 text-left">
+      <div
+        className={cn(
+          "pointer-events-none relative z-0 flex",
+          isGrid ? "min-h-36" : "gap-3",
+        )}
+      >
+        <div
+          className={cn(
+            "min-w-0 flex-1 space-y-1 text-left",
+            isGrid ? "p-3 pr-2" : null,
+          )}
+        >
           <div className="flex items-start gap-2">
             <h3 id={titleId} className="font-semibold leading-snug">
               {item.name}
@@ -75,7 +86,10 @@ export function MenuCard({ item, onOpenDetail, compact, variant = "list" }: Menu
 
         <div
           className={cn(
-            "relative size-28 shrink-0 self-start overflow-hidden rounded-xl",
+            "relative shrink-0 overflow-hidden transition-transform duration-200 ease-out group-hover:scale-[1.04] group-focus-within:scale-[1.04]",
+            isGrid
+              ? "w-36 self-stretch"
+              : "size-36 self-start rounded-xl",
             item.category === "extras" ? "bg-white" : "bg-muted",
           )}
         >
@@ -84,7 +98,7 @@ export function MenuCard({ item, onOpenDetail, compact, variant = "list" }: Menu
             alt=""
             category={item.category}
             slug={item.slug}
-            sizes="112px"
+            sizes="144px"
           />
         </div>
       </div>
@@ -93,13 +107,13 @@ export function MenuCard({ item, onOpenDetail, compact, variant = "list" }: Menu
         type="button"
         onClick={() => onOpenDetail(item)}
         aria-labelledby={titleId}
-        className="absolute inset-0 z-[1] rounded-xl transition-colors focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none group-hover:bg-muted/40 group-focus-visible:bg-muted/40"
+        className="absolute inset-0 z-[1] rounded-xl focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none"
       />
 
       <div
         className={cn(
-          "pointer-events-none absolute z-10 size-28",
-          variant === "list" ? "right-1 top-4" : "right-0 top-4 md:right-3 md:top-3",
+          "pointer-events-none absolute z-10",
+          isGrid ? "top-0 right-0 h-full w-36" : "top-4 right-1 size-36",
         )}
       >
         <div className="pointer-events-auto absolute right-1 bottom-1">

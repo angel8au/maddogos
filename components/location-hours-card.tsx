@@ -27,10 +27,10 @@ export function LocationHoursCard({
   return (
     <div className={cn("space-y-3", className)}>
       {hideHeader ? (
-        <h3 className="font-display text-xl tracking-wide uppercase">Horario</h3>
+        <h3 className="font-display text-xl tracking-tight">Horario</h3>
       ) : (
         <div className="flex flex-wrap items-center gap-2">
-          <h3 className="font-display text-xl tracking-wide uppercase">{location.label}</h3>
+          <h3 className="font-display text-xl tracking-tight">{location.label}</h3>
           <LocationOpenStatusBadge location={location} size="sm" showDetail={false} />
         </div>
       )}

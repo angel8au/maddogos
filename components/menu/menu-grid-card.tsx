@@ -48,18 +48,19 @@ export function MenuGridCard({ item, onOpenDetail, className }: MenuGridCardProp
   return (
     <article
       className={cn(
-        "bg-card group relative w-full overflow-hidden rounded-xl border shadow-sm transition-shadow hover:shadow-md",
+        "bg-card group relative w-full overflow-hidden rounded-xl border-2 border-border shadow-sm transition-[border-color,box-shadow] hover:border-primary hover:shadow-md",
         className,
       )}
     >
       <div className="pointer-events-none relative z-0">
-        <div className="bg-muted relative aspect-square">
+        <div className="bg-muted relative aspect-square overflow-hidden">
           <MenuItemImage
             src={item.imageUrl}
             alt=""
             category={item.category}
             slug={item.slug}
             sizes="(max-width: 768px) 50vw, 280px"
+            className="transition-transform duration-200 ease-out group-hover:scale-[1.04] group-focus-within:scale-[1.04]"
           />
           {item.badge ? (
             <span className="bg-accent text-accent-foreground absolute top-2 left-2 z-10 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase">
@@ -82,7 +83,7 @@ export function MenuGridCard({ item, onOpenDetail, className }: MenuGridCardProp
         type="button"
         onClick={() => onOpenDetail(item)}
         aria-labelledby={titleId}
-        className="absolute inset-0 z-[1] transition-colors focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none group-hover:bg-muted/20 group-focus-visible:bg-muted/20"
+        className="absolute inset-0 z-[1] focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none"
       />
 
       <div className="pointer-events-none absolute inset-x-0 top-0 z-10 aspect-square">

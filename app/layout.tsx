@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Bebas_Neue, Inter } from "next/font/google";
+import { Capriola, Inter } from "next/font/google";
 import "./globals.css";
 import { SerwistProviderWrapper } from "@/components/pwa/serwist-provider";
 import { WarmCache } from "@/components/pwa/warm-cache";
@@ -14,9 +14,9 @@ import { RestaurantJsonLd } from "@/components/seo/restaurant-jsonld";
 import { getMenuPageData } from "@/lib/queries";
 import { SITE_NAME, SITE_URL } from "@/lib/site-url";
 
-const bebasNeue = Bebas_Neue({
+const capriola = Capriola({
   weight: "400",
-  variable: "--font-bebas-neue",
+  variable: "--font-capriola",
   subsets: ["latin"],
   display: "swap",
 });
@@ -93,7 +93,7 @@ export default async function RootLayout({
   return (
     <html
       lang="es-MX"
-      className={`${bebasNeue.variable} ${inter.variable} h-full antialiased light`}
+      className={`${capriola.variable} ${inter.variable} h-full antialiased light`}
       style={{ colorScheme: "light" }}
     >
       <body className="min-h-full flex flex-col">

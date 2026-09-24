@@ -48,7 +48,7 @@ export function DrinksCarousel({ drinks }: DrinksCarouselProps) {
 
   return (
     <section className="space-y-3">
-      <h3 className="font-display text-xl tracking-wide uppercase">
+      <h3 className="font-display text-xl tracking-tight">
         ¿Algo para tomar?
       </h3>
       <div className="scrollbar-hide -mx-4 flex gap-3 overflow-x-auto px-4 pb-1">

@@ -50,8 +50,8 @@ export function SaucePicker({
               className={cn(
                 "flex w-full cursor-pointer items-center justify-between gap-3 rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors",
                 selected
-                  ? "border-primary bg-primary/5 text-primary"
-                  : "border-border hover:border-primary/40",
+                  ? "border-success bg-success/5 text-success"
+                  : "border-border hover:border-success/40",
                 error && !value && "border-destructive/50",
               )}
             >

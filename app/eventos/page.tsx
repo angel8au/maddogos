@@ -28,15 +28,15 @@ export default function EventosPage() {
       <ServiceJsonLd />
       <SiteHeader />
       <main id="contenido-principal">
-        <section className="bg-primary text-primary-foreground">
+        <section className="bg-muted">
           <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-16 md:px-6 md:py-24">
-            <p className="text-sm font-medium uppercase tracking-[0.2em] opacity-90">
+            <p className="text-muted-foreground text-sm font-medium uppercase tracking-[0.2em]">
               Mad Dogos en tu celebración
             </p>
-            <h1 className="font-display max-w-3xl text-5xl leading-none tracking-wide uppercase md:text-6xl">
+            <h1 className="font-display text-foreground max-w-3xl text-5xl leading-none tracking-tight md:text-6xl">
               Mad Dogos para tu evento en Culiacán
             </h1>
-            <p className="max-w-2xl text-base opacity-90 md:text-lg">
+            <p className="text-muted-foreground max-w-2xl text-base md:text-lg">
               Llevamos el carrito de Mad Dogos a bodas, XV años, fiestas y eventos
               corporativos. Tus invitados disfrutan hot dogs y más, recién hechos en el
               lugar.
@@ -57,7 +57,7 @@ export default function EventosPage() {
         <section className="mx-auto w-full max-w-6xl px-4 py-12 md:px-6 md:py-16">
           <div className="grid gap-10 md:grid-cols-2 md:gap-12">
             <div className="space-y-4">
-              <h2 className="font-display text-3xl tracking-wide uppercase">
+              <h2 className="font-display text-3xl tracking-tight">
                 ¿Qué incluye?
               </h2>
               <ul className="space-y-3">
@@ -71,7 +71,7 @@ export default function EventosPage() {
             </div>
 
             <div className="space-y-4">
-              <h2 className="font-display text-3xl tracking-wide uppercase">
+              <h2 className="font-display text-3xl tracking-tight">
                 Tipos de evento
               </h2>
               <div className="flex flex-wrap gap-2">
@@ -94,7 +94,7 @@ export default function EventosPage() {
 
         <section className="bg-muted/50 border-y">
           <div className="mx-auto w-full max-w-6xl px-4 py-12 md:px-6">
-            <h2 className="font-display mb-6 text-3xl tracking-wide uppercase">
+            <h2 className="font-display mb-6 text-3xl tracking-tight">
               ¿Cómo funciona?
             </h2>
             <ol className="grid gap-6 md:grid-cols-3">
@@ -132,7 +132,7 @@ export default function EventosPage() {
 
         <section className="bg-primary text-primary-foreground">
           <div className="mx-auto flex w-full max-w-6xl flex-col items-start gap-4 px-4 py-12 md:flex-row md:items-center md:justify-between md:px-6">
-            <h2 className="font-display text-4xl tracking-wide uppercase">
+            <h2 className="font-display text-4xl tracking-tight">
               ¿Tienes un evento próximo?
             </h2>
             <RentalInquiryLink

@@ -31,7 +31,7 @@ export default async function MenuPage() {
         id="contenido-principal"
         className="mx-auto w-full max-w-6xl px-4 py-6 pb-28 md:px-6"
       >
-        <h1 className="font-display mb-6 text-4xl tracking-wide uppercase md:text-5xl">
+        <h1 className="font-display mb-6 text-4xl tracking-tight md:text-5xl">
           Menú Mad Dogos
         </h1>
         <MenuView items={items} sauceOptions={sauceOptions} />

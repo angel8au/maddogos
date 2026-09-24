@@ -8,10 +8,18 @@ import {
 } from "@/components/ui/confirm-dialog";
 import { cn } from "@/lib/utils";
 
+const focusRing =
+  "outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:ring-offset-2";
+
+/** 44×44 hit target wrapping a 36×36 visual control. */
+const hitTarget = "flex size-11 items-center justify-center rounded-full";
+const visualControl = "flex size-9 items-center justify-center rounded-full";
+
 type QuantityStepperProps = {
   quantity: number;
   onIncrement: () => void;
   onDecrement: () => void;
+  /** Kept for callers; hit targets are always ≥44px. */
   size?: "sm" | "md";
   className?: string;
   /** Product name for VoiceOver labels and remove confirmation. */
@@ -24,7 +32,6 @@ export function QuantityStepper({
   quantity,
   onIncrement,
   onDecrement,
-  size = "md",
   className,
   itemName,
   productName,
@@ -58,12 +65,21 @@ export function QuantityStepper({
           onIncrement();
         }}
         className={cn(
-          "bg-background flex items-center justify-center rounded-full border shadow-md transition-transform active:scale-95",
-          size === "sm" ? "size-8" : "size-9",
+          hitTarget,
+          focusRing,
+          "hover:[&>span]:bg-success-hover active:[&>span]:scale-95",
           className,
         )}
       >
-        <Plus className="size-4" aria-hidden />
+        <span
+          className={cn(
+            visualControl,
+            "bg-success text-success-foreground shadow-md transition-[transform,background-color]",
+          )}
+          aria-hidden
+        >
+          <Plus className="size-4" />
+        </span>
       </button>
     );
   }
@@ -72,8 +88,7 @@ export function QuantityStepper({
     <>
       <div
         className={cn(
-          "bg-background flex items-center gap-1 rounded-full border px-1 shadow-md",
-          size === "sm" ? "h-8" : "h-9",
+          "bg-background flex h-11 items-center rounded-full border shadow-md",
           className,
         )}
       >
@@ -84,15 +99,20 @@ export function QuantityStepper({
             e.stopPropagation();
             handleDecrement();
           }}
-          className="hover:bg-muted flex size-7 items-center justify-center rounded-full transition-colors"
+          className={cn(hitTarget, focusRing, "hover:[&>span]:bg-muted")}
         >
-          {quantity === 1 ? (
-            <Trash2 className="size-3.5" aria-hidden />
-          ) : (
-            <Minus className="size-3.5" aria-hidden />
-          )}
+          <span className={cn(visualControl, "transition-colors")} aria-hidden>
+            {quantity === 1 ? (
+              <Trash2 className="size-3.5" />
+            ) : (
+              <Minus className="size-3.5" />
+            )}
+          </span>
         </button>
-        <span className="min-w-5 text-center text-sm font-semibold" aria-live="polite">
+        <span
+          className="min-w-5 text-center text-sm font-semibold tabular-nums"
+          aria-live="polite"
+        >
           {quantity}
         </span>
         <button
@@ -102,9 +122,14 @@ export function QuantityStepper({
             e.stopPropagation();
             onIncrement();
           }}
-          className="hover:bg-muted flex size-7 items-center justify-center rounded-full transition-colors"
+          className={cn(hitTarget, focusRing, "hover:[&>span]:bg-success/10")}
         >
-          <Plus className="size-3.5" aria-hidden />
+          <span
+            className={cn(visualControl, "text-success transition-colors")}
+            aria-hidden
+          >
+            <Plus className="size-3.5" />
+          </span>
         </button>
       </div>
 

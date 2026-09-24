@@ -51,8 +51,8 @@ export function DogChoicePicker({
               className={cn(
                 "flex w-full cursor-pointer items-center gap-3 rounded-lg border p-2.5 text-sm transition-colors",
                 selected
-                  ? "border-primary bg-primary/5"
-                  : "border-border hover:border-primary/40",
+                  ? "border-success bg-success/5"
+                  : "border-border hover:border-success/40",
                 error && !value && "border-destructive/50",
               )}
             >

@@ -30,24 +30,24 @@ export default function UbicacionPage() {
     <>
       <SiteHeader />
       <main id="contenido-principal">
-        <section className="bg-primary text-primary-foreground">
+        <section className="bg-muted">
           <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-16 md:px-6 md:py-20">
-            <p className="text-sm font-medium uppercase tracking-[0.2em] opacity-90">
+            <p className="text-muted-foreground text-sm font-medium uppercase tracking-[0.2em]">
               Visítanos
             </p>
-            <h1 className="font-display max-w-3xl text-5xl leading-none tracking-wide uppercase md:text-6xl">
+            <h1 className="font-display text-foreground max-w-3xl text-5xl leading-none tracking-tight md:text-6xl">
               Ubicación Mad Dogos
             </h1>
-            <div className="flex max-w-2xl flex-wrap items-center gap-3">
+            <div className="text-foreground flex max-w-2xl flex-wrap items-center gap-3">
               <MapPin className="size-5 shrink-0" />
-              <p className="text-base opacity-95 md:text-lg">{location.full}</p>
+              <p className="text-base md:text-lg">{location.full}</p>
               <LocationOpenStatusBadge
                 location={location}
                 size="sm"
                 showDetail={false}
               />
             </div>
-            <p className="max-w-2xl text-base opacity-95 md:text-lg">
+            <p className="text-muted-foreground max-w-2xl text-base md:text-lg">
               Si estamos cerrados, igual puedes programar tu pedido por WhatsApp.
             </p>
             <div className="flex flex-wrap gap-3">

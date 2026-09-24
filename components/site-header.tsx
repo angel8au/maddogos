@@ -125,7 +125,7 @@ export function SiteHeader() {
                 key={link.href}
                 href={link.href}
                 onClick={closeMenu}
-                className="font-display hover:text-primary py-3 text-5xl tracking-wide uppercase transition-colors"
+                className="font-display hover:text-primary py-3 text-5xl tracking-tight transition-colors"
               >
                 {link.label}
               </Link>

@@ -11,7 +11,7 @@ export default function GraciasPage() {
     <Suspense
       fallback={
         <main className="flex min-h-screen flex-col items-center justify-center gap-4 px-4 text-center">
-          <p className="font-display text-primary text-4xl uppercase">¡Gracias!</p>
+          <p className="font-display text-primary text-4xl tracking-tight">¡Gracias!</p>
           <p className="text-muted-foreground">Cargando...</p>
         </main>
       }
