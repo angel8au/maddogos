@@ -17,7 +17,7 @@ export function RestaurantJsonLd() {
     url: SITE_URL,
     telephone: `+${getWhatsAppNumber()}`,
     image: `${SITE_URL}/icons/icon-512.png`,
-    logo: `${SITE_URL}/images/logo-maddogso.png`,
+    logo: `${SITE_URL}/images/logo-maddogos.png`,
     sameAs: [SOCIAL_LINKS.instagram, SOCIAL_LINKS.facebook],
     address: {
       "@type": "PostalAddress",

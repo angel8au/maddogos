@@ -17,8 +17,18 @@ const navLinks = [
 
 export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const onScroll = () => {
+      setScrolled(window.scrollY > 16);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -51,9 +61,9 @@ export function SiteHeader() {
 
   return (
     <>
-      <header className="bg-background/95 sticky top-0 z-50 border-b backdrop-blur">
-        <div className="mx-auto flex h-[4.5rem] w-full max-w-6xl items-center justify-between gap-4 px-4 md:px-6">
-          <SiteLogo onClick={closeMenu} />
+      <header className="bg-background/95 sticky top-0 z-50 overflow-visible border-b backdrop-blur">
+        <div className="mx-auto flex h-[4.5rem] w-full max-w-6xl items-center justify-between gap-4 overflow-visible px-4 md:px-6">
+          <SiteLogo onClick={closeMenu} compact={scrolled} />
 
           <nav className="hidden items-center gap-6 text-sm font-medium md:flex" aria-label="Principal">
             {navLinks.map((link) => (
@@ -102,7 +112,7 @@ export function SiteHeader() {
           aria-label="Menú de navegación"
         >
           <div className="mx-auto flex h-[4.5rem] w-full max-w-6xl items-center justify-between gap-4 border-b px-4">
-            <SiteLogo onClick={closeMenu} />
+            <SiteLogo onClick={closeMenu} compact />
             <button
               type="button"
               aria-label="Cerrar menú"
