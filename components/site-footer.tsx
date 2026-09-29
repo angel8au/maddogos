@@ -67,6 +67,15 @@ export function SiteFooter({ className }: SiteFooterProps) {
               >
                 Facebook
               </TrackedOutboundLink>
+              <TrackedOutboundLink
+                href={SOCIAL_LINKS.tiktok}
+                target="_blank"
+                rel="noopener noreferrer"
+                linkText="TikTok"
+                className="text-background/80 hover:text-background transition-opacity"
+              >
+                TikTok
+              </TrackedOutboundLink>
             </div>
             <TrackedWhatsAppLink
               href={buildGraciasUrl({ source: "footer" })}

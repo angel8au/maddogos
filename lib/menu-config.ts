@@ -1,5 +1,6 @@
 import type { MenuCategory, MenuExtra, MenuItem } from "@/lib/types";
 import { ITEM_INGREDIENTS } from "@/lib/item-ingredients";
+import { itemIncludesPapas } from "@/lib/menu-descriptions";
 
 export const DEFAULT_SAUCE_OPTIONS = [
   "BBQ",
@@ -24,6 +25,41 @@ export const CHAROLA_DOG_CHOICE_IDS = [
 /** Bebidas incluidas típicas en charolas / Combo DR */
 export const INCLUDED_DRINK_TE_JAMAICA = ["bebida-jazmin", "bebida-jamaica"] as const;
 
+/**
+ * Upgrade de las papas incluidas. No se vende solo en el menú:
+ * solo aparece al personalizar un platillo que ya trae papas.
+ */
+export const PAPAS_UPGRADE_EXTRA_ID = "extra-papas";
+
+/** Papas que se agregan a platillos que no las traen. No se venden solas. */
+export const PAPAS_FRANCESA_EXTRA_ID = "extra-francesa";
+export const PAPAS_CURLY_EXTRA_ID = "extra-curly";
+
+const PAPAS_SIDE_EXTRA_DEFS = [
+  {
+    id: PAPAS_FRANCESA_EXTRA_ID,
+    name: "Papas a la Francesa",
+    price: 15,
+    imageFromId: "papas-francesa",
+    description: "Agrega papas a la francesa a tu platillo",
+  },
+  {
+    id: PAPAS_CURLY_EXTRA_ID,
+    name: "Papas Curly",
+    price: 15,
+    imageFromId: "papas-curly",
+    description: "Papas curly. En platillos con papas, cambia las incluidas.",
+  },
+] as const;
+
+const MANAGED_FRY_EXTRA_IDS = new Set<string>([
+  PAPAS_UPGRADE_EXTRA_ID,
+  PAPAS_FRANCESA_EXTRA_ID,
+  PAPAS_CURLY_EXTRA_ID,
+]);
+
+const PLAIN_FRIES_ITEM_IDS = new Set(["lowcarb-burguer", "lowcarb-double"]);
+
 /** Todos los extras del menú — vinculados a hot dogs y hamburguesas */
 export const ALL_EXTRA_IDS = [
   "extra-animal",
@@ -38,13 +74,12 @@ export const ALL_EXTRA_IDS = [
   "extra-nachos",
   "extra-mango",
   "extra-aro",
-  "extra-papas",
 ] as const;
 
 /** Extras vinculables por categoría (IDs del seed/fallback) */
 export const LINKED_EXTRA_IDS: Record<string, string[]> = {
-  alitas: ["extra-gratinado", "extra-ranch", "extra-bbq", "extra-papas"],
-  boneless: ["extra-gratinado", "extra-ranch", "extra-bbq", "extra-papas"],
+  alitas: ["extra-gratinado", "extra-ranch", "extra-bbq"],
+  boneless: ["extra-gratinado", "extra-ranch", "extra-bbq"],
   hamburguesas: [...ALL_EXTRA_IDS],
   "hot-dogs": [...ALL_EXTRA_IDS],
   papas: ["extra-gratinado", "extra-animal", "extra-ranch"],
@@ -206,12 +241,116 @@ export function dogsForChoice(
     .filter((i): i is MenuItem => Boolean(i));
 }
 
+function isManagedFryExtra(id: string): boolean {
+  return MANAGED_FRY_EXTRA_IDS.has(menuItemIdKey(id));
+}
+
+/** Low carb, alitas y boneless no traen papas: se les puede agregar francesa o curly. */
+export function itemCanAddPlainFries(item: {
+  _id: string;
+  category: MenuCategory;
+  badge?: string;
+}): boolean {
+  if (itemIncludesPapas(item)) return false;
+  if (item.category === "alitas" || item.category === "boneless") return true;
+  return PLAIN_FRIES_ITEM_IDS.has(menuItemIdKey(item._id));
+}
+
+export function isHiddenFromMenu(id: string): boolean {
+  return MANAGED_FRY_EXTRA_IDS.has(menuItemIdKey(id));
+}
+
+/** Francesa y curly son alternativas: elegir una quita la otra. */
+export function opposingPlainFriesExtraId(id: string): string | undefined {
+  const key = menuItemIdKey(id);
+  if (key === PAPAS_FRANCESA_EXTRA_ID) return PAPAS_CURLY_EXTRA_ID;
+  if (key === PAPAS_CURLY_EXTRA_ID) return PAPAS_FRANCESA_EXTRA_ID;
+  return undefined;
+}
+
+export function ensurePapasSideExtras(items: MenuItem[]): MenuItem[] {
+  const byId = new Map(items.map((item) => [menuItemIdKey(item._id), item]));
+  const missing = PAPAS_SIDE_EXTRA_DEFS.filter((def) => !byId.has(def.id));
+  if (!missing.length) return items;
+
+  return [
+    ...items,
+    ...missing.map((def) => {
+      const source = byId.get(def.imageFromId);
+      const extra: MenuItem = {
+        _id: def.id,
+        name: def.name,
+        slug: def.id,
+        description: def.description,
+        price: def.price,
+        category: "extras",
+        featured: false,
+        order: 99,
+        imageUrl: source?.imageUrl,
+      };
+      return extra;
+    }),
+  ];
+}
+
+function fryExtraFromCatalog(
+  allItems: MenuItem[],
+  id: string,
+  fallback: { name: string; price: number },
+): MenuExtra {
+  const found = allItems.find((extra) => menuItemIdKey(extra._id) === id);
+  return {
+    _id: found?._id ?? id,
+    name: fallback.name,
+    price: fallback.price,
+  };
+}
+
 export function resolveLinkedExtras(
   item: MenuItem,
   allItems: MenuItem[],
 ): MenuExtra[] {
-  if (item.linkedExtras?.length) return item.linkedExtras;
+  const base = item.linkedExtras?.length
+    ? item.linkedExtras
+    : extrasForCategory(item, allItems);
 
+  const withoutFryExtras = base.filter((extra) => !isManagedFryExtra(extra._id));
+  const fryExtras: MenuExtra[] = [];
+
+  if (itemCanAddPlainFries(item)) {
+    fryExtras.push(
+      fryExtraFromCatalog(allItems, PAPAS_FRANCESA_EXTRA_ID, {
+        name: "Papas a la Francesa",
+        price: 15,
+      }),
+      fryExtraFromCatalog(allItems, PAPAS_CURLY_EXTRA_ID, {
+        name: "Papas Curly",
+        price: 15,
+      }),
+    );
+  } else if (itemIncludesPapas(item)) {
+    fryExtras.push(
+      fryExtraFromCatalog(allItems, PAPAS_CURLY_EXTRA_ID, {
+        name: "Papas Curly",
+        price: 15,
+      }),
+    );
+    const upgrade = allItems.find(
+      (extra) => menuItemIdKey(extra._id) === PAPAS_UPGRADE_EXTRA_ID,
+    );
+    if (upgrade) {
+      fryExtras.push({
+        _id: upgrade._id,
+        name: upgrade.name,
+        price: upgrade.price,
+      });
+    }
+  }
+
+  return [...fryExtras, ...withoutFryExtras];
+}
+
+function extrasForCategory(item: MenuItem, allItems: MenuItem[]): MenuExtra[] {
   const extraIds = LINKED_EXTRA_IDS[item.category];
   if (!extraIds?.length) return [];
 

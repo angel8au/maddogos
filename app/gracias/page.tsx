@@ -2,8 +2,15 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { GraciasRedirect } from "@/components/gracias-redirect";
 
+const title = "Gracias | Mad Dogos Culiacán";
+const description = "Te estamos redirigiendo a WhatsApp para completar tu pedido.";
+
 export const metadata: Metadata = {
+  title: { absolute: title },
+  description,
   robots: { index: false, follow: false },
+  openGraph: { title, description },
+  twitter: { title, description },
 };
 
 export default function GraciasPage() {

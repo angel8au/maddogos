@@ -9,17 +9,20 @@ import { EVENT_INCLUDES, EVENT_TYPES } from "@/lib/site-info";
 import { buildGraciasUrl } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
 
+const title = "Renta de carrito para eventos | Mad Dogos Culiacán";
+const description =
+  "Renta la carreta de hot dogs de Mad Dogos para bodas, XV años, fiestas y eventos corporativos en Culiacán.";
+
 export const metadata: Metadata = {
-  title: "Eventos",
-  description:
-    "Renta el carrito de Mad Dogos para tu evento en Culiacán. Bodas, XV años, fiestas y eventos corporativos.",
+  title: { absolute: title },
+  description,
   alternates: { canonical: "/eventos" },
   openGraph: {
     url: "/eventos",
-    title: "Eventos | Mad Dogos Hotdogs Culiacán",
-    description:
-      "Renta el carrito de Mad Dogos para tu evento en Culiacán. Bodas, XV años, fiestas y eventos corporativos.",
+    title,
+    description,
   },
+  twitter: { title, description },
 };
 
 export default function EventosPage() {

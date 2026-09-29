@@ -23,6 +23,8 @@ import {
   dogsForChoice,
   filterIncludedDrinks,
   getCustomizationRules,
+  menuItemIdKey,
+  opposingPlainFriesExtraId,
   resolveLinkedExtras,
 } from "@/lib/menu-config";
 import { formatMXN } from "@/lib/whatsapp";
@@ -395,7 +397,16 @@ export function ProductDetailSheet({
           allItems={allItems}
           quantities={extraQuantities}
           onQuantityChange={(extraId, qty) =>
-            setExtraQuantities((prev) => ({ ...prev, [extraId]: qty }))
+            setExtraQuantities((prev) => {
+              const next = { ...prev, [extraId]: qty };
+              if (qty <= 0) return next;
+              const oppositeKey = opposingPlainFriesExtraId(extraId);
+              if (!oppositeKey) return next;
+              for (const extra of availableExtras) {
+                if (menuItemIdKey(extra._id) === oppositeKey) next[extra._id] = 0;
+              }
+              return next;
+            })
           }
         />
 

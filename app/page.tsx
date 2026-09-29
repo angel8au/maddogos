@@ -17,9 +17,9 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
   openGraph: {
     url: "/",
-    title: "Mad Dogos | Hot Dogs y Hamburguesas a Domicilio en Culiacán",
+    title: "Mad Dogos | Hamburguesas y Hot Dogs a Domicilio en Culiacán",
     description:
-      "Pide tus hot dogs, hamburguesas, alitas y boneless a domicilio en Culiacán. Mad Dogos Hotdogs — entrega rápida directo por WhatsApp.",
+      "Pide hamburguesas, hot dogs, alitas y boneless a domicilio en Culiacán. Mad Dogos Hotdogs — entrega rápida directo por WhatsApp.",
   },
 };
 

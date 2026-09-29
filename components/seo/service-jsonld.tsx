@@ -13,7 +13,7 @@ export function ServiceJsonLd() {
     description:
       "Llevamos el carrito de Mad Dogos a bodas, XV años, fiestas y eventos corporativos en Culiacán.",
     url: `${SITE_URL}/eventos`,
-    serviceType: "Food cart rental for events",
+    serviceType: "Renta de carrito de hot dogs para eventos",
     areaServed: {
       "@type": "City",
       name: location.city,

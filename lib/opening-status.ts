@@ -319,14 +319,23 @@ export function getSiteOpenStatus(now: Date = new Date()): SiteOpenStatus {
 }
 
 export function openingHoursToSchema(location: Location) {
-  return location.hours
-    .filter((row): row is Extract<DaySchedule, { open: string; close: string }> => !row.closed)
-    .map((row) => ({
+  return location.hours.map((row) => {
+    if (row.closed) {
+      return {
+        "@type": "OpeningHoursSpecification" as const,
+        dayOfWeek: SCHEMA_DAY[row.day],
+        opens: "00:00",
+        closes: "00:00",
+      };
+    }
+
+    return {
       "@type": "OpeningHoursSpecification" as const,
       dayOfWeek: SCHEMA_DAY[row.day],
       opens: row.open,
       closes: row.close,
-    }));
+    };
+  });
 }
 
 export { WEEKDAY_LABELS };

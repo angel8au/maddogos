@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "Mad Dogos Hotdogs",
     short_name: "Mad Dogos",
     description:
-      "Hot dogs, hamburguesas, alitas y boneless a domicilio en Culiacán. Pide directo por WhatsApp.",
+      "Hamburguesas, hot dogs, alitas y boneless a domicilio en Culiacán. Pide directo por WhatsApp.",
     start_url: "/",
     display: "standalone",
     background_color: "#ffffff",

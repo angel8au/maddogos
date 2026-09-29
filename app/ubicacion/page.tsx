@@ -12,17 +12,20 @@ import { cn } from "@/lib/utils";
 
 const location = LOCATIONS[0];
 
+const title = "Ubicación y horario | Mad Dogos Culiacán";
+const description =
+  "Visítanos en Francisco Zarco 510-528, Antonio Rosales, Culiacán. Lun y mié a dom, 5:00 PM a 11:00 PM. Martes cerrado.";
+
 export const metadata: Metadata = {
-  title: "Ubicación",
-  description:
-    "Visítanos en Mad Dogos Hotdogs. Francisco Zarco 510-528, Antonio Rosales, Culiacán. Horario y mapa.",
+  title: { absolute: title },
+  description,
   alternates: { canonical: "/ubicacion" },
   openGraph: {
     url: "/ubicacion",
-    title: "Ubicación | Mad Dogos Hotdogs Culiacán",
-    description:
-      "Visítanos en Mad Dogos Hotdogs. Francisco Zarco 510-528, Antonio Rosales, Culiacán. Horario y mapa.",
+    title,
+    description,
   },
+  twitter: { title, description },
 };
 
 export default function UbicacionPage() {

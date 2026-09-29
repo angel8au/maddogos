@@ -5,6 +5,7 @@ import {
   DEFAULT_SAUCE_OPTIONS,
   getCustomizationRules,
   includedDrinkCountForFallback,
+  ensurePapasSideExtras,
   resolveLinkedExtras,
   sauceRequiredForFallback,
 } from "@/lib/menu-config";
@@ -89,7 +90,7 @@ function mapMenuItem(item: SanityMenuItem): MenuItem {
     _id: item._id,
     name: item.name,
     slug,
-    description: enhanceMenuDescription(item._id, category, item.description),
+    description: enhanceMenuDescription(item._id, category, item.description, item.badge),
     price: item.price,
     category,
     badge: item.badge,
@@ -138,7 +139,7 @@ export async function getMenuItems(): Promise<MenuItem[]> {
       return enrichFallbackItems(fallbackMenuItems);
     }
 
-    const mapped = items.map((item) => mapMenuItem(item));
+    const mapped = ensurePapasSideExtras(items.map((item) => mapMenuItem(item)));
     return mapped.map((item) => ({
       ...item,
       imageUrl: item.imageUrl ?? getMenuImageUrl(item.category, item.slug),
@@ -153,7 +154,8 @@ export async function getMenuItems(): Promise<MenuItem[]> {
 }
 
 function enrichFallbackItems(items: MenuItem[]): MenuItem[] {
-  return items.map((item) => {
+  const catalog = ensurePapasSideExtras(items);
+  return catalog.map((item) => {
     const ingredients = resolveItemIngredients(item);
     const base = { ...item, ingredients };
     const rules = getCustomizationRules(base);
@@ -171,7 +173,7 @@ function enrichFallbackItems(items: MenuItem[]): MenuItem[] {
       sauceRequired: rules.sauceCount > 0,
       includedDrinkCount: rules.includedDrinkCount,
     };
-    enriched.linkedExtras = resolveLinkedExtras(enriched, items);
+    enriched.linkedExtras = resolveLinkedExtras(enriched, catalog);
     return enriched;
   });
 }

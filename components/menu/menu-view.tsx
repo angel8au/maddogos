@@ -9,6 +9,7 @@ import {
 import { MenuItemsList } from "@/components/menu/menu-items-list";
 import { ProductDetailSheet } from "@/components/menu/product-detail-sheet";
 import { categoryLabels, categoryOrder } from "@/lib/menu-data";
+import { isHiddenFromMenu } from "@/lib/menu-config";
 import { track } from "@/lib/analytics";
 import type { MenuCategory, MenuItem } from "@/lib/types";
 
@@ -37,9 +38,16 @@ export function MenuView({
     [items],
   );
 
-  const availableCategories = useMemo(
-    () => categoryOrder.filter((cat) => items.some((item) => item.category === cat)),
+  const listedItems = useMemo(
+    () =>
+      items.filter((item) => !isHiddenFromMenu(item._id)),
     [items],
+  );
+
+  const availableCategories = useMemo(
+    () =>
+      categoryOrder.filter((cat) => listedItems.some((item) => item.category === cat)),
+    [listedItems],
   );
 
   const [activeCategory, setActiveCategory] = useState<MenuCategory>(
@@ -138,7 +146,7 @@ export function MenuView({
   if (!showCategorySections) {
     return (
       <>
-        <MenuItemsList items={items} onOpenDetail={openDetail} />
+        <MenuItemsList items={listedItems} onOpenDetail={openDetail} />
         {detailSheet}
       </>
     );
@@ -162,7 +170,7 @@ export function MenuView({
 
       <div className="mt-6 flex flex-col gap-10 md:mt-8">
         {availableCategories.map((category) => {
-          const categoryItems = items.filter((item) => item.category === category);
+          const categoryItems = listedItems.filter((item) => item.category === category);
           if (!categoryItems.length) return null;
 
           return (

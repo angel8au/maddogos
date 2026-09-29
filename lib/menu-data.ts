@@ -193,7 +193,9 @@ const items: SeedItem[] = [
   { id: "extra-nachos", name: "Queso de Nachos", description: "Extra para acompañar tu orden", price: 15, category: "extras" },
   { id: "extra-mango", name: "Salsa Mango Habanero", description: "Extra para acompañar tu orden", price: 15, category: "extras" },
   { id: "extra-aro", name: "Aro de Cebolla 1 pza", description: "Extra para acompañar tu orden", price: 15, category: "extras" },
-  { id: "extra-papas", name: "Papas Salvajes o Animal Style", description: "Extra para acompañar tu orden", price: 65, category: "extras" },
+  { id: "extra-papas", name: "Papas Salvajes o Animal Style", description: "Cambia las papas incluidas de tu platillo por Papas Salvajes o Animal Style", price: 65, category: "extras" },
+  { id: "extra-francesa", name: "Papas a la Francesa", description: "Agrega papas a la francesa a tu platillo", price: 15, category: "extras" },
+  { id: "extra-curly", name: "Papas Curly", description: "Papas curly. En platillos con papas, cambia las incluidas.", price: 15, category: "extras" },
 
   // Bebidas
   { id: "bebida-jazmin", name: "Té", description: "Agua fresca 500ml", price: 25, category: "bebidas" },
@@ -240,7 +242,7 @@ export const menuSeed = items.map((item) => {
   return {
     ...item,
     order,
-    description: enhanceMenuDescription(item.id, item.category, item.description),
+    description: enhanceMenuDescription(item.id, item.category, item.description, item.badge),
   };
 });
 

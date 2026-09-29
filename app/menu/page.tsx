@@ -7,17 +7,20 @@ import { getMenuPageData } from "@/lib/queries";
 
 export const revalidate = 60;
 
+const title = "Menú de hamburguesas y hot dogs | Mad Dogos Culiacán";
+const description =
+  "Menú completo de Mad Dogos en Culiacán: hamburguesas, hot dogs, alitas, boneless, conos, charolas y más.";
+
 export const metadata: Metadata = {
-  title: "Menú",
-  description:
-    "Menú completo de Mad Dogos: hot dogs, hamburguesas, alitas, boneless, conos, charolas y más en Culiacán.",
+  title: { absolute: title },
+  description,
   alternates: { canonical: "/menu" },
   openGraph: {
     url: "/menu",
-    title: "Menú | Mad Dogos Hotdogs Culiacán",
-    description:
-      "Menú completo de Mad Dogos: hot dogs, hamburguesas, alitas, boneless, conos, charolas y más en Culiacán.",
+    title,
+    description,
   },
+  twitter: { title, description },
 };
 
 export default async function MenuPage() {

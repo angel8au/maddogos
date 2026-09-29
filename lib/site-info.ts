@@ -81,8 +81,19 @@ export const LOCATIONS: Location[] = [
 export const BUSINESS_ADDRESS = LOCATIONS[0];
 
 export const SOCIAL_LINKS = {
-  instagram: "https://www.instagram.com/MadDogosHotdogs/",
-  facebook: "https://www.facebook.com/MadDogosHotdogs/",
+  instagram: "https://www.instagram.com/maddogos_hotdogs",
+  facebook: "https://www.facebook.com/maddogoshotdogs/",
+  tiktok: "https://www.tiktok.com/@maddogoshotdogs",
+} as const;
+
+/** Canonical Google place. Same CID as GOOGLE_PLACE_FEATURE_ID. No tracking params. */
+export const GOOGLE_PLACE_URL =
+  "https://www.google.com/maps/place/Mad+Dogos+Street+Food/@24.797685,-107.3868872,17z/data=!3m1!4b1!4m6!3m5!1s0x86bcd77054d0d361:0x9dc6a38cea4b74e6!8m2!3d24.797685!4d-107.3868872";
+
+/** Pin from the Google Maps place URL. Five or more decimal places, as Google asks. */
+export const BUSINESS_GEO = {
+  latitude: 24.797685,
+  longitude: -107.3868872,
 } as const;
 
 export const OPENING_HOURS_SUMMARY =

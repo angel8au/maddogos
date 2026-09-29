@@ -28,9 +28,9 @@ const inter = Inter({
 });
 
 const defaultTitle =
-  "Mad Dogos | Hot Dogs y Hamburguesas a Domicilio en Culiacán";
+  "Mad Dogos | Hamburguesas y Hot Dogs a Domicilio en Culiacán";
 const defaultDescription =
-  "Pide tus hot dogs, hamburguesas, alitas y boneless a domicilio en Culiacán. Mad Dogos Hotdogs — entrega rápida directo por WhatsApp.";
+  "Pide hamburguesas, hot dogs, alitas y boneless a domicilio en Culiacán. Mad Dogos Hotdogs — entrega rápida directo por WhatsApp.";
 
 export const metadata: Metadata = {
   applicationName: "Mad Dogos",
