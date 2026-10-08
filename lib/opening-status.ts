@@ -319,22 +319,17 @@ export function getSiteOpenStatus(now: Date = new Date()): SiteOpenStatus {
 }
 
 export function openingHoursToSchema(location: Location) {
-  return location.hours.map((row) => {
-    if (row.closed) {
-      return {
+  return location.hours.flatMap((row) => {
+    if (row.closed) return [];
+
+    return [
+      {
         "@type": "OpeningHoursSpecification" as const,
         dayOfWeek: SCHEMA_DAY[row.day],
-        opens: "00:00",
-        closes: "00:00",
-      };
-    }
-
-    return {
-      "@type": "OpeningHoursSpecification" as const,
-      dayOfWeek: SCHEMA_DAY[row.day],
-      opens: row.open,
-      closes: row.close,
-    };
+        opens: row.open,
+        closes: row.close,
+      },
+    ];
   });
 }
 

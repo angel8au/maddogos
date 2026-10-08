@@ -14,7 +14,7 @@ const location = LOCATIONS[0];
 
 const title = "Ubicación y horario | Mad Dogos Culiacán";
 const description =
-  "Visítanos en Francisco Zarco 510-528, Antonio Rosales, Culiacán. Lun y mié a dom, 5:00 PM a 11:00 PM. Martes cerrado.";
+  "Visítanos en Francisco Zarco 510-528, Antonio Rosales, Culiacán. Jueves a domingo, 5:00 PM a 11:00 PM. Lunes a miércoles cerrado.";
 
 export const metadata: Metadata = {
   title: { absolute: title },

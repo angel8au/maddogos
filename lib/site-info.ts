@@ -52,9 +52,9 @@ export type Location = {
 };
 
 const ANTONIO_ROSALES_HOURS: DaySchedule[] = [
-  { day: "monday", open: "17:00", close: "23:00" },
+  { day: "monday", closed: true },
   { day: "tuesday", closed: true },
-  { day: "wednesday", open: "17:00", close: "23:00" },
+  { day: "wednesday", closed: true },
   { day: "thursday", open: "17:00", close: "23:00" },
   { day: "friday", open: "17:00", close: "23:00" },
   { day: "saturday", open: "17:00", close: "23:00" },
@@ -97,7 +97,7 @@ export const BUSINESS_GEO = {
 } as const;
 
 export const OPENING_HOURS_SUMMARY =
-  "Lun, Mié-Dom 5:00 PM – 11:00 PM · Mar cerrado";
+  "Jue–Dom 5:00 PM – 11:00 PM · Lun–Mié cerrado";
 
 /** Google Maps of the primary Place used for reviews. */
 export const GOOGLE_MAPS_URL = LOCATIONS[0].mapsUrl;
